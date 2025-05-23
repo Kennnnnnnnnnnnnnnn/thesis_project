@@ -476,40 +476,53 @@ export default {
   }
 };
 </script>
-
 <style scoped>
 .users-admin {
-  padding: 20px;
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ffe680; /* Light yellow border */
+}
+
+.header h1 {
+  color: #8a6d0b; /* Dark yellow text */
+  font-size: 1.75rem;
+  margin: 0;
 }
 
 .controls {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
+  align-items: center;
 }
 
 .add-user-btn {
-  background-color: #4CAF50;
-  color: white;
+  background-color: #ffd700; /* Gold yellow */
+  color: #5d4a00; /* Dark yellow text */
   border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
 .add-user-btn:hover {
-  background-color: #45a049;
+  background-color: #e6c200; /* Darker gold yellow */
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
 }
 
 .search-box {
@@ -517,97 +530,141 @@ export default {
 }
 
 .search-box input {
-  padding: 8px 30px 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem 2rem 0.75rem 1rem;
+  border: 1px solid #ffe680; /* Light yellow border */
+  border-radius: 0.5rem;
   width: 250px;
+  background-color: #fffae6; /* Light yellow background */
+  color: #5d4a00; /* Dark yellow text */
+  transition: all 0.2s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #ffd700; /* Gold yellow */
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2); /* Gold yellow shadow */
 }
 
 .search-box i {
   position: absolute;
-  right: 10px;
+  right: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #999;
+  color: #b38b00; /* Medium yellow text */
 }
 
 .filters {
   display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .filters select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem;
+  border: 1px solid #ffe680; /* Light yellow border */
+  border-radius: 0.5rem;
+  background-color: #fffae6; /* Light yellow background */
+  color: #5d4a00; /* Dark yellow text */
+  cursor: pointer;
+  min-width: 180px;
 }
 
 .reset-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  padding: 8px 15px;
-  border-radius: 4px;
+  background-color: #fff3cd; /* Light yellow */
+  border: 1px solid #ffe680; /* Light yellow border */
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
+  color: #856404; /* Dark yellow text */
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .reset-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #ffe680; /* Medium yellow */
 }
 
 .user-table-container {
   overflow-x: auto;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
+  border: 1px solid #ffe680; /* Light yellow border */
 }
 
 .user-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.95rem;
 }
 
 .user-table th, .user-table td {
-  padding: 12px 15px;
+  padding: 1rem 1.25rem;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ffe680; /* Light yellow border */
 }
 
 .user-table th {
-  background-color: #f5f5f5;
-  cursor: pointer;
+  background-color: #fffae6; /* Light yellow background */
+  color: #8a6d0b; /* Dark yellow text */
+  font-weight: 600;
   position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .user-table th:hover {
-  background-color: #e9e9e9;
+  background-color: #ffe680; /* Medium yellow */
+}
+
+.user-table tr:last-child td {
+  border-bottom: none;
 }
 
 .user-table tr:hover {
-  background-color: #f5f5f5;
+  background-color: #fffae6; /* Light yellow background */
 }
 
 .user-avatar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 }
 
 .user-avatar img {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid #ffe680; /* Light yellow border */
 }
 
 .role-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.role-badge:before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
 }
 
 .role-badge.admin {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: #fff3cd; /* Light yellow */
+  color: #856404; /* Dark yellow text */
+}
+
+.role-badge.admin:before {
+  background-color: #ffd700; /* Gold yellow */
 }
 
 .role-badge.editor {
@@ -615,9 +672,17 @@ export default {
   color: #2e7d32;
 }
 
+.role-badge.editor:before {
+  background-color: #4CAF50;
+}
+
 .role-badge.author {
   background-color: #e3f2fd;
   color: #1565c0;
+}
+
+.role-badge.author:before {
+  background-color: #2196F3;
 }
 
 .role-badge.subscriber {
@@ -625,42 +690,76 @@ export default {
   color: #6a1b9a;
 }
 
+.role-badge.subscriber:before {
+  background-color: #9C27B0;
+}
+
 .status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: capitalize;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-badge:before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
 }
 
 .status-badge.active {
-  background-color: #e8f5e9;
-  color: #2e7d32;
+  background-color: #ecfccb;
+  color: #3f6212;
+}
+
+.status-badge.active:before {
+  background-color: #84cc16;
 }
 
 .status-badge.inactive {
-  background-color: #fff8e1;
-  color: #ff8f00;
+  background-color: #fff3cd; /* Light yellow */
+  color: #92400e;
+}
+
+.status-badge.inactive:before {
+  background-color: #f59e0b;
 }
 
 .status-badge.suspended {
-  background-color: #ffebee;
-  color: #c62828;
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.suspended:before {
+  background-color: #ef4444;
 }
 
 .actions {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .actions button {
   border: none;
-  padding: 6px 10px;
-  border-radius: 4px;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
+}
+
+.actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .edit-btn {
@@ -705,90 +804,144 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  margin-top: 20px;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  color: #b38b00; /* Medium yellow text */
 }
 
 .pagination button {
-  padding: 8px 15px;
-  border: 1px solid #ddd;
-  background-color: white;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ffe680; /* Light yellow border */
+  background-color: #fffae6; /* Light yellow background */
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0.5rem;
+  color: #8a6d0b; /* Dark yellow text */
+  transition: all 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #ffe680; /* Medium yellow */
 }
 
 .pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background-color: #f5f5f5;
 }
 
 .pagination select {
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.5rem;
+  border: 1px solid #ffe680; /* Light yellow border */
+  border-radius: 0.5rem;
+  background-color: #fffae6; /* Light yellow background */
+  color: #5d4a00; /* Dark yellow text */
 }
 
 .loading-spinner {
   text-align: center;
-  padding: 20px;
-  color: #666;
+  padding: 2rem;
+  color: #b38b00; /* Medium yellow text */
 }
 
 .no-results {
   text-align: center;
-  padding: 20px;
-  color: #666;
+  padding: 2rem;
+  color: #b38b00; /* Medium yellow text */
   font-style: italic;
+  background-color: #fffae6; /* Light yellow background */
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+  border: 1px dashed #ffe680; /* Light yellow border */
 }
 
-/* Modal styles (you might want to move these to your Modal component) */
+/* Modal styles */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem;
+  border: 1px solid #ffe680; /* Light yellow border */
+  border-radius: 0.5rem;
+  background-color: #fffae6; /* Light yellow background */
+  color: #5d4a00; /* Dark yellow text */
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .cancel-btn {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  padding: 8px 15px;
-  border-radius: 4px;
+  background-color: #fff3cd; /* Light yellow */
+  border: 1px solid #ffe680; /* Light yellow border */
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
+  color: #856404; /* Dark yellow text */
+  font-weight: 500;
 }
 
 .cancel-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #ffe680; /* Medium yellow */
 }
 
 .save-btn {
-  background-color: #4CAF50;
-  color: white;
+  background-color: #ffd700; /* Gold yellow */
+  color: #5d4a00; /* Dark yellow text */
   border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .save-btn:hover {
-  background-color: #45a049;
+  background-color: #e6c200; /* Darker gold yellow */
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .search-box input {
+    width: 100%;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+  
+  .filters select {
+    width: 100%;
+  }
+  
+  .actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+  }
 }
 </style>

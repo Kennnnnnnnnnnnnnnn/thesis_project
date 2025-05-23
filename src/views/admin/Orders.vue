@@ -287,10 +287,10 @@ methods: {
   }
 };
 </script>
-
 <style scoped>
 .admin-orders {
   padding: 20px;
+
 }
 
 .header {
@@ -300,13 +300,18 @@ methods: {
   margin-bottom: 20px;
 }
 
+.header h2 {
+  color: #8a6d0b; /* Dark yellow text */
+}
+
 .order-filters {
   display: flex;
   gap: 20px;
   margin-bottom: 20px;
   padding: 15px;
-  background: #f5f5f5;
+  background: #fffae6; /* Light yellow background */
   border-radius: 5px;
+  border: 1px solid #ffe680; /* Light yellow border */
 }
 
 .filter-group {
@@ -317,38 +322,50 @@ methods: {
 
 .filter-group label {
   font-weight: 500;
+  color: #b38b00; /* Medium yellow text */
+}
+
+select, input {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ffe680; /* Light yellow border */
+  background-color: #fffae6; /* Light yellow background */
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
+  background-color: white;
 }
 
 th, td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ffe680; /* Light yellow border */
 }
 
 th {
-  background-color: #f5f5f5;
+  background-color: #fffae6; /* Light yellow background */
   font-weight: 600;
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .status-badge {
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .processing {
-  background-color: #fff3cd;
+  background-color: #fff3cd; /* Yellow processing status */
   color: #856404;
 }
 
 .shipped {
-  background-color: #cce5ff;
-  color: #004085;
+  background-color: #ffe680; /* Yellow shipped status */
+  color: #5d4a00;
 }
 
 .delivered {
@@ -366,16 +383,27 @@ th {
   border-radius: 4px;
   margin-right: 5px;
   cursor: pointer;
+  border: none;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .btn-view {
-  background-color: #e2e3e5;
-  color: #383d41;
+  background-color: #ffe680; /* Yellow view button */
+  color: #5d4a00;
+}
+
+.btn-view:hover {
+  background-color: #ffd700; /* Gold yellow on hover */
 }
 
 .btn-edit {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  background-color: #fff3cd; /* Light yellow edit button */
+  color: #856404;
+}
+
+.btn-edit:hover {
+  background-color: #ffe680; /* Medium yellow on hover */
 }
 
 .modal-overlay {
@@ -392,7 +420,7 @@ th {
 }
 
 .modal-content {
-  background: white;
+  background: #fffae6; /* Light yellow background */
   padding: 25px;
   border-radius: 8px;
   width: 80%;
@@ -400,6 +428,11 @@ th {
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  border: 1px solid #ffe680; /* Light yellow border */
+}
+
+.modal-content h3 {
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .btn-close {
@@ -410,6 +443,7 @@ th {
   border: none;
   font-size: 1.2rem;
   cursor: pointer;
+  color: #b38b00; /* Medium yellow text */
 }
 
 .order-details {
@@ -424,6 +458,11 @@ th {
 .detail-label {
   font-weight: 500;
   width: 120px;
+  color: #b38b00; /* Medium yellow text */
+}
+
+.detail-value {
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .order-items {
@@ -433,7 +472,7 @@ th {
 .item-row {
   display: flex;
   padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #ffe680; /* Light yellow border */
   align-items: center;
 }
 
@@ -445,21 +484,24 @@ th {
 .item-image img {
   width: 100%;
   height: auto;
+  border-radius: 4px;
 }
 
 .item-info {
   flex-grow: 1;
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .item-total {
   width: 100px;
   text-align: right;
   font-weight: 500;
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .order-summary {
   margin-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #ffe680; /* Light yellow border */
   padding-top: 20px;
 }
 
@@ -467,22 +509,48 @@ th {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .summary-row.total {
   font-weight: bold;
   font-size: 1.1rem;
+  color: #5d4a00; /* Darker yellow for total */
 }
 
 .empty-state {
   text-align: center;
   padding: 50px;
-  color: #666;
+  color: #b38b00; /* Medium yellow text */
+  background-color: #fffae6; /* Light yellow background */
+  border-radius: 8px;
+  border: 1px dashed #ffe680; /* Light yellow dashed border */
 }
 
 .empty-state i {
   font-size: 3rem;
   margin-bottom: 15px;
-  color: #ccc;
+  color: #ffe680; /* Light yellow icon */
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background-color: #ffd700; /* Gold yellow */
+  color: #5d4a00;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #e6c200; /* Darker gold yellow */
 }
 </style>

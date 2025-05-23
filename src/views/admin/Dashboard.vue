@@ -237,23 +237,23 @@ const chartData = {
   }
 };
 </script>
-
 <style scoped>
 .dashboard {
   padding: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+
 }
 
 .dashboard-header h1 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #8a6d0b; /* Dark yellow text */
   margin-bottom: 0.25rem;
 }
 
 .subtitle {
-  color: #6b7280;
+  color: #b38b00; /* Medium yellow text */
   margin-bottom: 1.5rem;
 }
 
@@ -266,19 +266,20 @@ const chartData = {
 }
 
 .metric-card {
-  background: white;
+  background: #fffae6; /* Light yellow card background */
   border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
   display: flex;
   align-items: center;
   gap: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #ffe680; /* Light yellow border */
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(139, 117, 0, 0.15); /* Stronger yellow shadow */
 }
 
 .metric-icon {
@@ -289,11 +290,13 @@ const chartData = {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background-color: #ffd700; /* Gold yellow background */
 }
 
 .metric-icon svg {
   width: 28px;
   height: 28px;
+  color: white;
 }
 
 .metric-info {
@@ -302,7 +305,7 @@ const chartData = {
 
 .metric-info h3 {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: #b38b00; /* Medium yellow text */
   margin-bottom: 0.25rem;
   font-weight: 500;
 }
@@ -310,7 +313,7 @@ const chartData = {
 .metric-info .value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #111827;
+  color: #8a6d0b; /* Dark yellow text */
   margin-bottom: 0.25rem;
 }
 
@@ -322,20 +325,21 @@ const chartData = {
 }
 
 .metric-info .positive {
-  color: #16a34a;
+  color: #689f38; /* Green with yellow undertone */
 }
 
 .metric-info .negative {
-  color: #dc2626;
+  color: #d32f2f; /* Red with yellow undertone */
 }
 
 /* Chart Card */
 .chart-card {
-  background: white;
+  background: #fffae6; /* Light yellow card background */
   border-radius: 0.75rem;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
   margin-bottom: 2rem;
+  border: 1px solid #ffe680; /* Light yellow border */
 }
 
 .chart-header {
@@ -348,7 +352,7 @@ const chartData = {
 .chart-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: #8a6d0b; /* Dark yellow text */
 }
 
 .chart-controls {
@@ -360,9 +364,9 @@ const chartData = {
 .time-select {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  background-color: white;
-  color: #374151;
+  border: 1px solid #ffe680; /* Light yellow border */
+  background-color: #fffae6; /* Light yellow background */
+  color: #8a6d0b; /* Dark yellow text */
   font-size: 0.875rem;
   cursor: pointer;
 }
@@ -370,9 +374,9 @@ const chartData = {
 .refresh-btn {
   padding: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid #e5e7eb;
-  background-color: white;
-  color: #4b5563;
+  border: 1px solid #ffe680; /* Light yellow border */
+  background-color: #fffae6; /* Light yellow background */
+  color: #b38b00; /* Medium yellow text */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -381,8 +385,8 @@ const chartData = {
 }
 
 .refresh-btn:hover {
-  background-color: #f9fafb;
-  color: #111827;
+  background-color: #ffd700; /* Gold yellow on hover */
+  color: white;
 }
 
 .refresh-btn svg {

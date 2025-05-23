@@ -190,24 +190,28 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 .contact-page {
   padding: 40px 20px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #fff;
+  font-family: 'Poppins', sans-serif;
 }
 
 .contact-page h1 {
   text-align: center;
-  color: #2c3e50;
+  color: #333;
   margin-bottom: 10px;
+  font-size: 2.5rem;
+  font-weight: 600;
 }
 
 .subtitle {
   text-align: center;
-  color: #7f8c8d;
+  color: #666;
   margin-bottom: 40px;
+  font-size: 1.1rem;
 }
 
 .contact-container {
@@ -222,15 +226,29 @@ export default {
 }
 
 .contact-info {
-  background: #f8f9fa;
+  background: #FFF9E6;
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-radius: 15px;
+  border: 1px solid #FFEC8B;
 }
 
 .contact-info h2 {
-  color: #2c3e50;
+  color: #333;
   margin-bottom: 20px;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.contact-info h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: #FFD700;
+  border-radius: 3px;
 }
 
 .info-item {
@@ -241,21 +259,23 @@ export default {
 
 .info-item i {
   margin-right: 15px;
-  color: #3498db;
+  color: #FF8C00;
   width: 20px;
   text-align: center;
+  font-size: 1.2rem;
 }
 
 /* Social Media Styles */
 .social-media {
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #FFEC8B;
 }
 
 .social-media h3 {
-  color: #2c3e50;
+  color: #333;
   margin-bottom: 15px;
+  font-weight: 500;
 }
 
 .social-icons {
@@ -264,20 +284,22 @@ export default {
 }
 
 .social-icon {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 18px;
-  transition: transform 0.3s;
+  transition: all 0.3s;
   text-decoration: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .social-icon:hover {
-  transform: scale(1.1);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
 .social-icon i {
@@ -292,13 +314,27 @@ export default {
 .contact-form {
   background: white;
   padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-radius: 15px;
+  border: 1px solid #FFEC8B;
 }
 
 .contact-form h2 {
-  color: #2c3e50;
+  color: #333;
   margin-bottom: 20px;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.contact-form h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50px;
+  height: 3px;
+  background: #FFD700;
+  border-radius: 3px;
 }
 
 .form-group {
@@ -309,21 +345,32 @@ export default {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #2c3e50;
+  color: #555;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 12px 15px;
+  border: 1px solid #FFEC8B;
+  border-radius: 25px;
+  font-size: 1rem;
+  background-color: #FFFDF5;
+  transition: all 0.3s;
 }
 
 .form-group textarea {
   min-height: 120px;
   resize: vertical;
+  border-radius: 15px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #FFA500;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+  background-color: white;
 }
 
 .error {
@@ -332,43 +379,62 @@ export default {
 
 .error-message {
   color: #e74c3c;
-  font-size: 14px;
+  font-size: 0.85rem;
   margin-top: 5px;
   display: block;
 }
 
 button {
-  background: #3498db;
-  color: white;
+  background: #FFD700;
+  color: #333;
   border: none;
   padding: 12px 24px;
-  border-radius: 4px;
+  border-radius: 25px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  width: 100%;
 }
 
 button:hover {
-  background: #2980b9;
+  background: #FFA500;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 button:disabled {
-  background: #95a5a6;
+  background: #ccc;
+  color: #666;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .success-message {
   margin-top: 20px;
-  padding: 10px;
-  background: #2ecc71;
+  padding: 15px;
+  background: #27ae60;
   color: white;
-  border-radius: 4px;
+  border-radius: 8px;
   text-align: center;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .contact-container {
     flex-direction: column;
+    gap: 25px;
+  }
+  
+  .contact-page h1 {
+    font-size: 2rem;
+  }
+  
+  .contact-info, .contact-form {
+    padding: 25px 20px;
   }
 }
 </style>

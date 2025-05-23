@@ -64,18 +64,17 @@ const dynamicNavItems = computed(() => {
     });
 });
 </script>
-
 <style scoped>
 /* Base styles */
 .nav-menu {
-    position: fixed; /* Fixes it at the top */
+    position: fixed;
     width: 100%;
     top: 65px;
     left: 0;
     background-color: #ffffff;
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); */
     z-index: 100;
 }
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -105,6 +104,7 @@ const dynamicNavItems = computed(() => {
     padding: 16px 20px;
     transition: all 0.3s ease;
     position: relative;
+    box-shadow: inset 0 -3px 0 transparent;
 }
 
 /* Icon styles */
@@ -121,7 +121,7 @@ const dynamicNavItems = computed(() => {
     transition: opacity 0.2s ease;
 }
 
-/* Basic icons using CSS - replace with actual icon library in production */
+/* Basic icons using CSS */
 .icon-home {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E");
 }
@@ -167,7 +167,7 @@ const dynamicNavItems = computed(() => {
 
 /* Hover and active state */
 .nav-link:hover {
-    color: #42b883;
+    color: #FFD700;
     background-color: rgba(66, 184, 131, 0.05);
 }
 
@@ -175,13 +175,14 @@ const dynamicNavItems = computed(() => {
     opacity: 1;
 }
 
-.router-link-active {
-    color: #42b883;
+/* Active state - using exact active */
+.nav-link.router-link-exact-active {
+    color: #FFD700;
     font-weight: 600;
-    box-shadow: inset 0 -3px 0 #42b883;
+    box-shadow: inset 0 -3px 0 #FFD700;
 }
 
-.router-link-active .nav-icon {
+.nav-link.router-link-exact-active .nav-icon {
     opacity: 1;
 }
 
@@ -295,7 +296,7 @@ const dynamicNavItems = computed(() => {
         border-bottom: 1px solid #f0f0f0;
     }
 
-    .router-link-active {
+    .router-link-exact-active {
         box-shadow: none;
         background-color: rgba(66, 184, 131, 0.1);
     }
@@ -313,7 +314,6 @@ const dynamicNavItems = computed(() => {
         transform: translateY(-20px);
         opacity: 0;
     }
-
     to {
         transform: translateY(0);
         opacity: 1;

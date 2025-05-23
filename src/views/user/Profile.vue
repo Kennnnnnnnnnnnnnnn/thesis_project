@@ -161,7 +161,7 @@ export default {
 </script>
 <style scoped>
 .profile-page {
-  background-color: #f8f9fa;
+  background-color: #fff;
   min-height: 100vh;
   padding-bottom: 60px;
 }
@@ -174,28 +174,17 @@ export default {
 
 /* Header Styles */
 .profile-header {
-  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-  color: white;
-  padding: 80px 0 60px;
-  margin-bottom: 40px;
+  background: #fff;
+  color: #333;
+  padding: 60px 0 40px;
+  margin-bottom: 20px;
   position: relative;
-  overflow: hidden;
-}
-
-.profile-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 100%;
-  background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==');
+  border-bottom: 1px solid #FFEC8B;
 }
 
 .header-content {
   text-align: center;
   position: relative;
-  z-index: 1;
 }
 
 .avatar-container {
@@ -208,15 +197,15 @@ export default {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+  background: linear-gradient(45deg, #FFEC8B 0%, #FFD700 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
   font-size: 48px;
   font-weight: bold;
-  color: white;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  color: #333;
+  border: 3px solid #FFD700;
 }
 
 .edit-avatar-btn {
@@ -226,30 +215,31 @@ export default {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #fff;
+  background: #FFD700;
   border: none;
-  color: #2575fc;
+  color: #333;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .edit-avatar-btn:hover {
   transform: scale(1.1);
+  background: #FFA500;
 }
 
 .profile-header h1 {
   font-size: 2.2rem;
   margin-bottom: 8px;
   font-weight: 600;
+  color: #333;
 }
 
 .profile-header .email {
   font-size: 1.1rem;
-  opacity: 0.9;
+  color: #666;
   margin-bottom: 0;
 }
 
@@ -260,30 +250,31 @@ export default {
 
 .profile-card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  padding: 40px;
-  margin-top: -60px;
-  position: relative;
-  z-index: 2;
+  border-radius: 15px;
+  padding: 30px;
+  margin: 0 auto;
+  max-width: 800px;
+  border: 1px solid #FFEC8B;
 }
 
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 30px;
-  color: #2c3e50;
+  color: #333;
   position: relative;
   padding-bottom: 10px;
+  text-align: center;
 }
 
 .section-title::after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
   width: 50px;
   height: 3px;
-  background: linear-gradient(to right, #6a11cb, #2575fc);
+  background: #FFD700;
   border-radius: 3px;
 }
 
@@ -291,7 +282,7 @@ export default {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 25px;
+  gap: 20px;
   margin-bottom: 30px;
 }
 
@@ -303,25 +294,23 @@ export default {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #495057;
+  color: #555;
   font-size: 0.95rem;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid #FFEC8B;
+  border-radius: 25px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
+  background-color: #fff;
 }
 
 .form-group input:focus {
-  border-color: #2575fc;
-  box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
+  border-color: #FFA500;
   outline: none;
-  background-color: white;
 }
 
 .form-group.full-width {
@@ -331,17 +320,17 @@ export default {
 /* Form Actions */
 .form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 15px;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #FFEC8B;
 }
 
 .cancel-btn,
 .save-btn {
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 25px;
   font-weight: 500;
   font-size: 1rem;
   cursor: pointer;
@@ -349,31 +338,31 @@ export default {
 }
 
 .cancel-btn {
-  background: #f8f9fa;
-  color: #6c757d;
-  border: 1px solid #dee2e6;
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
 }
 
 .cancel-btn:hover {
-  background: #e9ecef;
+  background: #e9e9e9;
 }
 
 .save-btn {
-  background: linear-gradient(to right, #6a11cb, #2575fc);
-  color: white;
+  background: #FFD700;
+  color: #333;
   border: none;
-  box-shadow: 0 4px 15px rgba(106, 17, 203, 0.2);
+  font-weight: bold;
 }
 
 .save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(106, 17, 203, 0.25);
+  background: #FFA500;
+  color: #fff;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .profile-header {
-    padding: 60px 0 40px;
+    padding: 40px 0 30px;
   }
   
   .avatar {
@@ -387,31 +376,53 @@ export default {
   }
   
   .profile-card {
-    padding: 30px 20px;
-    margin-top: -40px;
+    padding: 25px 20px;
   }
   
   .form-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 15px;
   }
   
   .form-group.full-width {
     grid-column: span 1;
+  margin-bottom: 15px;
   }
   
   .form-actions {
     flex-direction: column;
+    align-items: center;
   }
   
   .cancel-btn,
   .save-btn {
     width: 100%;
+    max-width: 200px;
   }
 }
 
-/* Font Awesome icons */
-.fas {
-  font-size: 0.9em;
+@media (max-width: 480px) {
+  .profile-header {
+    padding: 30px 0 20px;
+  }
+  
+  .avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 28px;
+  }
+  
+  .edit-avatar-btn {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .profile-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .section-title {
+    font-size: 1.3rem;
+  }
 }
 </style>

@@ -37,7 +37,7 @@ const routes = [
         component: () => import('@/views/admin/Users.vue')
       },
       {
-        path: '/admin/orders',
+        path: 'orders',
         name: 'AdminOrders',
         component: () => import('@/views/admin/Orders.vue')
       },
@@ -49,7 +49,34 @@ const routes = [
       {
         path: 'create',
         name: 'AdminCreate',
-        component: () => import('@/views/admin/Create.vue')
+        component: () => import('@/views/admin/Product.vue')
+      },
+      // New Inventory Routes
+      {
+        path: 'restock',
+        name: 'AdminRestock',
+        component: () => import('@/views/admin/Restock.vue')
+      },
+      {
+        path: 'categories',
+        name: 'AdminCategories',
+        component: () => import('@/views/admin/Categories.vue')
+      },
+      // New Reports Routes
+      {
+        path: 'reports/orders',
+        name: 'AdminOrderReports',
+        component: () => import('@/views/admin/reports/OrderReports.vue')
+      },
+      {
+        path: 'reports/stock',
+        name: 'AdminStockReports',
+        component: () => import('@/views/admin/reports/StockReports.vue')
+      },
+      {
+        path: 'reports/purchase',
+        name: 'AdminPurchaseReports',
+        component: () => import('@/views/admin/reports/PurchaseReports.vue')
       }
     ]
   }

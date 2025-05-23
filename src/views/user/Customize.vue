@@ -96,175 +96,193 @@
     }
   };
   </script>
-  
   <style scoped>
-  /* Modal Styles */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fffae6;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  max-width: 700px;
+  width: 90%;
+  border: 1px solid #ffe680;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  gap: 2rem;
+}
+
+.image-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff3cd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #ffe680;
+}
+
+.image-container img {
+  max-width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+}
+
+.details-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  color: #8a6d0b;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #b38b00;
+  display: block;
+}
+
+.weight-control,
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.weight-control input,
+.quantity-control input {
+  width: 80px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffe680;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  background-color: #fffae6;
+  color: #5d4a00;
+  text-align: center;
+}
+
+.weight-control input:focus,
+.quantity-control input:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}
+
+.price-display {
+  background: #fff3cd;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  border: 1px solid #ffe680;
+}
+
+.price-display p {
+  color: #5d4a00;
+  margin: 0.5rem 0;
+}
+
+.total-price {
+  font-size: 1.1rem;
+  color: #28a745;
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+}
+
+.weight-control button,
+.quantity-control button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffe680;
+}
+
+.weight-control button:hover,
+.quantity-control button:hover {
+  background: #ffe680;
+}
+
+.weight-control button:disabled,
+.quantity-control button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffe680;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cancel-btn:hover {
+  background: #ffe680;
+}
+
+.confirm-btn {
+  background: #ffd700;
+  color: #5d4a00;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.confirm-btn:hover {
+  background: #e6c200;
+}
+
+@media (max-width: 768px) {
   .modal-content {
-    background: white;
-    width: 80%;
-    max-width: 700px;
-    border-radius: 10px;
-    display: flex;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  }
-  
-  .image-container {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f9f9f9;
-  }
-  
-  .image-container img {
-    max-width: 100%;
-    max-height: 300px;
-    object-fit: contain;
-  }
-  
-  .details-container {
-    flex: 1;
-    padding: 25px;
-    display: flex;
     flex-direction: column;
   }
   
-  h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #555;
-  }
-  
-  .weight-control,
-  .quantity-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .weight-control input,
-  .quantity-control input {
-    width: 80px;
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .weight-control button,
-  .quantity-control button {
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .weight-control button:hover,
-  .quantity-control button:hover {
-    background: #e0e0e0;
-  }
-  
-  .weight-control button:disabled,
-  .quantity-control button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  .price-display {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-    margin: 15px 0;
-  }
-  
-  .total-price {
-    font-size: 1.1em;
-    color: #28a745;
-    margin-top: 5px;
+  .image-container {
+    margin-bottom: 1.5rem;
   }
   
   .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: auto;
-    padding-top: 20px;
+    justify-content: center;
   }
-  
-  .cancel-btn {
-    background: #f8f9fa;
-    color: #dc3545;
-    border: 1px solid #dc3545;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .cancel-btn:hover {
-    background: #dc3545;
-    color: white;
-  }
-  
-  .confirm-btn {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .confirm-btn:hover {
-    background: #218838;
-  }
-  
-  @media (max-width: 768px) {
-    .modal-content {
-      flex-direction: column;
-      width: 90%;
-    }
-    
-    .image-container {
-      padding: 15px;
-    }
-    
-    .details-container {
-      padding: 20px;
-    }
-  }
-  </style>
+}
+</style>
