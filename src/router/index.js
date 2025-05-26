@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import LoginView from '@/views/auth/Login.vue';
-import AdminLayout from '@/layouts/AdminLayout.vue';
+
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -21,13 +21,23 @@ const routes = [
   },
 
   { path: '/login', name: 'Login', component: LoginView },
+  {
+    path: "/notFound",
+    component: () => import("../views/NotFound.vue"),
+    name: "notFound",
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/notFound",
+  },
 
   {
     path: '/admin',
-    component: AdminLayout,
+    component: () => import('@/layouts/Default.vue'),
+    redirect: "/admin/dashboard",
     children: [
       {
-        path: '',
+        path: 'dashboard',
         name: 'AdminDashboard',
         component: () => import('@/views/admin/Dashboard.vue')
       },
@@ -62,6 +72,12 @@ const routes = [
         name: 'AdminCategories',
         component: () => import('@/views/admin/Categories.vue')
       },
+
+      {
+        path: 'supplier',
+        name: 'AdminSupplier',
+        component: () => import('@/views/admin/Supplier.vue')
+      },
       // New Reports Routes
       {
         path: 'reports/orders',
@@ -77,7 +93,21 @@ const routes = [
         path: 'reports/purchase',
         name: 'AdminPurchaseReports',
         component: () => import('@/views/admin/reports/PurchaseReports.vue')
-      }
+      },
+
+      //permission
+      {
+        name: "permission",
+        path: "/admin/permission",
+        component: () => import("../views/Permission/Permission.vue"),
+      },
+
+      //permission
+      {
+        name: "delivery",
+        path: "/admin/delivery",
+        component: () => import("../views/admin/DeliveryTracking.vue"),
+      },
     ]
   }
 ];

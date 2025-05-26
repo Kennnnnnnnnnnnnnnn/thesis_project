@@ -1,23 +1,23 @@
 <template>
-  <div class="dashboard">
+  <div class="p-6 max-w-screen-xl mx-auto bg-white h-screen overflow-y-auto">
     <!-- Dashboard Header -->
-    <div class="dashboard-header">
-      <h1>Dashboard Overview</h1>
-      <p class="subtitle">Monitor your store's performance</p>
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-amber-800 mb-1">Dashboard Overview</h1>
+      <p class="text-amber-600 mb-6">Monitor your store's performance</p>
     </div>
 
     <!-- Metrics Grid -->
-    <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-icon" style="background-color: #f0fdf4;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#16a34a">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-100">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-50">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#16a34a" class="w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
         </div>
-        <div class="metric-info">
-          <h3>Total Orders</h3>
-          <div class="value">{{ formatNumber(metrics.totalOrders) }}</div>
-          <div class="change" :class="metrics.ordersChange >= 0 ? 'positive' : 'negative'">
+        <div class="flex-1">
+          <h3 class="text-sm text-amber-600 mb-1 font-medium">Total Orders</h3>
+          <div class="text-2xl font-bold text-amber-800 mb-1">{{ formatNumber(metrics.totalOrders) }}</div>
+          <div class="flex items-center gap-1 text-xs" :class="metrics.ordersChange >= 0 ? 'text-green-600' : 'text-red-600'">
             <span v-if="metrics.ordersChange >= 0">↑</span>
             <span v-else>↓</span>
             {{ Math.abs(metrics.ordersChange) }}% from last period
@@ -25,16 +25,16 @@
         </div>
       </div>
 
-      <div class="metric-card">
-        <div class="metric-icon" style="background-color: #eff6ff;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2563eb">
+      <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-100">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-50">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2563eb" class="w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         </div>
-        <div class="metric-info">
-          <h3>Total Users</h3>
-          <div class="value">{{ formatNumber(metrics.totalUsers) }}</div>
-          <div class="change" :class="metrics.usersChange >= 0 ? 'positive' : 'negative'">
+        <div class="flex-1">
+          <h3 class="text-sm text-amber-600 mb-1 font-medium">Total Users</h3>
+          <div class="text-2xl font-bold text-amber-800 mb-1">{{ formatNumber(metrics.totalUsers) }}</div>
+          <div class="flex items-center gap-1 text-xs" :class="metrics.usersChange >= 0 ? 'text-green-600' : 'text-red-600'">
             <span v-if="metrics.usersChange >= 0">↑</span>
             <span v-else>↓</span>
             {{ Math.abs(metrics.usersChange) }}% from last period
@@ -42,16 +42,16 @@
         </div>
       </div>
 
-      <div class="metric-card">
-        <div class="metric-icon" style="background-color: #fef2f2;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#dc2626">
+      <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-100">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-50">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#dc2626" class="w-7 h-7">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <div class="metric-info">
-          <h3>Pending Orders</h3>
-          <div class="value">{{ formatNumber(metrics.pendingOrders) }}</div>
-          <div class="change" :class="metrics.pendingChange >= 0 ? 'positive' : 'negative'">
+        <div class="flex-1">
+          <h3 class="text-sm text-amber-600 mb-1 font-medium">Pending Orders</h3>
+          <div class="text-2xl font-bold text-amber-800 mb-1">{{ formatNumber(metrics.pendingOrders) }}</div>
+          <div class="flex items-center gap-1 text-xs" :class="metrics.pendingChange >= 0 ? 'text-green-600' : 'text-red-600'">
             <span v-if="metrics.pendingChange >= 0">↑</span>
             <span v-else>↓</span>
             {{ Math.abs(metrics.pendingChange) }}% from last period
@@ -61,23 +61,30 @@
     </div>
 
     <!-- Chart Section -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <h3>Sales Analytics</h3>
-        <div class="chart-controls">
-          <select class="time-select" v-model="selectedTimeRange" @change="fetchChartData">
+    <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 mb-8">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-semibold text-amber-800">Sales Analytics</h3>
+        <div class="flex items-center gap-3">
+          <select 
+            class="py-2 px-4 rounded-lg border border-yellow-200 bg-amber-50 text-amber-800 text-sm cursor-pointer" 
+            v-model="selectedTimeRange" 
+            @change="fetchChartData"
+          >
             <option value="7">Last 7 days</option>
             <option value="30">Last 30 days</option>
             <option value="90">Last 90 days</option>
           </select>
-          <button class="refresh-btn" @click="fetchChartData">
+          <button 
+            class="p-2 rounded-lg border border-yellow-200 bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white transition-colors duration-200"
+            @click="fetchChartData"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
             </svg>
           </button>
         </div>
       </div>
-      <div class="chart-wrapper">
+      <div class="h-[350px] w-full md:h-[350px]">
         <canvas ref="chartCanvas"></canvas>
       </div>
     </div>
@@ -105,35 +112,35 @@ export default {
       pendingChange: -3.2
     });
 
-// Format numbers with commas
-const formatNumber = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
+    // Format numbers with commas
+    const formatNumber = (num) => {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
 
-// Chart data and configuration
-const chartData = {
-  labels: [],
-  datasets: [
-    {
-      label: 'Completed Orders',
-      data: [],
-      backgroundColor: 'rgba(16, 185, 129, 0.1)',
-      borderColor: 'rgba(16, 185, 129, 1)',
-      borderWidth: 2,
-      tension: 0.3,
-      fill: true
-    },
-    {
-      label: 'Pending Orders',
-      data: [],
-      backgroundColor: 'rgba(239, 68, 68, 0.1)',
-      borderColor: 'rgba(239, 68, 68, 1)',
-      borderWidth: 2,
-      tension: 0.3,
-      fill: true
-    }
-  ]
-};
+    // Chart data and configuration
+    const chartData = {
+      labels: [],
+      datasets: [
+        {
+          label: 'Completed Orders',
+          data: [],
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        },
+        {
+          label: 'Pending Orders',
+          data: [],
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderColor: 'rgba(239, 68, 68, 1)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }
+      ]
+    };
 
     const chartOptions = {
       responsive: true,
@@ -237,180 +244,30 @@ const chartData = {
   }
 };
 </script>
+
+
 <style scoped>
-.dashboard {
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
 }
 
-.dashboard-header h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #8a6d0b; /* Dark yellow text */
-  margin-bottom: 0.25rem;
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #f9f9f6;
+  border-radius: 20px;
 }
 
-.subtitle {
-  color: #b38b00; /* Medium yellow text */
-  margin-bottom: 1.5rem;
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
-
-/* Metrics Grid */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.metric-card {
-  background: #fffae6; /* Light yellow card background */
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px rgba(139, 117, 0, 0.15); /* Stronger yellow shadow */
-}
-
-.metric-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background-color: #ffd700; /* Gold yellow background */
-}
-
-.metric-icon svg {
-  width: 28px;
-  height: 28px;
-  color: white;
-}
-
-.metric-info {
-  flex: 1;
-}
-
-.metric-info h3 {
-  font-size: 0.875rem;
-  color: #b38b00; /* Medium yellow text */
-  margin-bottom: 0.25rem;
-  font-weight: 500;
-}
-
-.metric-info .value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #8a6d0b; /* Dark yellow text */
-  margin-bottom: 0.25rem;
-}
-
-.metric-info .change {
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.metric-info .positive {
-  color: #689f38; /* Green with yellow undertone */
-}
-
-.metric-info .negative {
-  color: #d32f2f; /* Red with yellow undertone */
-}
-
-/* Chart Card */
-.chart-card {
-  background: #fffae6; /* Light yellow card background */
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
-  margin-bottom: 2rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.chart-header h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #8a6d0b; /* Dark yellow text */
-}
-
-.chart-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.time-select {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  background-color: #fffae6; /* Light yellow background */
-  color: #8a6d0b; /* Dark yellow text */
-  font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.refresh-btn {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  background-color: #fffae6; /* Light yellow background */
-  color: #b38b00; /* Medium yellow text */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.refresh-btn:hover {
-  background-color: #ffd700; /* Gold yellow on hover */
-  color: white;
-}
-
-.refresh-btn svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.chart-wrapper {
-  height: 350px;
-  width: 100%;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .dashboard {
-    padding: 1rem;
+/* Footer scroll animation */
+@keyframes scroll {
+  0% {
+    left: -22%;
   }
-  
-  .metrics-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .chart-wrapper {
-    height: 250px;
+
+  100% {
+    left: 100%;
   }
 }
+
 </style>

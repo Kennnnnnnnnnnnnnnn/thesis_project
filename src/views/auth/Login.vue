@@ -1,243 +1,284 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <div class="login-header">
-        <h2>Welcome to our Website</h2>
-        <p class="login-subtitle">Sign in to your account</p>
+  <div class="flex justify-center items-center min-h-screen bg-yellow-50 p-8 bg-[radial-gradient(#ffe68033_1px,transparent_1px)] bg-[length:20px_20px]">
+    <SplashScreen :isSplashVisible="isSplashVisible" />
+    <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md border border-yellow-200 animate-fadeInUp">
+      <div class="mb-8 text-center">
+        <h2 class="text-yellow-800 text-2xl font-bold mb-2"> Welcome to our Website </h2>
+        <p class="text-yellow-700 text-base">Sign in to your account</p>
       </div>
       
       <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label>Email Address</label>
+        <div class="mb-5">
+          <label class="block font-medium mb-2 text-yellow-800 text-sm">Phone Number</label>
           <input 
-            type="email" 
-            v-model="email" 
-            class="form-input"
-            placeholder="your@email.com" 
+            type="text" 
+            v-model="phoneNumber" 
+            class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60" 
+            placeholder="phone number" 
             required
           >
         </div>
 
-        <div class="form-group">
-          <label>Password</label>
+        <div class="mb-5">
+          <label class="block font-medium mb-2 text-yellow-800 text-sm">Password</label>
           <input 
             type="password" 
             v-model="password" 
-            class="form-input"
-            placeholder="••••••••" 
+            class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60" 
+            placeholder="password" 
             required
           >
         </div>
 
         <button 
           type="submit" 
-          class="login-btn"
-          :class="{ loading: isLoading }"
+          class="w-full bg-yellow-400 text-yellow-900 border-none py-4 font-semibold cursor-pointer rounded-xl text-base transition-all mt-2 flex items-center justify-center gap-2 hover:bg-yellow-300 active:translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+          :class="{ 'pointer-events-none': isLoading }"
           :disabled="isLoading"
         >
           <span v-if="!isLoading">Login</span>
-          <span v-else>Authenticating...</span>
         </button>
         
-        <p v-if="errorMessage" class="error-message">
+        <p v-if="errorMessage" class="text-red-600 mt-5 text-center text-sm py-3 bg-red-100 rounded-lg border-l-4 border-red-600">
           ⚠️ {{ errorMessage }}
         </p>
       </form>
+
+      <footer class="mt-10 text-center text-sm text-gray-500 animate-fade-in delay-300">
+          <p>Powered© by Development Team - version-0.1</p>
+        </footer>
+
       
-      <div class="login-footer">
-        <p>Don't have an account? <router-link to="/register" class="footer-link">Create account</router-link></p>
+      <div class="mt-6 text-center text-sm text-yellow-800">
+        <p>Don't have an account? <a href="#" class="text-yellow-700 font-medium hover:text-yellow-800 underline transition">Contact admin</a></p>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'LoginView',
-  data() {
-    return {
-      email: '',
-      password: '',
-      errorMessage: '',
-      isLoading: false
-    };
-  },
-  methods: {
-    async handleLogin() {
-      this.isLoading = true;
-      this.errorMessage = '';
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const users = {
-        'admin@example.com': { role: 'admin', password: 'admin123' },
-        'super@example.com': { role: 'super', password: 'super123' },
-        'user@example.com': { role: 'user', password: 'user123' }
-      };
+<script setup>
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from '@/store/useStore';
+import axios from 'axios';
+import apiURL from '@/api/config';
+import { decodeJwt } from '@/composables/jwt';
+import { getDeviceDetails } from '@/utils/getDeviceDetails';
+import { v4 as uuidv4 } from 'uuid';
 
-      const user = users[this.email];
+import SplashScreen from '@/components/SplashScreen.vue';
 
-      if (user && user.password === this.password) {
-        localStorage.setItem('user', JSON.stringify({ 
-          email: this.email, 
-          role: user.role 
-        }));
+const isSplashVisible = ref(false);
 
-        if (user.role === 'admin') {
-          this.$router.push('/admin');
-        } else if (user.role === 'super') {
-          this.$router.push('/super-dashboard');
-        } else {
-          this.$router.push('/home');
-        }
-      } else {
-        this.errorMessage = 'Invalid credentials. Please try again.';
-      }
-      
-      this.isLoading = false;
+
+// Refs and stores
+const store = useStore();
+const router = useRouter();
+
+const phoneNumber = ref('');
+const password = ref('');
+const isErrorLogin = ref(false);
+const isPermissionLogin = ref(false);
+const showSuccessMessage = ref(false);
+const errorMessage = ref('');
+const isLoading = ref(false);
+
+// Login handler
+const handleLogin = async () => {
+  try {
+    isLoading.value = true;
+    isPermissionLogin.value = false;
+    errorMessage.value = '';
+
+    const deviceDetails = getDeviceDetails();
+    const deviceUUID = uuidv4();
+
+    // Login request
+    const responseLogin = await axios.post(`${apiURL}/api/auth/login`, {
+      phoneNumber: phoneNumber.value,
+      password: password.value,
+      device: { ...deviceDetails, uuid: deviceUUID },
+    });
+
+    if (!responseLogin.data.token) {
+      throw new Error('No token received from server');
     }
+
+    const tokenLogin = responseLogin.data.token;
+    const decodedToken = await decodeJwt(tokenLogin);
+    
+    // Get user details using the token
+    let userDoc;
+    if (decodedToken.role === 'customer') {
+      // For customers, use the decoded token data directly
+      userDoc = {
+        _id: decodedToken._id,
+        role: decodedToken.role,
+        status: true // Assuming active by default for customers
+      };
+    } else {
+      // For other roles, fetch user details
+      try {
+        const userResponse = await axios.get(
+          `${apiURL}/api/getAllDocs/User`,
+          {
+            headers: {
+              'Authorization': `Bearer ${tokenLogin}`,
+              'Content-Type': 'application/json'
+            },
+            params: {
+              dynamicConditions: JSON.stringify([{
+                field: 'phoneNumber',
+                operator: '==',
+                value: phoneNumber.value,
+              }]),
+            }
+          }
+        );
+        userDoc = userResponse.data.data[0];
+      } catch (error) {
+        // If we can't fetch user details, use token data
+        userDoc = {
+          _id: decodedToken._id,
+          role: decodedToken.role,
+          status: true
+        };
+      }
+    }
+
+    if (!userDoc) {
+      throw new Error('User not found');
+    }
+
+    if (userDoc.status === false) {
+      isPermissionLogin.value = true;
+      errorMessage.value = 'Your account is inactive. Please contact support.';
+      return;
+    }
+
+    // Store user information
+    const userId = decodedToken._id || userDoc._id;
+    const userRole = decodedToken.role || userDoc.role;
+    
+    // Set permissions based on role
+    let userPermissions = [];
+    if (userRole === 'customer') {
+      // Customers only need basic access permissions
+      userPermissions = [
+        'read_product',
+        'read_category',
+        'create_customerOrder',
+        'read_customerOrder',
+        'update_customerOrder'
+      ];
+    } else if (userRole === 'superadmin') {
+      // Superadmin gets all permissions
+      userPermissions = [
+        // Delivery Permissions
+        'create_delivery', 'read_delivery', 'update_delivery', 'delete_delivery',
+        // Category Permissions
+        'create_category', 'read_category', 'update_category', 'delete_category',
+        // Product Permissions
+        'create_product', 'read_product', 'update_product', 'delete_product',
+        // Discount Permissions
+        'create_discount', 'read_discount', 'update_discount', 'delete_discount',
+        // Supplier Permissions
+        'create_supplier', 'read_supplier', 'update_supplier', 'delete_supplier',
+        // Stock Permissions
+        'create_stock', 'read_stock', 'update_stock', 'delete_stock',
+        // Order Permissions
+        'create_order', 'read_order', 'update_order', 'delete_order',
+        // Customer Order Permissions
+        'create_customerOrder', 'read_customerOrder', 'update_customerOrder', 'delete_customerOrder',
+        // Transaction Permissions
+        'create_transaction', 'read_transaction', 'update_transaction', 'delete_transaction',
+        // User Permissions
+        'create_user', 'read_user', 'update_user', 'delete_user',
+        // Role Permissions
+        'create_role', 'read_role', 'update_role', 'delete_role'
+      ];
+    } else if (userRole === 'admin') {
+      // Admin gets all permissions except role management
+      userPermissions = [
+        // Delivery Permissions
+        'create_delivery', 'read_delivery', 'update_delivery', 'delete_delivery',
+        // Category Permissions
+        'create_category', 'read_category', 'update_category', 'delete_category',
+        // Product Permissions
+        'create_product', 'read_product', 'update_product', 'delete_product',
+        // Discount Permissions
+        'create_discount', 'read_discount', 'update_discount', 'delete_discount',
+        // Supplier Permissions
+        'create_supplier', 'read_supplier', 'update_supplier', 'delete_supplier',
+        // Stock Permissions
+        'create_stock', 'read_stock', 'update_stock', 'delete_stock',
+        // Order Permissions
+        'create_order', 'read_order', 'update_order', 'delete_order',
+        // Customer Order Permissions
+        'create_customerOrder', 'read_customerOrder', 'update_customerOrder', 'delete_customerOrder',
+        // Transaction Permissions
+        'create_transaction', 'read_transaction', 'update_transaction', 'delete_transaction',
+        // User Permissions
+        'create_user', 'read_user', 'update_user', 'delete_user'
+      ];
+    } else if (userRole === 'delivery') {
+      // Delivery gets only relevant permissions
+      userPermissions = [
+        'read_order',
+        'update_order',
+        'read_customerOrder',
+        'update_customerOrder',
+        'read_product',
+        'read_category'
+      ];
+    } else {
+      // For any other role, use their actual permissions
+      userPermissions = userDoc.permissions || [];
+    }
+
+    // Update store
+    store.setUserId(userId);
+    store.setUserRole(userRole);
+    store.setUserPermissions(userPermissions);
+
+    // Store in localStorage
+    localStorage.setItem('token', tokenLogin);
+    localStorage.setItem('userId', userId);
+    localStorage.setItem('userRole', userRole);
+    localStorage.setItem('userPermissions', JSON.stringify(userPermissions));
+
+    // Set token in store
+    store.setToken(tokenLogin);
+
+    showSuccessMessage.value = true;
+    setTimeout(() => {
+      // Role-based routing
+      if (["superadmin", "admin", "delivery"].includes(userRole)) {
+        isSplashVisible.value = false;
+        router.push("/admin/");
+      } else if (userRole === "customer") {
+        isSplashVisible.value = false;
+        router.push("/home");
+      } else {
+        isSplashVisible.value = false;
+        router.push("/");
+      }
+    }, 2000);
+    isSplashVisible.value = true;
+  } catch (err) {
+    console.error("Failed to login:", err);
+    isLoading.value = false;
+    isErrorLogin.value = true;
+    errorMessage.value = err.response?.data?.message || err.message || 'Login failed. Please try again.';
+    phoneNumber.value = "";
+    password.value = "";
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>
 
-<style scoped>
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #fffae6;
-  padding: 2rem;
-  background-image: radial-gradient(#ffe68033 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-.login-container {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px rgba(139, 117, 0, 0.15);
-  width: 100%;
-  max-width: 420px;
-  border: 1px solid #ffe680;
-  animation: fadeInUp 0.4s ease-out;
-}
-
-.login-header {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.login-header h2 {
-  color: #8a6d0b;
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-}
-
-.login-subtitle {
-  color: #b38b00;
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #8a6d0b;
-  font-size: 0.9rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 1px solid #ffe680;
-  border-radius: 0.75rem;
-  font-size: 0.95rem;
-  background-color: #fffdf5;
-  color: #5d4a00;
-  transition: all 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #ffd700;
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
-  background-color: white;
-}
-
-.form-input::placeholder {
-  color: #b38b00;
-  opacity: 0.6;
-}
-
-.login-btn {
-  width: 100%;
-  background: #ffd700;
-  color: #5d4a00;
-  border: none;
-  padding: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  transition: all 0.2s;
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.login-btn:hover:not(:disabled) {
-  background: #e6c200;
-  transform: translateY(-1px);
-}
-
-.login-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.login-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: #dc3545;
-  margin-top: 1.25rem;
-  text-align: center;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  background-color: #fee2e2;
-  border-radius: 0.5rem;
-  border-left: 3px solid #dc3545;
-}
-
-.login-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #8a6d0b;
-}
-
-.footer-link {
-  color: #b38b00;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-link:hover {
-  color: #8a6d0b;
-  text-decoration: underline;
-}
+<style>
 
 @keyframes fadeInUp {
   from {
