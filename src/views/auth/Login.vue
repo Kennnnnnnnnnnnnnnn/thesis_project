@@ -2,7 +2,7 @@
   <div class="login-page">
     <div class="login-container">
       <div class="login-header">
-        <h2> Welcome to our Website </h2>
+        <h2>Welcome to our Website</h2>
         <p class="login-subtitle">Sign in to your account</p>
       </div>
       
@@ -45,7 +45,7 @@
       </form>
       
       <div class="login-footer">
-        <p>Don't have an account? <a href="#" class="footer-link">Contact admin</a></p>
+        <p>Don't have an account? <router-link to="/register" class="footer-link">Create account</router-link></p>
       </div>
     </div>
   </div>

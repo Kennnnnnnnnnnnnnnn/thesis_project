@@ -1,5 +1,6 @@
 <template>
   <div class="product-page">
+    <!-- Header and search sections remain the same -->
     <section class="header">
       <div class="container">
         <h1>Our Products</h1>
@@ -27,14 +28,18 @@
               <img :src="require('@/assets/image.png')" alt="Product Image">
             </div>
             <div class="product-info">
+              <div class="rating">
+                ★★★★★
+              </div>
               <h3 class="product-name">{{ product.name }}</h3>
+              <p class="product-description">High-quality product with premium features</p>
               <p class="product-price">${{ product.price.toFixed(2) }}</p>
               <div class="button-row">
                 <button class="favorite-btn" @click="toggleFavorite(product)" 
                   :class="{ 'is-favorite': product.isFavorite }">
                   <span class="heart-icon"></span>
                 </button>
-                <button class="buy-btn" @click="addToCart(product)">Buy Now</button>
+                <button class="buy-btn" @click="addToCart(product)">Add to Cart</button>
               </div>
             </div>
           </div>
@@ -45,6 +50,7 @@
 </template>
 
 <script>
+// Script section remains the same
 export default {
   name: 'ProductView',
   data() {
@@ -65,7 +71,6 @@ export default {
         product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
 
-      // Apply category filter
       if (this.activeCategory === 'best') {
         filtered = filtered.filter(product => product.isBestSeller);
       } else if (this.activeCategory === 'new') {
@@ -90,7 +95,6 @@ export default {
 
       let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-      // Apply favorite state from storage
       storedProducts.forEach(product => {
         product.isFavorite = storedFavorites.some(fav => fav.id === product.id);
       });
@@ -129,7 +133,7 @@ export default {
 </script>
 
 <style scoped>
-/* General */
+/* General styles remain the same */
 .product-page {
   text-align: center;
   background-color: #fff;
@@ -212,29 +216,32 @@ h1 {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
 }
 
-/* Product Card - Keeping your original style but removing shadows */
+/* New Product Card Design */
 .product-card {
   background: white;
-  border-radius: 15px;
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #FFEC8B;
+  border: 1px solid #e0e0e0;
   transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
-  border-color: #FFD700;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Product Image */
 .product-image {
-  background-color: #FFF9C4;
+  background-color: #f9f9f9;
   padding: 15px;
-  height: 180px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,40 +249,54 @@ h1 {
 
 .product-image img {
   max-width: 100%;
-  max-height: 150px;
+  max-height: 170px;
   object-fit: contain;
 }
 
 /* Product Info */
 .product-info {
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.rating {
+  color: #FFD700;
+  font-size: 1rem;
+  margin-bottom: 8px;
 }
 
 .product-name {
   font-size: 1rem;
   font-weight: bold;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 8px;
   color: #333;
-  margin-bottom: 10px;
+}
+
+.product-description {
+  font-size: 0.8rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 12px;
+  flex-grow: 1;
 }
 
 .product-price {
   font-size: 1.2rem;
-  color: #FF8C00;
+  color: #333;
   margin: 15px 0;
   text-align: center;
   font-weight: bold;
 }
 
-/* Buttons - Keeping your original button styles */
+/* Buttons */
 .button-row {
   display: flex;
   justify-content: space-between;
-  margin-top: 15px;
   align-items: center;
+  margin-top: 10px;
 }
 
 .favorite-btn {
@@ -288,13 +309,13 @@ h1 {
 
 .heart-icon::before {
   content: "❤";
-  font-size: 24px;
-  color: #FFD700;
+  font-size: 20px;
+  color: #ccc;
   transition: all 0.3s ease;
 }
 
 .favorite-btn:hover .heart-icon::before {
-  transform: scale(1.2);
+  color: #FFD700;
 }
 
 .favorite-btn.is-favorite .heart-icon::before {
@@ -305,12 +326,14 @@ h1 {
   background-color: #FFD700;
   color: #333;
   border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
+  padding: 8px 15px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: bold;
   font-size: 0.9rem;
+  flex-grow: 1;
+  margin-left: 10px;
 }
 
 .buy-btn:hover {
@@ -333,12 +356,12 @@ h1 {
   }
   
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 15px;
   }
   
   .product-image {
-    height: 150px;
+    height: 160px;
     padding: 10px;
   }
   
@@ -352,12 +375,12 @@ h1 {
   }
   
   .buy-btn {
-    padding: 8px 15px;
+    padding: 8px 12px;
     font-size: 0.8rem;
   }
   
   .heart-icon::before {
-    font-size: 20px;
+    font-size: 18px;
   }
 }
 
@@ -374,6 +397,15 @@ h1 {
   
   .grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .product-image {
+    height: 140px;
+  }
+  
+  .product-description {
+    display: none; /* Hide description on small screens */
   }
 }
 </style>
