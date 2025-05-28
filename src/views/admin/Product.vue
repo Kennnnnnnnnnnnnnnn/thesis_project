@@ -188,7 +188,7 @@ const fetchCategories = async () => {
     })
     categories.value = res.data.data || []
   } catch (err) {
-    console.error('❌ Failed to fetch categories:', err)
+    console.error('Failed to fetch categories:', err)
   }
 }
 
@@ -200,7 +200,7 @@ const loadProducts = async () => {
     })
     products.value = res.data.data || []
   } catch (err) {
-    console.error('❌ Failed to load products:', err)
+    console.error('Failed to load products:', err)
   }
 }
 
@@ -247,7 +247,7 @@ const createProduct = async () => {
       alert(res.data.message || 'Failed to create product')
     }
   } catch (err) {
-    console.error('❌ Create error:', err)
+    console.error('Create error:', err)
     alert(err.response?.data?.message || 'Failed to create product')
   }
 }
@@ -278,15 +278,15 @@ const updateProduct = async () => {
     })
 
     if (res.data.success) {
-      await loadProducts()              // ✅ Refresh table
-      resetForm()                       // ✅ Clear form
-      showCreateForm.value = false      // ✅ Hide form
-      alert('✅ Product updated successfully!')
+      await loadProducts()              // Refresh table
+      resetForm()                       // Clear form
+      showCreateForm.value = false      // Hide form
+      alert('Product updated successfully!')
     } else {
       alert(res.data.message || 'Failed to update product')
     }
   } catch (err) {
-    console.error('❌ Update error:', err)
+    console.error('Update error:', err)
     alert(err.response?.data?.message || 'Failed to update product')
   }
 }
@@ -334,7 +334,7 @@ const deleteProduct = async () => {
       alert(res.data.message || 'Failed to delete product')
     }
   } catch (err) {
-    console.error('❌ Delete error:', err)
+    console.error('Delete error:', err)
     alert(err.response?.data?.message || 'Failed to delete product')
   }
 }
