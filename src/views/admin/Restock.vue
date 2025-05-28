@@ -264,6 +264,144 @@ export default {
   }
 }
 </script>
+<!-- 
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'RestockManagement',
+  data() {
+    return {
+      showRestockForm: false,
+      editingRequest: null,
+      newRestock: {
+        productId: '',
+        quantity: 1,
+        priority: 'medium',
+        expectedDate: '',
+        notes: '',
+        status: 'pending'
+      },
+      restockRequests: [],
+      products: [],
+      showDeleteModal: false,
+      requestToDelete: null
+    }
+  },
+  created() {
+    this.loadRestockRequests();
+    this.loadProducts();
+  },
+  methods: {
+    async loadRestockRequests() {
+      try {
+        const res = await axios.get('/api/restocks');
+        this.restockRequests = res.data || [];
+      } catch (err) {
+        console.error('Error loading restock requests:', err);
+      }
+    },
+
+    async loadProducts() {
+      try {
+        const res = await axios.get('/api/products');
+        this.products = res.data || [];
+      } catch (err) {
+        console.error('Error loading products:', err);
+      }
+    },
+
+    async submitRestockRequest() {
+      try {
+        if (this.editingRequest) {
+          // Update existing request
+          await axios.patch(`/api/restocks/${this.newRestock._id}`, this.newRestock);
+        } else {
+          await axios.post('/api/restocks', this.newRestock);
+        }
+
+        this.resetRestockForm();
+        this.showRestockForm = false;
+        this.loadRestockRequests();
+      } catch (err) {
+        console.error('Submit failed:', err);
+      }
+    },
+
+    editRestockRequest(request) {
+      this.editingRequest = request;
+      this.newRestock = { ...request };
+      this.showRestockForm = true;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    async markAsReceived(request) {
+      try {
+        await axios.patch(`/api/restocks/${request._id}`, { status: 'received' });
+        this.loadRestockRequests();
+      } catch (err) {
+        console.error('Failed to mark as received:', err);
+      }
+    },
+
+    confirmDeleteRequest(request) {
+      this.requestToDelete = request;
+      this.showDeleteModal = true;
+    },
+
+    async deleteRestockRequest() {
+      try {
+        await axios.delete(`/api/restocks/${this.requestToDelete._id}`);
+        this.loadRestockRequests();
+        this.showDeleteModal = false;
+      } catch (err) {
+        console.error('Failed to delete:', err);
+      }
+    },
+
+    resetRestockForm() {
+      this.newRestock = {
+        productId: '',
+        quantity: 1,
+        priority: 'medium',
+        expectedDate: '',
+        notes: '',
+        status: 'pending'
+      };
+      this.editingRequest = null;
+    },
+
+    getProductName(productId) {
+      const product = this.products.find(p => p._id === productId || p.id === productId);
+      return product ? product.name : 'Unknown';
+    },
+
+    getProductImage(productId) {
+      const product = this.products.find(p => p._id === productId || p.id === productId);
+      return product ? product.imageUrl : '';
+    },
+
+    getProductStock(productId) {
+      const product = this.products.find(p => p._id === productId || p.id === productId);
+      return product ? (product.stock || 0) : 0;
+    },
+
+    formatPriority(priority) {
+      return priority.charAt(0).toUpperCase() + priority.slice(1);
+    },
+
+    formatStatus(status) {
+      return status.charAt(0).toUpperCase() + status.slice(1);
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '';
+      return new Date(dateString).toLocaleDateString();
+    }
+  }
+}
+</script> -->
+
 
 <style scoped>
 /* Reuse all the styles from Products.vue */
