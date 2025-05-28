@@ -89,7 +89,7 @@ export const useStore = defineStore('useStore', {
     getServerDate: (state) => state.serverDate,
     getUserPermissions: (state) => state.userPermissions,
     getToken: (state) => state.token,
-    isAuthenticated: (state) => state.isAuthenticated,
+    isUserAuthenticated: (state) => state.isAuthenticated,
     
     // Helper getters for common permission checks
     isAdmin: (state) => state.userRole === 'admin',

@@ -97,9 +97,12 @@
               <button class="p-1 rounded hover:bg-blue-100 transition" @click="editSupplier(supplier)">
                 <i class="fa-solid fa-pen-to-square text-blue-600"></i>
               </button>
-              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteSupplier(supplier._id)">
+              <button class="p-1 rounded hover:bg-red-100 transition" @click="confirmDeleteModal(supplier)">
                 <i class="fa-solid fa-trash text-red-600"></i>
               </button>
+              <!-- <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteSupplier(supplier._id)">
+                <i class="fa-solid fa-trash text-red-600"></i>
+              </button> -->
             </td>
           </tr>
           <tr v-if="supplierData.length === 0 && !isLoading">
@@ -111,9 +114,15 @@
       </table>
     </div>
 
-    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
-      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-      :limitedPerPage="pageSize" :searchQuery="searchText" />
+    <Pagination 
+      :currentPage="currentPage" 
+      @onEmitDataFromPagination="handleListenToPagination"
+      @onEmitIsLoading="handleListenIsLoading" 
+      @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+      :limitedPerPage="pageSize" 
+      :searchQuery="searchText" 
+      :isLoading="isLoading"
+    />
 
     <!-- Create/Edit Supplier Modal -->
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
@@ -194,6 +203,12 @@
       </div>
     </div>
   </div>
+  <DeleteConfirm
+  :show="showDeleteConfirm"
+  @cancel="cancelDelete"
+  @confirm="confirmDelete"
+/>
+
 </template>
 
 <script setup>
@@ -204,6 +219,8 @@ import apiURL from '@/api/config';
 import { fetchTimestamp } from '@/composables/timestamp'
 import socket from '@/services/socket'
 import Pagination from '@/components/Pagination.vue';
+import DeleteConfirm from '@/components/DeleteConfirmation.vue'
+
 
 const showModal = ref(false);
 const showEditModal = ref(false);
@@ -228,6 +245,20 @@ const searchQuery = ref('');
 const limitedPerPage = ref(1);
 const isOpen = ref(false);
 const statusFilter = ref('all');
+const showDeleteConfirm = ref(false);
+const supplierToDelete = ref(null)
+
+const emitFilter = () => {
+  isFilter.value = true;
+}
+watch(statusFilter, (value) => {
+  if (value === 'all') {
+    searchText.value = '';
+  }
+
+  currentPage.value = 1;
+  emitFilter();
+})
 
 const handleListenToPagination = async (items) => {
   supplierData.value = items || [];
@@ -431,6 +462,27 @@ const deleteSupplier = async (supplierId) => {
     isLoading.value = false;
   }
 };
+
+// confirmDelete
+const confirmDeleteModal = (supplier) => {
+  supplierToDelete.value = supplier
+  showDeleteConfirm.value = true
+}
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false
+  supplierToDelete.value = null
+}
+
+const confirmDelete = async () => {
+  if (!supplierToDelete.value) return
+
+  await deleteSupplier(supplierToDelete.value._id)
+  showDeleteConfirm.value = false
+  supplierToDelete.value = null
+}
+
+
 
 const fetchSuppliers = async () => {
   try {

@@ -52,6 +52,7 @@
 
 
 <script>
+
 import apiURL from '@/api/config';
 import socket from '@/services/socket';
 import { useStore } from '@/store/useStore';
@@ -77,7 +78,7 @@ export default {
         let dynamicCondition = [];
         let sortOrder = ''
         let sortField = '';
-        // const mainRole = ref('')
+        
 
 
         async function fetchData() {
@@ -253,16 +254,14 @@ export default {
                     );
                 }
 
-                if (props.status) {
-                    dynamicCondition.push(
-                        {
-                            field: 'status',
-                            operator: '==',
-                            value: props.status
-                        },
-
-                    );
+                if (props.status === 'true' || props.status === 'false') {
+                dynamicCondition.push({
+                    field: 'status',
+                    operator: '==',
+                    value: props.status === 'true'  // Convert to Boolean
+                });
                 }
+
 
                 // Fetch data after applying the filter
                 await fetchData();
@@ -299,6 +298,10 @@ export default {
                     break;
                 case '/admin/users':
                     collectionName = 'User';
+                    searchFieldsArray.value = 'name';
+                    break;
+                case '/admin/supplier':
+                    collectionName = 'Supplier';
                     searchFieldsArray.value = 'name';
                     break;
 
@@ -361,6 +364,7 @@ export default {
             totalPages,
             currentPage,
             displayedPages,
+            isLoading 
 
         }
 
