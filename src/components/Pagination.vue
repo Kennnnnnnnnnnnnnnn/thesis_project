@@ -3,7 +3,7 @@
         <!-- First -->
         <button @click="goToPage(1)" :disabled="currentPage === 1 || isLoading" class="px-3 py-1.5 rounded-md border text-sm font-medium transition
               bg-white text-gray-700 border-gray-300
-              hover:bg-yellow-50 hover:text-yellow-700
+              hover:bg-green-50 hover:text-green-700
               disabled:opacity-40 disabled:cursor-not-allowed">
             First
         </button>
@@ -11,7 +11,7 @@
         <!-- Previous -->
         <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1 || isLoading" class="px-3 py-1.5 rounded-md border text-sm font-medium transition
               bg-white text-gray-700 border-gray-300
-              hover:bg-yellow-50 hover:text-yellow-700
+              hover:bg-green-50 hover:text-green-700
               disabled:opacity-40 disabled:cursor-not-allowed">
             Previous
         </button>
@@ -22,8 +22,8 @@
             <button v-else @click="goToPage(page)" :disabled="isLoading" :class="[
                 'px-3 py-1.5 rounded-md border text-sm font-medium transition',
                 currentPage === page
-                    ? 'bg-yellow-400 text-black border-yellow-400 shadow'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-yellow-50 hover:text-yellow-700',
+                    ? 'bg-green-500 text-white border-green-500 shadow'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50 hover:text-green-700',
                 isLoading ? 'opacity-40 cursor-not-allowed' : ''
             ]">
                 {{ page }}
@@ -33,7 +33,7 @@
         <!-- Next -->
         <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages || isLoading" class="px-3 py-1.5 rounded-md border text-sm font-medium transition
               bg-white text-gray-700 border-gray-300
-              hover:bg-yellow-50 hover:text-yellow-700
+              hover:bg-green-50 hover:text-green-700
               disabled:opacity-40 disabled:cursor-not-allowed">
             Next
         </button>
@@ -41,7 +41,7 @@
         <!-- Last -->
         <button @click="goToPage(totalPages)" :disabled="currentPage === totalPages || isLoading" class="px-3 py-1.5 rounded-md border text-sm font-medium transition
               bg-white text-gray-700 border-gray-300
-              hover:bg-yellow-50 hover:text-yellow-700
+              hover:bg-green-50 hover:text-green-700
               disabled:opacity-40 disabled:cursor-not-allowed">
             Last
         </button>
@@ -302,9 +302,27 @@ export default {
                     searchFieldsArray.value = 'name';
                     break;
 
+                case '/admin/supplier':
+                    collectionName = 'Supplier';
+                    searchFieldsArray.value = 'name';
+                    break;
+                case '/admin/stock':
+                    collectionName = 'Stock';
+                    searchFieldsArray.value = 'name';
+                    break;
+
+                case '/admin/create':
+                    collectionName = 'Product';
+                    searchFieldsArray.value = 'name';
+                    break;
+                case '/admin/restock':
+                    collectionName = 'PurchaseProduct';
+                    searchFieldsArray.value = 'name';
+                    break;
+
             }
 
-            
+
         }
 
 

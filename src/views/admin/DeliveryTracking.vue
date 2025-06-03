@@ -1,7 +1,7 @@
 <template>
-  <div class=" bg-[#F4F7FB] p-8 max-w-screen-xl mx-auto bg-white h-screen overflow-y-auto">
+  <div class=" bg-[#F4F7FB] p-8 max-w-screen-xl mx-auto bg-white h-screen overflow-y-auto mt-10 	">
     <h1 class="flex items-center text-2xl font-bold mb-6 gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <rect x="1" y="7" width="15" height="13" rx="2" />
         <path d="M16 16h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-2" />
         <circle cx="5.5" cy="18.5" r="2.5" />

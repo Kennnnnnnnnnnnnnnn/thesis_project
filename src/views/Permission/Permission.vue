@@ -1,5 +1,5 @@
 <template>
-  <div class="p-5 font-sans bg-white rounded-md">
+  <div class="p-5 font-sans bg-white rounded-md mt-10">
     <!-- Header -->
     <p class="text-left font-semibold text-lg">Permission User</p>
 

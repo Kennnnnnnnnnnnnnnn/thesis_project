@@ -1,384 +1,689 @@
 <template>
-    <div class="stock-page">
-      <div class="page-header">
+  <div class="p-5 font-sans bg-white rounded-md">
+    <!-- Header, Create Button, Search and Filter -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200 mt-10">
+      <div class="flex items-center gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 3v16a2 2 0 01-2 2H6a2 2 0 01-2-2V3"></path>
+          <path d="M8 21V7"></path>
+          <path d="M16 21V7"></path>
+          <path d="M12 7V3"></path>
+          <path d="M2 7h20"></path>
+        </svg>
         <div>
-          <h1>Inventory Management</h1>
-          <p class="subtitle">Total items: 1,245 | Low stock: 12</p>
-        </div>
-        <div class="header-actions">
-          <button class="btn btn-export">
-            <i class="fas fa-file-export"></i> Export CSV
-          </button>
-          <button class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Item
-          </button>
+          <p class="text-left font-semibold text-lg">Inventory Management</p>
         </div>
       </div>
-      
-      <div class="stock-controls">
-        <div class="search-filter">
-          <input type="text" placeholder="Search products..." class="search-input">
-          <select class="filter-select">
-            <option>All Categories</option>
-            <option>Electronics</option>
-            <option>Clothing</option>
+      <div class="flex flex-col sm:flex-row gap-3 items-center w-full sm:w-auto">
+        <!-- Dropdown (Items per page) -->
+        <div class="w-full md:w-auto mb-2 md:mb-0">
+          <div class="relative">
+            <button @click="toggleDropdownRow"
+              class="flex items-center justify-between w-full min-w-[90px] px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">
+              <span class="text-sm font-medium">{{ selectedItem }}</span>
+              <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+          </button>
+            <div v-show="isOpen"
+              class="absolute left-0 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg p-1 z-50">
+              <div v-for="item in items" :key="item" @click="selectItem(item)"
+                class="px-3 py-1 cursor-pointer hover:bg-gray-100 rounded">
+                {{ item }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <!-- <div class="relative w-full sm:w-64">
+          <input v-model="searchQuery" type="text" placeholder="Search products..."
+            class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+        </div> -->
+
+        <!-- Category Filter -->
+        <div class="relative w-full sm:w-40">
+          <select v-model="categoryFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+            <option value="all">All Categories</option>
+            <option v-for="category in categories" :key="category._id" :value="category._id">
+              {{ category.name }}
+            </option>
           </select>
         </div>
-        <div class="view-options">
-          <button class="view-btn active"><i class="fas fa-table"></i></button>
-          <button class="view-btn"><i class="fas fa-th-large"></i></button>
+
+        <!-- Stock Status Filter -->
+        <div class="relative w-full sm:w-40">
+          <select v-model="stockStatusFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+            <option value="all">All Status</option>
+            <option value="in-stock">In Stock</option>
+            <option value="low-stock">Low Stock</option>
+            <option value="out-of-stock">Out of Stock</option>
+          </select>
         </div>
+
+        <button
+          class="bg-gradient-to-br from-green-400 to-green-600 text-white px-4 py-2 rounded-md text-xs font-semibold shadow hover:from-green-500 hover:to-green-700 transition min-w-[100px]"
+          @click="openModal">
+          + Add Inventory
+        </button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-y-auto mt-3 relative bg-white rounded-lg shadow-sm border border-gray-100" style="max-height: 60vh;">
+      <!-- Loading Overlay -->
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-900"></div>
       </div>
       
-      <div class="stock-table-container">
-        <table class="stock-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Stock</th>
-              <th>Price</th>
-              <th>Status</th>
-              <th>Actions</th>
+      <table class="min-w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">No</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">Product</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Category</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Supplier</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Quantity</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Unit</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Status</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <!-- Stock items will be listed here -->
+          <tr v-for="(stock, index) in stockData" :key="stock._id"
+            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
+            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
+            <td class="px-4 py-2 align-middle">
+              <div class="flex items-center gap-2 w-full">
+                <div v-if="stock.product && stock.product.image" class="w-10 h-10 rounded-md bg-gray-200 overflow-hidden">
+                  <img :src="stock.product.image" alt="Product" class="w-full h-full object-cover" />
+                </div>
+                <div v-else class="w-10 h-10 rounded-md bg-gray-200 flex items-center justify-center text-gray-400">
+                  <i class="fas fa-box"></i>
+                </div>
+                <span class="text-gray-800 whitespace-nowrap">{{ stock.product ? stock.product.name : 'Unknown Product' }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ stock.category ? stock.category.name : 'Unknown Category' }}</td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ stock.supplier ? stock.supplier.name : 'Unknown Supplier' }}</td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ stock.quantity }}</td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ stock.unit }}</td>
+            <td class="px-4 py-2 text-center">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
+                :class="getStockStatusClass(stock)">
+                <i :class="getStockStatusIcon(stock)"></i>
+                {{ getStockStatusText(stock) }}
+              </span>
+            </td>
+            <td class="px-4 py-2 flex justify-center gap-2">
+              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editStock(stock)">
+                <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+              </button>
+              <button class="p-1 rounded hover:bg-yellow-100 transition" @click="viewStockHistory(stock._id)">
+                <i class="fa-solid fa-clock-rotate-left text-yellow-600"></i>
+              </button>
+              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteStock(stock._id)">
+                <i class="fa-solid fa-trash text-red-600"></i>
+              </button>
+            </td>
+          </tr>
+          <tr v-if="stockData.length === 0 && !isLoading">
+            <td colspan="8" class="px-4 py-8 text-center text-gray-400 italic">
+              No inventory items found
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>
       
-      <div class="pagination-controls">
-        <span>Showing 1-10 of 1,245 items</span>
-        <div class="pagination-buttons">
-          <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
+      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+      :limitedPerPage="pageSize" :searchQuery="searchText" />
+
+    <!-- Create/Edit Stock Modal -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
+      <div class="font-sans w-full max-w-lg sm:w-[95%] sm:max-w-lg bg-white rounded-lg shadow-md p-4 sm:p-8 relative">
+        <!-- Close Button -->
+        <i class="fa-solid fa-circle-xmark cursor-pointer text-red-700 text-lg absolute top-4 right-4
+          hover:text-red-500 transform hover:scale-110 transition-all duration-300 ease-in-out"
+          @click="closeModal"></i>
+        <h2 class="text-lg font-semibold mb-5 text-gray-700 text-center mt-[-12px]">
+          {{ showEditModal ? 'Update Inventory' : 'Add Inventory Item' }}
+        </h2>
+        <form @submit.prevent="handleSubmit" class="space-y-4 flex flex-col">
+          <!-- Product Selection -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Product <span class="text-red-500">*</span>
+            </label>
+            <select v-model="productId" required
+              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
+              <option value="" disabled>Select product</option>
+              <option v-for="product in products" :key="product._id" :value="product._id">
+                {{ product.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Category Selection -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Category <span class="text-red-500">*</span>
+            </label>
+            <select v-model="categoryId" required
+              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
+              <option value="" disabled>Select category</option>
+              <option v-for="category in categories" :key="category._id" :value="category._id">
+                {{ category.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Supplier Selection -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">
+              Supplier <span class="text-red-500">*</span>
+            </label>
+            <select v-model="supplierId" required
+              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
+              <option value="" disabled>Select supplier</option>
+              <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id">
+                {{ supplier.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Quantity -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">
+                Quantity <span class="text-red-500">*</span>
+              </label>
+              <input v-model="quantity" type="number" min="0" required
+                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+                placeholder="Enter quantity" />
+            </div>
+
+            <!-- Unit -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">
+                Unit <span class="text-red-500">*</span>
+              </label>
+              <input v-model="unit" type="text" required
+                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+                placeholder="e.g. pcs, kg, liters" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Min Threshold -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">
+                Min Threshold <span class="text-red-500">*</span>
+              </label>
+              <input v-model="minThreshold" type="number" min="0" required
+                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+                placeholder="Low stock level" />
+            </div>
+
+            <!-- Max Capacity -->
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">
+                Max Capacity <span class="text-red-500">*</span>
+              </label>
+              <input v-model="maxCapacity" type="number" min="0" required
+                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+                placeholder="Max storage capacity" />
+            </div>
+          </div>
+
+          <!-- Error message -->
+          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" class="px-5 py-2 rounded-full text-base font-normal bg-gray-100 text-gray-700 shadow-sm
+             hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 transition" @click="resetForm">
+              Clear
+            </button>
+            <button type="submit" class="px-5 py-2 rounded-full text-base font-normal bg-yellow-500 text-white shadow-sm
+             hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300 transition">
+              {{ showEditModal ? 'Update Inventory' : 'Add Inventory' }}
+            </button>
         </div>
+        </form>
       </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation" @confirm="handleDeleteConfirmation" />
     </div>
   </template>
   
-  <script>
-  export default {
-    name: 'AdminStock',
-    data() {
-      return {
-        inventory: [] // Will be populated with real data
+<script setup>
+import apiURL from '@/api/config';
+import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
+import Pagination from '@/components/Pagination.vue';
+import { fetchTimestamp } from '@/composables/timestamp';
+import socket from '@/services/socket';
+import axios from 'axios';
+import { onMounted, ref, watch } from 'vue';
+
+const showModal = ref(false);
+const showEditModal = ref(false);
+const isLoading = ref(false);
+const isSubmitting = ref(false);
+const error = ref('');
+const stockData = ref([]);
+const currentId = ref('');
+const productId = ref('');
+const categoryId = ref('');
+const supplierId = ref('');
+const quantity = ref(0);
+const unit = ref('');
+const minThreshold = ref(5);
+const maxCapacity = ref(100);
+const isOutOfStock = ref(false);
+
+// References
+const products = ref([]);
+const categories = ref([]);
+const suppliers = ref([]);
+
+// UI controls
+const items = ref([10, 25, 50, 100]);
+const selectedItem = ref(10);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const currentPageIsLastRecord = ref(null);
+const searchText = ref("");
+const searchQuery = ref('');
+const categoryFilter = ref('all');
+const stockStatusFilter = ref('all');
+const isOpen = ref(false);
+
+// Stats
+const totalItems = ref(0);
+const lowStockItems = ref(0);
+
+// Confirmation dialog
+const showConfirmDialog = ref(false);
+const pendingStockId = ref(null);
+
+// Pagination handlers
+const handleListenToPagination = async (items) => {
+  stockData.value = items || [];
+};
+
+const handleListenIsLoading = (status) => {
+  isLoading.value = status;
+};
+
+const handleListenIsLastRecordOnPage = (page) => {
+  currentPageIsLastRecord.value = page;
+  if (currentPage.value > 1) {
+    currentPage.value -= 1; // Move to previous page
+  }
+};
+
+// Watch for search changes
+watch(searchQuery, (newValue) => {
+  searchText.value = newValue;
+  currentPage.value = 1; // Reset to page 1 when searching
+}, { immediate: true });
+
+// Dropdown handlers
+const toggleDropdownRow = () => {
+  isOpen.value = !isOpen.value;
+};
+
+const selectItem = (item) => {
+  selectedItem.value = item;
+  pageSize.value = item;
+  isOpen.value = false;
+};
+
+// Modal handlers
+const openModal = () => {
+  resetForm();
+  showModal.value = true;
+  showEditModal.value = false;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  showEditModal.value = false;
+  resetForm();
+};
+
+const resetForm = () => {
+  currentId.value = '';
+  productId.value = '';
+  categoryId.value = '';
+  supplierId.value = '';
+  quantity.value = 0;
+  unit.value = '';
+  minThreshold.value = 5;
+  maxCapacity.value = 100;
+  error.value = '';
+};
+
+// Submit form handler
+const handleSubmit = async () => {
+  if (!productId.value || !categoryId.value || !supplierId.value || !unit.value || 
+      quantity.value === null || minThreshold.value === null || maxCapacity.value === null) {
+    error.value = 'Required fields cannot be empty';
+    return;
+  }
+
+  if (minThreshold.value > maxCapacity.value) {
+    error.value = 'Min threshold cannot be greater than max capacity';
+    return;
+  }
+
+  isSubmitting.value = true;
+  error.value = '';
+
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      error.value = 'Authentication required. Please login again.';
+      isSubmitting.value = false;
+      isLoading.value = false;
+      return;
+    }
+
+    const timestamp = await fetchTimestamp();
+
+    const requestBody = {
+      fields: {
+        productId: productId.value,
+        categoryId: categoryId.value,
+        supplierId: supplierId.value,
+        unit: unit.value,
+        quantity: parseInt(quantity.value),
+        minThreshold: parseInt(minThreshold.value),
+        maxCapacity: parseInt(maxCapacity.value),
+        isOutOfStock: parseInt(quantity.value) <= 0
+      }
+    };
+
+    if (!showEditModal.value) {
+      // Creating a new stock entry
+      requestBody.fields.createdAt = timestamp;
+      requestBody.fields.createdBy = userId;
+      requestBody.fields.lastRestockedAt = timestamp;
+
+      const response = await axios.post(
+        `${apiURL}/api/insertDoc/Stock`,
+        requestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        socket.emit('dataUpdate', {
+          action: 'insert',
+          collection: 'Stock',
+          data: response.data.data._id
+        });
+        resetForm();
+        closeModal();
+        fetchStockData();
+      } else {
+        throw new Error(response.data.message || 'Failed to create inventory item');
+      }
+    } else {
+      // Updating existing stock entry
+      if (!currentId.value) {
+        error.value = 'Error: Missing stock ID for update operation';
+        isSubmitting.value = false;
+        isLoading.value = false;
+        return;
+      }
+
+      requestBody.fields.updatedAt = timestamp;
+      requestBody.fields.updatedBy = userId;
+      
+      // Update lastRestockedAt if quantity increased
+      const existingStock = stockData.value.find(item => item._id === currentId.value);
+      if (existingStock && parseInt(quantity.value) > existingStock.quantity) {
+        requestBody.fields.lastRestockedAt = timestamp;
+      }
+
+      const response = await axios.patch(
+        `${apiURL}/api/updateDoc/Stock/${currentId.value}`,
+        requestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success || response.data.message === 'Stock updated') {
+        socket.emit('dataUpdate', {
+          action: 'update',
+          collection: 'Stock',
+          data: response.data.data ? response.data.data._id : currentId.value
+        });
+        closeModal();
+        fetchStockData();
+      } else {
+        throw new Error(response.data.message || 'Failed to update inventory item');
       }
     }
+  } catch (err) {
+    console.error('Error saving inventory item:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to save inventory item';
+  } finally {
+    isSubmitting.value = false;
+    isLoading.value = false;
   }
-  </script>
-  <style scoped>
-.stock-page {
-  padding: 2rem;
+};
 
-  min-height: 100vh;
-}
+// Edit stock handler
+const editStock = (stock) => {
+  currentId.value = stock._id;
+  productId.value = stock.productId;
+  categoryId.value = stock.categoryId;
+  supplierId.value = stock.supplierId;
+  quantity.value = stock.quantity;
+  unit.value = stock.unit;
+  minThreshold.value = stock.minThreshold;
+  maxCapacity.value = stock.maxCapacity;
+  showModal.value = true;
+  showEditModal.value = true;
+};
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #ffe680; /* Light yellow border */
-}
+// View stock history handler (placeholder)
+const viewStockHistory = (stockId) => {
+  console.log('View history for stock:', stockId);
+  // Implement view history functionality
+};
 
-.page-header h1 {
-  color: #8a6d0b; /* Dark yellow text */
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0;
-}
+// Delete stock handler
+const deleteStock = (stockId) => {
+  pendingStockId.value = stockId;
+  showConfirmDialog.value = true;
+};
 
-.subtitle {
-  color: #b38b00; /* Medium yellow text */
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
+const handleDeleteConfirmation = async () => {
+  showConfirmDialog.value = false;
+  if (!pendingStockId.value) return;
 
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      error.value = 'Authentication required. Please login again.';
+      return;
+    }
+    
+    const response = await axios.delete(
+      `${apiURL}/api/deleteDoc/Stock/${pendingStockId.value}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (response.data.success) {
+      socket.emit('dataUpdate', {
+        action: 'delete',
+        collection: 'Stock',
+        data: response.data.data._id
+      });
+      fetchStockData();
+      closeModal(); // Close the modal if it's open
+    } else {
+      throw new Error(response.data.message || 'Failed to delete stock item');
+    }
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || 'Failed to delete stock item';
+  } finally {
+    isLoading.value = false;
+    pendingStockId.value = null;
+  }
+};
 
-.btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  font-size: 0.95rem;
-}
+const handleCancelConfirmation = () => {
+  showConfirmDialog.value = false;
+  pendingStockId.value = null;
+};
 
-.btn-export {
-  background: #fff3cd; /* Light yellow */
-  color: #856404; /* Dark yellow text */
-  border: 1px solid #ffe680; /* Light yellow border */
-}
+// Fetch stock data
+const fetchStockData = async () => {
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      error.value = 'Authentication required. Please login again.';
+      return;
+    }
+    
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // Process and populate references
+    const stocks = response.data.data || [];
+    
+    // Fetch related data if needed
+    await fetchRelatedData();
+    
+    // Calculate statistics
+    totalItems.value = stocks.length;
+    lowStockItems.value = stocks.filter(item => 
+      item.quantity > 0 && item.quantity <= item.minThreshold
+    ).length;
+    
+    // Set data
+    stockData.value = stocks;
+    
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || 'Failed to fetch inventory data';
+    stockData.value = [];
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-.btn-export:hover {
-  background: #ffe680; /* Medium yellow */
-}
+// Fetch related data for dropdowns
+const fetchRelatedData = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    // Fetch products
+    const productsResponse = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    products.value = productsResponse.data.data || [];
+    
+    // Fetch categories
+    const categoriesResponse = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    categories.value = categoriesResponse.data.data || [];
+    
+    // Fetch suppliers
+    const suppliersResponse = await axios.get(`${apiURL}/api/getAllDocs/Supplier`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    suppliers.value = suppliersResponse.data.data || [];
+    
+  } catch (err) {
+    console.error('Error fetching related data:', err);
+  }
+};
 
-.btn-primary {
-  background: #ffd700; /* Gold yellow */
-  color: #5d4a00; /* Dark yellow text */
-}
+// Utility functions for stock status display
+const getStockStatusText = (stock) => {
+  if (stock.isOutOfStock || stock.quantity <= 0) return 'Out of Stock';
+  if (stock.quantity <= stock.minThreshold) return 'Low Stock';
+  return 'In Stock';
+};
 
-.btn-primary:hover {
-  background: #e6c200; /* Darker gold yellow */
-}
+const getStockStatusClass = (stock) => {
+  if (stock.isOutOfStock || stock.quantity <= 0) return 'bg-red-100 text-red-700';
+  if (stock.quantity <= stock.minThreshold) return 'bg-yellow-100 text-yellow-700';
+  return 'bg-green-100 text-green-700';
+};
 
-.btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
-}
+const getStockStatusIcon = (stock) => {
+  if (stock.isOutOfStock || stock.quantity <= 0) return 'fa-solid fa-circle-xmark';
+  if (stock.quantity <= stock.minThreshold) return 'fa-solid fa-triangle-exclamation';
+  return 'fa-solid fa-circle-check';
+};
 
-.stock-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
+// Filter handlers
+watch([categoryFilter, stockStatusFilter], () => {
+  fetchStockData();
+}, { immediate: false });
 
-.search-filter {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.search-input {
-  padding: 0.625rem 1rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  border-radius: 0.5rem;
-  min-width: 250px;
-  background-color: #fffae6; /* Light yellow background */
-  color: #5d4a00; /* Dark yellow text */
-  transition: border-color 0.2s;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #ffd700; /* Gold yellow */
-  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2); /* Gold yellow shadow */
-}
-
-.filter-select {
-  padding: 0.625rem 1rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  border-radius: 0.5rem;
-  background-color: #fffae6; /* Light yellow background */
-  color: #5d4a00; /* Dark yellow text */
-  cursor: pointer;
-}
-
-.view-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.view-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  border-radius: 0.5rem;
-  background: #fffae6; /* Light yellow background */
-  cursor: pointer;
-  color: #8a6d0b; /* Dark yellow text */
-  transition: all 0.2s;
-}
-
-.view-btn:hover {
-  background: #ffe680; /* Medium yellow */
-}
-
-.view-btn.active {
-  background: #ffd700; /* Gold yellow */
-  color: #5d4a00; /* Dark yellow text */
-  border-color: #ffd700; /* Gold yellow */
-}
-
-.stock-table-container {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
-  overflow: hidden;
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.stock-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-.stock-table th {
-  background: #fffae6; /* Light yellow background */
-  padding: 1rem 1.25rem;
-  text-align: left;
-  font-weight: 600;
-  color: #8a6d0b; /* Dark yellow text */
-  border-bottom: 2px solid #ffe680; /* Light yellow border */
-}
-
-.stock-table td {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #ffe680; /* Light yellow border */
-  color: #5d4a00; /* Dark yellow text */
-}
-
-.stock-table tr:last-child td {
-  border-bottom: none;
-}
-
-.stock-table tr:hover td {
-  background-color: #fffae6; /* Light yellow background */
-}
-
-/* Status indicators */
-.status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.status-indicator:before {
-  content: "";
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-}
-
-.in-stock {
-  background-color: #ecfccb;
-  color: #3f6212;
-}
-
-.in-stock:before {
-  background-color: #84cc16;
-}
-
-.low-stock {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.low-stock:before {
-  background-color: #f59e0b;
-}
-
-.out-of-stock {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.out-of-stock:before {
-  background-color: #ef4444;
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1.5rem;
-  color: #b38b00; /* Medium yellow text */
-}
-
-.pagination-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.page-btn {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  border-radius: 0.5rem;
-  background: #fffae6; /* Light yellow background */
-  cursor: pointer;
-  color: #8a6d0b; /* Dark yellow text */
-  transition: all 0.2s;
-}
-
-.page-btn:hover {
-  background: #ffe680; /* Medium yellow */
-}
-
-.page-btn.active {
-  background: #ffd700; /* Gold yellow */
-  color: #5d4a00; /* Dark yellow text */
-  border-color: #ffd700; /* Gold yellow */
-  font-weight: 600;
-}
-
-@media (max-width: 768px) {
-  .stock-page {
-    padding: 1.5rem;
+// Initialize
+onMounted(() => {
+  if (socket && socket.disconnected) {
+    socket.connect();
   }
   
-  .stock-controls {
-    flex-direction: column;
-  }
+  // Listen for socket updates
+  socket.on('dataUpdated', (update) => {
+    if (update.collection === 'Stock') {
+      fetchStockData();
+    }
+  });
   
-  .search-filter {
-    width: 100%;
-  }
-  
-  .search-input {
-    min-width: 100%;
-  }
-  
-  .view-options {
-    align-self: flex-start;
-  }
-  
-  .stock-table {
-    display: block;
-    overflow-x: auto;
-  }
+  fetchStockData();
+});
+</script>
+
+<style scoped>
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* Animation for table row hover */
-.stock-table tr td {
-  transition: background-color 0.2s ease;
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #f9f9f6;
+  border-radius: 20px;
 }
 
-/* Loading state */
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 249, 230, 0.8); /* Semi-transparent light yellow */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-  border-radius: 0.75rem;
-}
-
-.loading-spinner {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 3px solid #ffe680; /* Light yellow */
-  border-top-color: #ffd700; /* Gold yellow */
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 </style>

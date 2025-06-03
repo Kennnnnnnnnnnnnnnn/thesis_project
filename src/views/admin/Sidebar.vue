@@ -26,7 +26,7 @@
 
       <!-- DASHBOARDS -->
       <div >
-        <h2 class="text-[#ca8a04] text-xs font-semibold  tracking-wider mb-2">Dashboard</h2>
+        <h2 class="text-[#ca8a04] text-xs font-semibold  tracking-wider mb-2 uppercase">Dashboard</h2>
         <nav class="space-y-2">
           <!-- supplier -->
           <router-link to="/admin/dashboard" :class="[
@@ -53,7 +53,7 @@
 
       <!-- Inventory (No Dropdown) -->
       <div class="mt-5">
-        <h2 class="text-[#ca8a04] text-xs font-semibold tracking-wider">Inventory</h2>
+        <h2 class="text-[#ca8a04] text-xs font-semibold tracking-wider uppercase">Inventory</h2>
         <nav class="space-y-2 pl-0 mt-2">
           <router-link to="/admin/create" :class="[
             'nav-link',
@@ -67,7 +67,7 @@
             route.path === '/admin/stock' ? 'bg-yellow-500 text-white' : ''
           ]">
             <PackageIcon class="h-4 w-4" />
-            <span class="text-sm">Stock</span>
+            <span class="text-sm">InStock</span>
           </router-link>
           <router-link to="/admin/restock" :class="[
             'nav-link',
@@ -99,7 +99,7 @@
           @click="isUserManagementOpen = !isUserManagementOpen"
           class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition"
         >
-          <span class="flex-1">User Management</span>
+          <span class="flex-1 uppercase">User Management</span>
           <svg
             :class="['w-4 h-4 ml-2 transition-transform', isUserManagementOpen ? 'rotate-90' : '']"
             fill="none"
@@ -142,7 +142,7 @@
           @click="isReportOpen = !isReportOpen"
           class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition"
         >
-          <span class="flex-1">Report</span>
+          <span class="flex-1 uppercase">Report</span>
           <svg
             :class="['w-4 h-4 ml-2 transition-transform', isReportOpen ? 'rotate-90' : '']"
             fill="none"

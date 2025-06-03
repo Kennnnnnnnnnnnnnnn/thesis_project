@@ -1,211 +1,170 @@
-<template>
-  <div class="management-page">
-    <section class="page-header">
-      <h1>Purchase Reports</h1>
-    </section>
+<script setup>
+import { ref } from 'vue'
 
-    <div class="product-table-container">
-      <table class="product-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Items</th>
-            <th>Total Quantity</th>
-            <th>Total Price</th>
-            <th>Payment Method</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(report, index) in purchaseReports" :key="index">
-            <td>{{ formatDate(report.date) }}</td>
-            <td>
-              <div v-for="(item, i) in report.items" :key="i" class="report-item">
-                <span class="product-name">{{ item.name }}</span>
-                <span class="product-description">({{ item.quantity }} × ${{ item.price.toFixed(2) }})</span>
-              </div>
-            </td>
-            <td>{{ getTotalQuantity(report.items) }}</td>
-            <td class="product-price">${{ getTotalPrice(report.items).toFixed(2) }}</td>
-            <td>{{ report.paymentMethod || 'N/A' }}</td>
-            <td>
-              <span class="status-badge" :class="getStatusClass(report)">{{ getStatusText(report) }}</span>
-            </td>
-          </tr>
-          <tr v-if="purchaseReports.length === 0">
-            <td colspan="6" class="empty-reports">
-              No purchase reports available. Complete a purchase to see reports.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</template>
+const startDate = ref('')
+const endDate = ref('')
+const isLoading = ref(false)
+const printSection = ref(null)
 
-<script>
-export default {
-  name: 'PurchaseReports',
-  data() {
-    return {
-      purchaseReports: []
-    };
-  },
-  created() {
-    this.loadReports();
-    // Listen for new purchases from other components
-    window.addEventListener('new-purchase', this.loadReports);
-  },
-  beforeUnmount() {  // Changed from beforeDestroy to beforeUnmount
-    window.removeEventListener('new-purchase', this.loadReports);
-  },
-  methods: {
-    loadReports() {
-      const reports = JSON.parse(localStorage.getItem('orderHistory')) || [];
-      this.purchaseReports = reports.reverse(); // Show most recent first
-    },
-    formatDate(dateString) {
-      const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    },
-    getTotalQuantity(items) {
-      return items.reduce((total, item) => total + (item.quantity || 1), 0);
-    },
-    getTotalPrice(items) {
-      return items.reduce((total, item) => total + (item.price * (item.quantity || 1)), 0);
-    },
-    getStatusText(report) {
-      return report.paymentMethod === 'Cash' ? 'Pending' : 'Completed';
-    },
-    getStatusClass(report) {
-      return report.paymentMethod === 'Cash' ? 'status-pending' : 'status-completed';
-    }
-  }
-};
+const handleRefresh = () => {
+  // Add your refresh logic here
+  console.log('Refreshing data...')
+}
+
+const handleSearch = () => {
+  // Add your search logic here
+  console.log('Searching with dates:', startDate.value, endDate.value)
+}
+
+const printTable = () => {
+  window.print()
+}
 </script>
 
-<style scoped>
-.management-page {
-  padding: 2rem;
-  min-height: 100vh;
+<template>
+    <div>
+        <!-- Desktop View -->
+        <div class="">
+            <div class="bg-white shadow-md rounded-lg p-4 mb-4">
+                <!-- Search and Filters -->
+                <div class="mb-4">
+                    <h2 class="text-lg font-semibold mb-4 ">Order Report</h2>
+
+                    <div class="flex flex-wrap gap-4 mt-4 items-end">
+                        <!-- Date Filters -->
+                        <div>
+                            <div class="flex gap-2 items-center">
+                                <div class="flex flex-col">
+                                    <label class="text-xs text-gray-600 mb-1">Start Date</label>
+                                    <input 
+                                        v-model="startDate" 
+                                        type="date" 
+                                        class="w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-xs text-gray-600 mb-1">End Date</label>
+                                    <input 
+                                        v-model="endDate" 
+                                        type="date" 
+                                        class="w-40 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+
+                                <button @click="handleRefresh" class="py-2 px-3 bg-green-600 text-white rounded-md hover:bg-green-800 transition-colors mt-5">
+                                    <i class="fa-solid fa-arrows-rotate"></i>
+                                </button>
+                                <button @click="handleSearch" class="py-2 px-3 bg-green-600 text-white rounded-md hover:bg-green-800 transition-colors mt-5">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Export Button -->
+                        <div class="ml-auto my-auto" @click="printTable">
+                            <button class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                                <i class="fa-regular fa-file-pdf"></i>
+                                <span class="text-sm">Export PDF</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto relative bg-white p-3 print-this" ref="printSection">
+                <!-- Loading indicator -->
+                <div v-if="isLoading" class="flex justify-center my-4">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2"></div>
+                </div>
+                
+                <!-- Report Header -->
+                <div class="text-center mb-8">
+                    <img src="src/assets/rice.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" />
+                    <h3 class="text-2xl font-semibold text-blue-900 tracking-wide">Order Report</h3>
+                    <p class="text-gray-600 text-sm mt-2" v-if="startDate && endDate">
+                        Period: {{ new Date(startDate).toLocaleDateString() }} - {{ new Date(endDate).toLocaleDateString() }}
+                    </p>
+                    <hr class="m-auto w-1/4 border-2  rounded-full mt-4" />
+                </div>
+
+                <!-- Orders Table -->
+                <table class="w-full text-sm border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                    <thead class="bg-gray-400 text-white text-center text-xs font-medium">
+                        <tr>
+                            <th class="border border-gray-300 p-3">No.</th>
+                            <th class="border border-gray-300 p-3">Order ID</th>
+                            <th class="border border-gray-300 p-3">Customer</th>
+                            <th class="border border-gray-300 p-3">Total Amount</th>
+                            <th class="border border-gray-300 p-3">Status</th>
+                            <th class="border border-gray-300 p-3">Order Date</th>
+                            <th class="border border-gray-300 p-3">Delivery Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        <!-- Sample data row - replace with your actual data -->
+                        <tr class="odd:bg-white even:bg-blue-50 hover:bg-blue-100 transition-all duration-200">
+                            <td class="border px-3 py-2">1</td>
+                            <td class="border px-3 py-2">#ORD001</td>
+                            <td class="border px-3 py-2">John Doe</td>
+                            <td class="border px-3 py-2">$150.00</td>
+                            <td class="border px-3 py-2">
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Completed</span>
+                            </td>
+                            <td class="border px-3 py-2">2025-05-15</td>
+                            <td class="border px-3 py-2">2025-05-20</td>
+                        </tr>
+                        <!-- Add more rows as needed or use v-for for dynamic data -->
+                    </tbody>
+                    <!-- No data state -->
+                    <!-- <tbody v-if="!orders.length">
+                        <tr class="text-center bg-white text-black">
+                            <td colspan="7" class="border border-gray-300 p-4">
+                                No orders found for the selected period
+                            </td>
+                        </tr>
+                    </tbody> -->
+                </table>
+                
+               
+            </div>
+        </div>
+    </div>
+</template>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .print-this,
+    .print-this * {
+        visibility: visible;
+        color: black !important;
+    }
+
+    .print-this {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    
+    /* Hide buttons and interactive elements when printing */
+    button {
+        display: none !important;
+    }
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #ffe680;
+/* Custom date input styling */
+input[type="date"] {
+    position: relative;
 }
 
-.page-header h1 {
-  color: #8a6d0b;
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.product-table-container {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(139, 117, 0, 0.1);
-  overflow: hidden;
-  border: 1px solid #ffe680;
-}
-
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-.product-table th {
-  background: #fffae6;
-  padding: 1rem 1.25rem;
-  text-align: left;
-  font-weight: 600;
-  color: #8a6d0b;
-  border-bottom: 2px solid #ffe680;
-}
-
-.product-table td {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #ffe680;
-  vertical-align: middle;
-}
-
-.product-table tr:last-child td {
-  border-bottom: none;
-}
-
-.product-table tr:hover td {
-  background-color: #fffae6;
-}
-
-.report-item {
-  margin-bottom: 0.5rem;
-}
-
-.report-item:last-child {
-  margin-bottom: 0;
-}
-
-.product-name {
-  font-weight: 600;
-  color: #5d4a00;
-}
-
-.product-description {
-  color: #8a6d0b;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.product-price {
-  font-weight: 700;
-  color: #5d4a00;
-}
-
-.empty-reports {
-  text-align: center;
-  color: #8a6d0b;
-  padding: 2rem;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.status-completed {
-  background-color: #e6ffed;
-  color: #22863a;
-}
-
-.status-pending {
-  background-color: #fff5b1;
-  color: #735c0f;
-}
-
-@media (max-width: 768px) {
-  .management-page {
-    padding: 1.5rem;
-  }
-  
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .product-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+input[type="date"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 8px;
+    color: #6b7280;
+    cursor: pointer;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="p-5 font-sans bg-white rounded-md">
     <!-- Header, Create Button, Search and Filter -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200 mt-10">
       <div class="flex items-center gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -151,7 +151,7 @@
             <label class="block text-xs font-medium text-gray-600 mb-1">
               Contact Number <span class="text-red-500">*</span>
             </label>
-            <input v-model="contact" type="number" required
+            <input v-model="contact" type="text" required
               class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
               placeholder="Enter contact number" />
           </div>
@@ -168,12 +168,13 @@
 
           <!-- Status Toggle -->
           <div class="flex items-center gap-3">
-            <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition">
+            <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+              :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
               <span class="sr-only">Enable status</span>
               <span class="inline-block h-4 w-4 transform bg-white rounded-full transition"
                 :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
             </Switch>
-            <span class="text-gray-600 text-sm">Active</span>
+            <span class="text-gray-600 text-sm">Status</span>
           </div>
 
           <!-- Error message -->
@@ -197,13 +198,13 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import { Switch } from '@headlessui/vue'
-import axios from 'axios';
 import apiURL from '@/api/config';
-import { fetchTimestamp } from '@/composables/timestamp'
-import socket from '@/services/socket'
 import Pagination from '@/components/Pagination.vue';
+import { fetchTimestamp } from '@/composables/timestamp';
+import socket from '@/services/socket';
+import { Switch } from '@headlessui/vue';
+import axios from 'axios';
+import { onMounted, ref, watch } from 'vue';
 
 const showModal = ref(false);
 const showEditModal = ref(false);
@@ -234,20 +235,24 @@ const handleListenToPagination = async (items) => {
 };
 
 const handleListenIsLoading = (status) => {
+
   isLoading.value = status;
 };
+
 
 const handleListenIsLastRecordOnPage = (page) => {
   currentPageIsLastRecord.value = page;
   if (currentPage.value > 1) {
-    currentPage.value -= 1;
+    currentPage.value -= 1; // Move to previous page
   }
 };
 
 watch(searchQuery, (newValue) => {
   searchText.value = newValue;
+  // Reset to page 1 when searching
   currentPage.value = 1;
-}, { immediate: true });
+}, { immediate: true }); // Add immediate option to trigger on component mount
+
 
 // Dropdown handlers
 const toggleDropdownRow = () => {

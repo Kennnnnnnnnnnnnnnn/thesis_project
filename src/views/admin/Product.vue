@@ -1,563 +1,887 @@
 <template>
-    <div class="management-page">
-      <div class="page-header">
-        <h1>Product Management</h1>
-        <button @click="showCreateForm = !showCreateForm" class="btn btn-primary">
-          <i class="fas fa-plus"></i> {{ showCreateForm ? 'Cancel' : 'Create Product' }}
+  <div class="p-5 font-sans bg-white rounded-md h-[100vh] overflow-y-auto mt-10">
+    <p class="text-left font-semibold text-lg">Product Management</p>
+
+    <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mt-4 w-full">
+      <!-- Dropdown (Items per page) -->
+      <div class="w-full md:w-auto mb-2 md:mb-0">
+        <div class="relative">
+          <button @click="toggleDropdownRow"
+            class="flex items-center justify-between w-full min-w-[90px] px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">
+            <span class="text-sm font-medium">{{ selectedItem }}</span>
+            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+          </button>
+          <div v-show="isOpen"
+            class="absolute left-0 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg p-1 z-50">
+            <div v-for="item in items" :key="item" @click="selectItem(item)"
+              class="px-3 py-1 cursor-pointer hover:bg-gray-100 rounded">
+              {{ item }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative w-full md:w-64 lg:w-72 xl:w-80">
+        <input v-model="searchQuery" type="text" placeholder="Search Product..."
+          class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+      </div>
+      
+      <!-- Category Filter -->
+      <div class="relative w-full sm:w-40">
+        <select v-model="categoryFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+          <option value="all">All Categories</option>
+          <option v-for="category in categories" :key="category._id" :value="category._id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Add New Button -->
+      <div class="md:ml-auto w-full md:w-auto flex md:block">
+        <button @click="openModal"
+          class="bg-gradient-to-br from-green-400 to-green-700 text-white px-4 py-2 rounded-md text-xs font-semibold shadow hover:from-green-500 hover:to-green-600 transition"
+          style="min-width: 100px;">
+          + Create
         </button>
       </div>
-  
-      <!-- Create Product Form (conditionally shown) -->
-      <div v-if="showCreateForm" class="create-container">
-        <form @submit.prevent="createProduct" class="create-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Product Name *</label>
-              <input type="text" v-model="newProduct.name" required class="form-input">
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100" style="max-height: 60vh;">
+      <!-- Loading Overlay -->
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
+      </div>
+
+      <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">No</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Image</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Product</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Category</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Price</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Discount</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Stock</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Status</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in productData" :key="index"
+            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
+            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
+            <td class="px-4 py-2">
+              <div class="w-12 h-12 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name" class="w-full h-full object-cover">
+                <i v-else class="fas fa-image text-gray-400"></i>
+              </div>
+            </td>
+            <td class="px-4 py-2 text-gray-700">
+              <div>
+                <p class="font-medium">{{ product.name }}</p>
+                <p class="text-xs text-gray-500 truncate max-w-[150px]">{{ product.description || 'No description' }}</p>
+              </div>
+            </td>
+            <td class="px-4 py-2 text-center text-gray-600">
+              {{ getCategoryName(product.categoryId) }}
+            </td>
+            <td class="px-4 py-2 text-center text-gray-700 font-medium">${{ product.salePrice.toFixed(2) }}</td>
+            <td class="px-4 py-2 text-center">
+              <span v-if="product.discount > 0" class="text-red-600">{{ product.discount }}%</span>
+              <span v-else>-</span>
+            </td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ product.totalStock || 0 }}</td>
+            <td class="px-4 py-2 text-center">
+              <i :class="getStatusClass(product.status)"></i>
+            </td>
+            <td class="px-4 py-2 flex justify-center gap-2">
+              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editProduct(product)" aria-label="Edit">
+                <i class="fa-solid fa-pen-to-square text-blue-600 hover:text-blue-700"></i>
+              </button>
+              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteProduct(product._id)"
+                aria-label="Delete">
+                <i class="fa-solid fa-trash text-red-600 hover:text-red-700"></i>
+              </button>
+            </td>
+          </tr>
+          <tr v-if="productData.length === 0 && !isLoading">
+            <td colspan="9" class="px-4 py-8 text-center text-gray-400 italic">
+              No products found
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Component -->
+    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
+      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+      :limitedPerPage="pageSize" :searchQuery="searchText" />
+
+    <!-- Create/Edit Product Modal -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
+      <div class="font-sans w-[95%] md:w-[70%] lg:w-[60%] max-w-3xl mt-10 p-6 bg-white shadow-md rounded-lg relative z-50 m-auto">
+        <!-- Close Button -->
+        <button class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
+          @click="closeModal">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+
+        <h2 class="text-xl font-semibold mb-6 text-gray-700 text-center">
+          {{ showEditModal ? 'Update Product' : 'Create New Product' }}
+        </h2>
+
+        <form @submit.prevent="handleSubmit" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Product Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+                Product Name <span class="text-red-500">*</span>
+              </label>
+              <input v-model="name" type="text" required
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                placeholder="Enter product name" />
             </div>
-            <div class="form-group">
-              <label>Price ($) *</label>
-              <input type="number" v-model="newProduct.price" min="0" step="0.01" required class="form-input">
-            </div>
-            <div class="form-group">
-              <label>Discount Price ($)</label>
-              <input type="number" v-model="newProduct.discountPrice" min="0" step="0.01" class="form-input">
+            
+            <!-- Category -->
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <select v-model="categoryId" required
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all appearance-none bg-white"
+                :style="{
+                  backgroundImage: 'url(\'data:image/svg+xml;charset=US-ASCII,%3Csvg width=%2220%22 height=%2220%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M7 7l3-3 3 3m0 6l-3 3-3-3%22 stroke=%22%239CA3AF%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E\')',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.75rem center',
+                  paddingRight: '2.5rem'
+                }">
+                <option value="" disabled>Select category</option>
+                <option v-for="category in categories" :key="category._id" :value="category._id">
+                  {{ category.name }}
+                </option>
+              </select>
             </div>
           </div>
-  
-          <div class="form-row">
-            <div class="form-group">
-              <label>Description</label>
-              <textarea v-model="newProduct.description" class="form-textarea" rows="2"></textarea>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Price -->
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+                Price <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                <input v-model="salePrice" type="number" min="0" step="0.01" required
+                  class="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                  placeholder="0.00" />
+              </div>
             </div>
-            <div class="form-group">
-              <label>Image URL</label>
-              <input type="text" v-model="newProduct.imageUrl" placeholder="Paste image URL" class="form-input">
+
+            <!-- Discount -->
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+                Discount %
+              </label>
+              <div class="relative">
+                <input v-model="discount" type="number" min="0" max="100" step="1"
+                  class="w-full pr-8 pl-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                  placeholder="0" />
+                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+              </div>
             </div>
           </div>
-  
-          <div class="form-actions">
-            <button type="button" @click="resetForm" class="btn btn-secondary">
-              Reset
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Stock Quantity -->
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+                Stock Quantity
+              </label>
+              <input v-model="totalStock" type="number" min="0" step="1"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                placeholder="0" />
+            </div>
+
+            <!-- Status Toggle -->
+            <div>
+              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+                Status
+              </label>
+              <div class="flex items-center space-x-3 mt-1.5">
+                <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+                  :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
+                  <span class="sr-only">Enable status</span>
+                  <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
+                    :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+                </Switch>
+                <span class="text-sm text-gray-600">{{ enabled ? 'Active' : 'Inactive' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              Description
+            </label>
+            <textarea v-model="description" rows="3"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all resize-none"
+              placeholder="Enter product description"></textarea>
+          </div>
+
+          <!-- Product Image -->
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              Product Image
+            </label>
+            <div class="border border-dashed border-gray-300 rounded-md p-6 hover:bg-gray-50 transition-all cursor-pointer"
+              @click="$refs.fileInput.click()">
+              <div v-if="imagePreview" class="mb-4 flex justify-center">
+                <img :src="imagePreview" class="max-h-40 rounded-md object-contain" alt="Product preview" />
+              </div>
+              <div class="flex flex-col items-center justify-center">
+                <div class="bg-green-50 rounded-full p-3 mb-2">
+                  <i class="fa-solid fa-cloud-arrow-up text-green-500 text-xl"></i>
+                </div>
+                <p class="text-sm text-gray-600 font-medium">Click to upload image</p>
+                <p class="text-xs text-gray-400 mt-1">PNG, JPG or JPEG (Max 2MB)</p>
+                <input ref="fileInput" type="file" class="hidden" @change="handleImageUpload" accept="image/*" />
+              </div>
+              <p v-if="uploadStatus" class="mt-3 text-xs text-center" :class="uploadStatus.color">
+                {{ uploadStatus.message }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Error message -->
+          <p v-if="error" class="text-red-500 text-sm mt-1 bg-red-50 p-2 rounded-md">{{ error }}</p>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-4 mt-6 pt-4 border-t border-gray-100">
+            <button type="button" @click="resetForm" 
+              class="px-6 py-2.5 rounded-md text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+              Clear
             </button>
-            <button type="submit" class="btn btn-primary">
-              {{ editingProduct ? 'Update' : 'Create' }} Product
+            <button type="submit" 
+              class="px-6 py-2.5 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors">
+              {{ showEditModal ? 'Update' : 'Submit' }}
             </button>
           </div>
         </form>
       </div>
+    </div>
   
-      <!-- Product List Table -->
-      <div class="product-table-container">
-        <table class="product-table">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Product Name</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Discount</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="product in products" :key="product.id">
-              <td class="product-image-cell">
-                <img v-if="product.imageUrl" :src="product.imageUrl" :alt="product.name" class="product-thumbnail">
-                <div v-else class="no-image-thumbnail">
-                  <i class="fas fa-image"></i>
-                </div>
-              </td>
-              <td class="product-name">{{ product.name }}</td>
-              <td class="product-description">{{ truncateDescription(product.description) }}</td>
-              <td class="product-price">${{ product.price.toFixed(2) }}</td>
-              <td class="product-discount">
-                <span v-if="product.discountPrice > 0">${{ product.discountPrice.toFixed(2) }}</span>
-                <span v-else>-</span>
-              </td>
-              <td class="product-actions">
-                <button @click="editProduct(product)" class="action-btn edit-btn">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-                <button @click="confirmDelete(product)" class="action-btn delete-btn">
-                  <i class="fas fa-trash"></i> Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-  
-      <!-- Delete Confirmation Modal -->
-      <div v-if="showDeleteModal" class="modal-overlay">
-        <div class="modal-content">
-          <h3>Confirm Deletion</h3>
-          <p>Are you sure you want to delete "{{ productToDelete?.name }}"?</p>
-          <div class="modal-actions">
-            <button @click="showDeleteModal = false" class="btn btn-secondary">Cancel</button>
-            <button @click="deleteProduct" class="btn btn-danger">Delete</button>
-          </div>
-        </div>
-      </div>
+    <!-- Confirmation Delete Dialog -->
+    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
+      @confirm="handleDeleteConfirmation" />
     </div>
   </template>
   
-  <script>
-  export default {
-    name: 'AdminProducts',
-    data() {
-      return {
-        showCreateForm: false,
-        editingProduct: null,
-        newProduct: {
-          id: '',
-          name: '',
-          description: '',
-          price: 0,
-          discountPrice: 0,
-          imageUrl: ''
-        },
-        products: [],
-        showDeleteModal: false,
-        productToDelete: null
+<script setup>
+import apiURL from '@/api/config';
+import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
+import getStatusClass from '@/components/GetStatus.vue';
+import Pagination from '@/components/Pagination.vue';
+import { getNextNumberId } from "@/composables/getNextId";
+import { fetchTimestamp } from '@/composables/timestamp';
+import socket from '@/services/socket';
+import { Switch } from '@headlessui/vue';
+import axios from 'axios';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+
+// State
+const items = ref([1, 10, 50, 100, 500, 1000]);
+const selectedItem = ref(10);
+const isLoading = ref(false);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const currentPageIsLastRecord = ref(null);
+const searchText = ref("");
+const searchQuery = ref('');
+const limitedPerPage = ref(1);
+const productData = ref([]);
+const categories = ref([]);
+const error = ref('');
+const isSubmitting = ref(false);
+const enabled = ref(true);
+const showModal = ref(false);
+const showEditModal = ref(false);
+const isOpen = ref(false);
+const categoryFilter = ref('all');
+
+// State for delete confirmation
+const showConfirmDialog = ref(false);
+const pendingProductId = ref(null);
+
+// Form fields
+const id = ref('');
+const idCustom = ref('');
+const name = ref('');
+const description = ref('');
+const categoryId = ref('');
+const salePrice = ref(0);
+const discount = ref(0);
+const totalStock = ref(0);
+const imageURL = ref('');
+const status = ref(true);
+
+// New refs for image upload
+const imagePreview = ref('');
+const uploadStatus = ref(null);
+const imageFile = ref(null);
+
+// Router
+const router = useRouter();
+
+// Add fileInput ref in the script section
+const fileInput = ref(null);
+
+// Format date function
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const generateCustomId = async (branchId) => {
+  try {
+    const currentBranchId = branchStore.getBranchId;
+
+    if (!currentBranchId) {
+      return null;
+    }
+
+    const params = {
+      dynamicConditions: JSON.stringify([
+        { field: "_id", operator: "==", value: currentBranchId },
+        { field: "status", operator: "==", value: true },
+      ]),
+    };
+
+    const branchResponse = await axios.get(
+      `${apiURL}/loan/api/getAllDocs/Branch`,
+      {
+        params,
       }
-    },
-    created() {
-      this.loadProducts();
-    },
-    methods: {
-      loadProducts() {
-        const savedProducts = localStorage.getItem('products');
-        this.products = savedProducts ? JSON.parse(savedProducts) : [];
-      },
+    );
+
+    // Extract branch abbreviation
+    const branchData = branchResponse.data?.data?.[0];
+    const branchAbbr =
+      branchData?.abbreviation || getBranchNameById(currentBranchId);
+
+    if (!branchAbbr) {
+      return null;
+    }
+
+    const param= {
+      sortField: "createdAt",
+      sortOrder: "desc",
+      limit: 1,
+     
+    };
+
+    const response = await axios.get(
+      `${apiURL}/loan/api/getAllDocs/Product`,
+      {
+        params: param
+      }
+    );
+
+    let lastId = response.data?.data?.[0]?.idCustom || null;
+
+    let lastNumber = null;
+
+    if (lastId) {
+      const matches = lastId.match(/[\-]?(\d+)$/);
+      lastNumber = matches ? matches[1] : null;
+    }
+    const nextNumber = getNextNumberId(lastNumber);
+    const customId = `CMD-${nextNumber}`;
+
+    return customId;
+  } catch (error) {
+    console.error("Error in generateCustomId:", error);
+    return null;
+  }
+};
+
+
+// Get category name by ID
+const getCategoryName = (categoryId) => {
+  const category = categories.value.find(cat => cat._id === categoryId);
+  return category ? category.name : 'Unknown';
+};
+
+const handleListenToPagination = async (items) => {
+  productData.value = items || [];
+};
+
+const handleListenIsLoading = (status) => {
+  isLoading.value = status;
+};
+
+const handleListenIsLastRecordOnPage = (page) => {
+  currentPageIsLastRecord.value = page;
+  if (currentPage.value > 1) {
+    currentPage.value -= 1; // Move to previous page
+  }
+};
+
+watch(searchQuery, (newValue) => {
+  searchText.value = newValue;
+  // Reset to page 1 when searching
+  currentPage.value = 1;
+}, { immediate: true }); // Add immediate option to trigger on component mount
+
+// Dropdown handlers
+const toggleDropdownRow = () => {
+  isOpen.value = !isOpen.value;
+};
+
+const selectItem = (item) => {
+  selectedItem.value = item;
+  limitedPerPage.value = item;
+  pageSize.value = item;
+  isOpen.value = false;
+};
+
+// Modal Methods
+const openModal = () => {
+  resetForm();
+  showModal.value = true;
+  showEditModal.value = false;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  showEditModal.value = false;
+  resetForm();
+};
+
+const handleSubmit = async () => {
+  if (!name.value || !categoryId.value || !salePrice.value) {
+    error.value = 'Required fields cannot be empty';
+    return;
+  }
+
+  isSubmitting.value = true;
+  error.value = null;
+
+  try {
+    isLoading.value = true;
+    const timestamp = await fetchTimestamp();
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+      error.value = 'Authentication required. Please login again.';
+      return;
+    }
+    
+    // Handle image upload if there's a new image file
+    let uploadedImageUrl = imageURL.value;
+    
+    if (imageFile.value) {
+      uploadStatus.value = {
+        message: 'Uploading image...',
+        color: 'text-blue-500'
+      };
       
-      createProduct() {
-        if (this.editingProduct) {
-          // Update existing product
-          const index = this.products.findIndex(p => p.id === this.editingProduct.id);
-          if (index !== -1) {
-            this.products[index] = { ...this.newProduct };
+      // Create FormData for the image upload
+      const formData = new FormData();
+      formData.append('file', imageFile.value);
+      formData.append('collection', 'products');
+      
+      try {
+        // Upload the image to your server
+        const uploadResponse = await axios.post(
+          `${apiURL}/api/upload`, 
+          formData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
           }
-        } else {
-          // Create new product
-          this.newProduct.id = Date.now().toString();
-          this.products.unshift({ ...this.newProduct });
-        }
+        );
         
-        this.saveProducts();
-        this.resetForm();
-        this.showCreateForm = false;
-      },
-      
-      editProduct(product) {
-        this.editingProduct = product;
-        this.newProduct = { ...product };
-        this.showCreateForm = true;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      },
-      
-      confirmDelete(product) {
-        this.productToDelete = product;
-        this.showDeleteModal = true;
-      },
-      
-      deleteProduct() {
-        this.products = this.products.filter(p => p.id !== this.productToDelete.id);
-        this.saveProducts();
-        this.showDeleteModal = false;
-      },
-      
-      saveProducts() {
-        localStorage.setItem('products', JSON.stringify(this.products));
-      },
-      
-      resetForm() {
-        this.newProduct = {
-          id: '',
-          name: '',
-          description: '',
-          price: 0,
-          discountPrice: 0,
-          imageUrl: ''
+        if (uploadResponse.data && uploadResponse.data.fileUrl) {
+          uploadedImageUrl = uploadResponse.data.fileUrl;
+          uploadStatus.value = {
+            message: 'Image uploaded successfully',
+            color: 'text-green-500'
+          };
+        }
+      } catch (uploadErr) {
+        console.error('Error uploading image:', uploadErr);
+        uploadStatus.value = {
+          message: 'Failed to upload image, but continuing with product save',
+          color: 'text-yellow-500'
         };
-        this.editingProduct = null;
-      },
-      
-      truncateDescription(desc) {
-        if (!desc) return '-';
-        return desc.length > 50 ? desc.substring(0, 50) + '...' : desc;
       }
     }
+
+    const requestBody = {
+      fields: {
+        idCustom: idCustom.value || await generateCustomId(),
+        name: name.value,
+        description: description.value || '',
+        categoryId: categoryId.value,
+        salePrice: parseFloat(salePrice.value),
+        discount: parseFloat(discount.value) || 0,
+        totalStock: parseInt(totalStock.value) || 0,
+        status: status.value,
+        imageURL: uploadedImageUrl || '',
+      }
+    };
+
+    if (!showEditModal.value) {
+      // Create new product
+      requestBody.fields.createdAt = timestamp;
+      requestBody.fields.createdBy = userId;
+
+      const response = await axios.post(
+        `${apiURL}/api/insertDoc/Product`,
+        requestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        socket.emit('dataUpdate', {
+          action: 'insert',
+          collection: 'Product',
+          data: response.data.data._id
+        });
+        
+        isSubmitting.value = false;
+        closeModal();
+      } else {
+        throw new Error(response.data.message || 'Failed to create product');
+      }
+    } else {
+      // Update existing product
+      if (!id.value) {
+        error.value = 'Error: Missing product ID for update operation';
+        return;
+      }
+
+      requestBody.fields.updatedAt = timestamp;
+      requestBody.fields.updatedBy = userId;
+
+      const response = await axios.patch(
+        `${apiURL}/api/updateDoc/Product/${id.value}`,
+        requestBody,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.success || response.data.message === 'Product updated') {
+        socket.emit('dataUpdate', {
+          action: 'update',
+          collection: 'Product',
+          data: response.data.data ? response.data.data._id : id.value
+        });
+        
+        isSubmitting.value = false;
+        closeModal();
+      } else {
+        throw new Error(response.data.message || 'Failed to update product');
+      }
+    }
+  } catch (err) {
+    console.error('Error saving product:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to save product';
+  } finally {
+    isSubmitting.value = false;
+    isLoading.value = false;
   }
-  </script>
- <style scoped>
-.management-page {
-  padding: 2rem;
+};
 
-  min-height: 100vh;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #ffe680; /* Light yellow border */
-}
-
-.page-header h1 {
-  color: #8a6d0b; /* Dark yellow text */
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0;
-}
-
-.create-container {
-  background: #fffae6; /* Light yellow background */
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
-  padding: 2rem;
-  margin-bottom: 2rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.create-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.form-row {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 0;
-}
-
-.form-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #b38b00; /* Medium yellow text */
-}
-
-.form-input, .form-textarea {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  background-color: #fffae6; /* Light yellow background */
-  color: #5d4a00; /* Dark yellow text */
-  transition: border-color 0.2s;
-}
-
-.form-input:focus, .form-textarea:focus {
-  outline: none;
-  border-color: #ffd700; /* Gold yellow */
-  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2); /* Gold yellow shadow */
-}
-
-.form-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  font-size: 0.95rem;
-}
-
-.btn i {
-  font-size: 0.9rem;
-}
-
-.btn-primary {
-  background: #ffd700; /* Gold yellow */
-  color: #5d4a00; /* Dark yellow text */
-}
-
-.btn-primary:hover {
-  background: #e6c200; /* Darker gold yellow */
-}
-
-.btn-secondary {
-  background: #fff3cd; /* Light yellow */
-  color: #856404; /* Dark yellow text */
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.btn-secondary:hover {
-  background: #ffe680; /* Medium yellow */
-}
-
-.btn-danger {
-  background: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background: #c82333;
-}
-
-.product-table-container {
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px rgba(139, 117, 0, 0.1); /* Yellow tint shadow */
-  overflow: hidden;
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.product-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-.product-table th {
-  background: #fffae6; /* Light yellow background */
-  padding: 1rem 1.25rem;
-  text-align: left;
-  font-weight: 600;
-  color: #8a6d0b; /* Dark yellow text */
-  border-bottom: 2px solid #ffe680; /* Light yellow border */
-}
-
-.product-table td {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid #ffe680; /* Light yellow border */
-  vertical-align: middle;
-}
-
-.product-table tr:last-child td {
-  border-bottom: none;
-}
-
-.product-table tr:hover td {
-  background-color: #fffae6; /* Light yellow background */
-}
-
-.product-image-cell {
-  width: 80px;
-}
-
-.product-thumbnail {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 0.5rem;
-  border: 1px solid #ffe680; /* Light yellow border */
-}
-
-.no-image-thumbnail {
-  width: 60px;
-  height: 60px;
-  background: #fffae6; /* Light yellow background */
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffe680; /* Light yellow icon */
-  border: 1px dashed #ffe680; /* Light yellow border */
-}
-
-.product-name {
-  font-weight: 600;
-  color: #5d4a00; /* Dark yellow text */
-}
-
-.product-description {
-  color: #8a6d0b; /* Dark yellow text */
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.product-price {
-  font-weight: 700;
-  color: #5d4a00; /* Dark yellow text */
-}
-
-.product-discount {
-  color: #b38b00; /* Medium yellow text */
-  font-weight: 500;
-}
-
-.product-discount span {
-  color: #dc3545; /* Red for discount */
-}
-
-.product-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.action-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.85rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  border: none;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.action-btn i {
-  font-size: 0.8rem;
-}
-
-.edit-btn {
-  background: #fff3cd; /* Light yellow */
-  color: #856404; /* Dark yellow text */
-}
-
-.edit-btn:hover {
-  background: #ffe680; /* Medium yellow */
-}
-
-.delete-btn {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.delete-btn:hover {
-  background: #fecaca;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: #fffae6; /* Light yellow background */
-  padding: 2rem;
-  border-radius: 0.75rem;
-  max-width: 500px;
-  width: 90%;
-  border: 1px solid #ffe680; /* Light yellow border */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.modal-content h3 {
-  color: #8a6d0b; /* Dark yellow text */
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-}
-
-.modal-content p {
-  color: #5d4a00; /* Dark yellow text */
-  margin-bottom: 2rem;
-  line-height: 1.5;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
-
-@media (max-width: 768px) {
-  .management-page {
-    padding: 1.5rem;
+const editProduct = (product) => {
+  id.value = product._id;
+  idCustom.value = product.idCustom;
+  name.value = product.name;
+  description.value = product.description || '';
+  categoryId.value = product.categoryId;
+  salePrice.value = product.salePrice;
+  discount.value = product.discount || 0;
+  totalStock.value = product.totalStock || 0;
+  status.value = product.status;
+  enabled.value = product.status;
+  imageURL.value = product.imageURL || '';
+  
+  // Set image preview if product has an image URL
+  if (product.imageURL) {
+    imagePreview.value = product.imageURL;
   }
   
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  showModal.value = true;
+  showEditModal.value = true;
+};
+
+const deleteProduct = (productId) => {
+  pendingProductId.value = productId;
+  showConfirmDialog.value = true;
+};
+
+const handleDeleteConfirmation = async () => {
+  showConfirmDialog.value = false;
+  if (!pendingProductId.value) return;
+
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+      error.value = 'Authentication required. Please login again.';
+      router.push('/login');
+      return;
+    }
+
+    const response = await axios.delete(
+      `${apiURL}/api/deleteDoc/Product/${pendingProductId.value}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.data.success) {
+      socket.emit('dataUpdate', {
+        action: 'delete',
+        collection: 'Product',
+        data: pendingProductId.value
+      });
+    } else {
+      throw new Error(response.data.message || 'Failed to delete product');
+    }
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to delete product';
+  } finally {
+    isLoading.value = false;
+    pendingProductId.value = null;
+  }
+};
+
+const handleCancelConfirmation = () => {
+  showConfirmDialog.value = false;
+  pendingProductId.value = null;
+};
+
+watch(enabled, (newValue) => {
+  status.value = newValue;
+});
+
+const resetForm = () => {
+  id.value = '';
+  idCustom.value = '';
+  name.value = '';
+  description.value = '';
+  categoryId.value = '';
+  salePrice.value = 0;
+  discount.value = 0;
+  totalStock.value = 0;
+  imageURL.value = '';
+  status.value = true;
+  enabled.value = true;
+  error.value = null;
+  imagePreview.value = '';
+  uploadStatus.value = null;
+  imageFile.value = null;
+};
+
+// Fetch products
+const fetchProducts = async () => {
+  try {
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+
+    if (!token || !userId) {
+      error.value = 'Authentication required. Please login again.';
+      return;
+    }
+
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data && response.data.data) {
+      productData.value = response.data.data;
+    } else {
+      productData.value = [];
+    }
+
+    error.value = '';
+  } catch (err) {
+    console.error('Error fetching products:', err);
+    if (err.response?.status === 401) {
+      error.value = 'Session expired. Please login again.';
+      router.push('/login');
+    } else {
+      error.value = err.response?.data?.message || err.message || 'Failed to fetch products';
+    }
+    productData.value = [];
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Fetch categories for dropdown
+const fetchCategories = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    if (!token) return;
+    
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.data && response.data.data) {
+      categories.value = response.data.data;
+    }
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+  }
+};
+
+watch(categoryFilter, (newValue) => {
+  // If we want to filter products by category
+  // This would typically trigger a search or filter on the existing data
+  if (newValue !== 'all') {
+    // Implement category filtering
+  }
+});
+
+watch(selectedItem, (newValue) => {
+  pageSize.value = newValue;
+  limitedPerPage.value = newValue;
+  currentPage.value = 1;
+});
+
+// Image upload handler
+const handleImageUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  // Validate file type
+  if (!file.type.match('image.*')) {
+    uploadStatus.value = {
+      message: 'Please select an image file',
+      color: 'text-red-500'
+    };
+    return;
   }
   
-  .form-row {
-    flex-direction: column;
-    gap: 1rem;
+  // Size validation (limit to 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    uploadStatus.value = {
+      message: 'Image size should be less than 2MB',
+      color: 'text-red-500'
+    };
+    return;
   }
   
-  .product-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
+  imageFile.value = file;
+  
+  // Create a preview
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imagePreview.value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  
+  uploadStatus.value = {
+    message: 'Image ready to upload',
+    color: 'text-green-500'
+  };
+  
+  // Here you would typically upload the file to your server or storage
+  // For now we'll just store the file and handle actual upload during form submission
+};
+
+onMounted(() => {
+  if (socket && socket.disconnected) {
+    socket.connect();
   }
   
-  .product-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+  // Listen for socket updates
+  socket.on('dataUpdated', (update) => {
+    if (update.collection === 'Product') {
+      fetchProducts();
+    }
+    if (update.collection === 'Category') {
+      fetchCategories();
+    }
+  });
   
-  .action-btn {
-    width: 100%;
-    justify-content: center;
+  fetchProducts();
+  fetchCategories();
+});
+</script>
+
+<style scoped>
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #f9f9f6;
+  border-radius: 20px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Footer scroll animation */
+@keyframes scroll {
+  0% {
+    left: -22%;
+  }
+
+  100% {
+    left: 100%;
   }
 }
 
-/* Animation for form appearance */
-.create-container {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading state for buttons */
-.btn.loading {
-  position: relative;
-  pointer-events: none;
-}
-
-.btn.loading:after {
-  content: "";
+.animate-scroll {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 -8px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  animation: scroll 20s linear infinite;
 }
 </style>

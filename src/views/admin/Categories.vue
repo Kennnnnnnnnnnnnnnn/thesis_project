@@ -1,5 +1,5 @@
 <template>
-  <div class="p-5 font-sans bg-white rounded-md h-[100vh] overflow-y-auto ">
+  <div class="p-5 font-sans bg-white rounded-md h-[100vh] overflow-y-auto mt-10">
     <p class="text-left font-semibold text-lg">Category Management</p>
 
     <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mt-4 w-full ">
@@ -43,21 +43,21 @@
 
 
     <!-- Table -->
-    <div class="overflow-y-auto mt-5" style="max-height: 60vh;">
+    <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100"  style="max-height: 60vh;">
       <!-- Loading Overlay -->
       <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
       </div>
 
-      <table class="min-w-full text-sm">
+      <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">ID</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Name</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">CreatedAt</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Description</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Status</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Action</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">ID</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Name</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">CreatedAt</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Description</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Status</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -169,17 +169,16 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { Switch } from '@headlessui/vue'
-import { useStore } from '@/store/useStore';
-import axios from 'axios';
 import apiURL from '@/api/config';
-import { fetchTimestamp } from '@/composables/timestamp'
-import socket from '@/services/socket'
-import Pagination from '@/components/Pagination.vue';
-import { useRouter } from 'vue-router';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import getStatusClass from '@/components/GetStatus.vue';
+import Pagination from '@/components/Pagination.vue';
+import { fetchTimestamp } from '@/composables/timestamp';
+import socket from '@/services/socket';
+import { Switch } from '@headlessui/vue';
+import axios from 'axios';
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 
 // State
@@ -273,17 +272,19 @@ const selectItem = (item) => {
 };
 
 
+
 // Modal Methods
 const openModal = () => {
   resetForm()
   showModal.value = true
   showEditModal.value = false
 }
-
 const closeModal = () => {
-  if (isSubmitting.value) return
+  console.log('closeModal called, setting showModal and showEditModal to false')
+  // Ensure modal gets closed immediately
   showModal.value = false
   showEditModal.value = false
+  console.log('After setting modal states to false')
   resetForm()
 }
 
@@ -351,8 +352,8 @@ const handleSubmit = async () => {
           data: response.data.data._id
         })
 
-        resetForm()
-        closeModal()
+        resetForm();
+        closeModal();
       } else {
         throw new Error(response.data.message || 'Failed to create category')
       }
@@ -376,14 +377,18 @@ const handleSubmit = async () => {
           }
         }
       )
+      
 
-      if (response.data.success) {
+      if (response.data.success || response.data.message === 'Category updated') {
         socket.emit('dataUpdate', {
           action: 'update',
           collection: 'Category',
-          data: response.data.data._id
+          data: response.data.data ? response.data.data._id : id.value
         })
+        isSubmitting.value = false
         closeModal()
+      } else {
+        console.log('Update success condition NOT met')
       }
     }
   } catch (err) {
@@ -445,7 +450,6 @@ const handleDeleteConfirmation = async () => {
     }
   } catch (err) {
     console.error('Error deleting category:', err);
-    error.value = err.response?.data?.message || err.message || 'An error occurred while deleting the category';
   } finally {
     isLoading.value = false;
     pendingCategoryId.value = null;
@@ -463,6 +467,7 @@ watch(enabled, (newValue) => {
 
 
 const resetForm = () => {
+  console.log('resetForm called')
   id.value = ''
   name.value = ''
   description.value = ''

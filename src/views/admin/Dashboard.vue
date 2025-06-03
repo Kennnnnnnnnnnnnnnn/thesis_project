@@ -7,54 +7,57 @@
     </div>
 
     <!-- Metrics Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-100">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-green-50">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#16a34a" class="w-7 h-7">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm text-amber-600 mb-1 font-medium">Total Orders</h3>
-          <div class="text-2xl font-bold text-amber-800 mb-1">{{ formatNumber(metrics.totalOrders) }}</div>
-          <div class="flex items-center gap-1 text-xs" :class="metrics.ordersChange >= 0 ? 'text-green-600' : 'text-red-600'">
-            <span v-if="metrics.ordersChange >= 0">↑</span>
-            <span v-else>↓</span>
-            {{ Math.abs(metrics.ordersChange) }}% from last period
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-fade-in">
+      <!-- Total Orders Card -->
+      <div class="bg-white-100 shadow-md rounded-xl hover:shadow-md transition-all duration-300 p-4 border-t-2 border-amber-600">
+        <div class="flex justify-between">
+          <div>
+            <h3 class="text-gray-500 text-xs mb-2">Total Orders</h3>
+            <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.totalOrders) }}</p>
+            <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.ordersChange >= 0 ? 'text-green-600' : 'text-red-600'">
+              <span v-if="metrics.ordersChange >= 0">↑</span>
+              <span v-else>↓</span>
+              {{ Math.abs(metrics.ordersChange) }}% from last period
+            </div>
+          </div>
+          <div>
+            <i class="fa-solid fa-shopping-bag text-amber-500 text-xl"></i>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-100">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-50">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#2563eb" class="w-7 h-7">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm text-amber-600 mb-1 font-medium">Total Users</h3>
-          <div class="text-2xl font-bold text-amber-800 mb-1">{{ formatNumber(metrics.totalUsers) }}</div>
-          <div class="flex items-center gap-1 text-xs" :class="metrics.usersChange >= 0 ? 'text-green-600' : 'text-red-600'">
-            <span v-if="metrics.usersChange >= 0">↑</span>
-            <span v-else>↓</span>
-            {{ Math.abs(metrics.usersChange) }}% from last period
+      <!-- Total Users Card -->
+      <div class="bg-white-100 shadow-md rounded-xl hover:shadow-md transition-all duration-300 p-4 border-t-2 border-amber-600">
+        <div class="flex justify-between">
+          <div>
+            <h3 class="text-gray-500 text-xs mb-2">Total Users</h3>
+            <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.totalUsers) }}</p>
+            <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.usersChange >= 0 ? 'text-green-600' : 'text-red-600'">
+              <span v-if="metrics.usersChange >= 0">↑</span>
+              <span v-else>↓</span>
+              {{ Math.abs(metrics.usersChange) }}% from last period
+            </div>
+          </div>
+          <div>
+            <i class="fa-solid fa-users text-blue-500 text-xl"></i>
           </div>
         </div>
       </div>
 
-      <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 flex items-center gap-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:shadow-amber-100">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-50">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#dc2626" class="w-7 h-7">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div class="flex-1">
-          <h3 class="text-sm text-amber-600 mb-1 font-medium">Pending Orders</h3>
-          <div class="text-2xl font-bold text-amber-800 mb-1">{{ formatNumber(metrics.pendingOrders) }}</div>
-          <div class="flex items-center gap-1 text-xs" :class="metrics.pendingChange >= 0 ? 'text-green-600' : 'text-red-600'">
-            <span v-if="metrics.pendingChange >= 0">↑</span>
-            <span v-else>↓</span>
-            {{ Math.abs(metrics.pendingChange) }}% from last period
+      <!-- Pending Orders Card -->
+      <div class="bg-white-100 shadow-md rounded-xl hover:shadow-md transition-all duration-300 p-4 border-t-2 border-amber-600">
+        <div class="flex justify-between">
+          <div>
+            <h3 class="text-gray-500 text-xs mb-2">Pending Orders</h3>
+            <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.pendingOrders) }}</p>
+            <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.pendingChange >= 0 ? 'text-green-600' : 'text-red-600'">
+              <span v-if="metrics.pendingChange >= 0">↑</span>
+              <span v-else>↓</span>
+              {{ Math.abs(metrics.pendingChange) }}% from last period
+            </div>
+          </div>
+          <div>
+            <i class="fa-solid fa-clock text-red-500 text-xl"></i>
           </div>
         </div>
       </div>
@@ -92,8 +95,8 @@
 </template>
 
 <script>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Chart from 'chart.js/auto';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 export default {
   name: 'AdminDashboard',
@@ -259,7 +262,23 @@ export default {
 .overflow-y-auto::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
-/* Footer scroll animation */
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes scroll {
   0% {
     left: -22%;
@@ -269,5 +288,4 @@ export default {
     left: 100%;
   }
 }
-
 </style>

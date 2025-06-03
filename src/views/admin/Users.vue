@@ -2,7 +2,7 @@
   <div class="p-5 font-sans bg-white rounded-md">
     <!-- Header, Create Button, Search and Filter -->
     <div
-      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200">
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200 mt-10">
       <p class="text-left font-semibold text-lg">User Management</p>
       <div class="flex flex-col sm:flex-row gap-3 items-center w-full sm:w-auto">
 
@@ -214,12 +214,13 @@
           </div>
           <!-- Status Toggle -->
           <div class="flex items-center gap-3">
-            <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition">
+            <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+              :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
               <span class="sr-only">Enable status</span>
               <span class="inline-block h-4 w-4 transform bg-white rounded-full transition"
                 :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
             </Switch>
-            <span class="text-gray-600 text-sm">Active</span>
+            <span class="text-gray-600 text-sm">Status</span>
           </div>
           <!-- Error message -->
           <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
@@ -242,12 +243,12 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import { Switch } from '@headlessui/vue'
 import axios from 'axios';
 import apiURL from '@/api/config';
 import { fetchTimestamp } from '@/composables/timestamp'
 import socket from '@/services/socket'
 import Pagination from '@/components/Pagination.vue';
+import { Switch } from '@headlessui/vue';
 import { useRouter } from 'vue-router';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import getStatusClass from '@/components/GetStatus.vue';
