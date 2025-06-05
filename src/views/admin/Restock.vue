@@ -222,6 +222,14 @@
     <!-- Delete Confirmation Modal -->
     <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
       @confirm="handleDeleteConfirmation" />
+
+    <!-- Total Amount Display -->
+    <!-- <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+      <div class="flex justify-between items-center">
+        <span class="text-sm font-medium text-gray-600">Total Amount:</span>
+        <span class="text-lg font-bold text-green-600">${{ calculateTotalAmount().toFixed(2) }}</span>
+      </div>
+    </div> -->
   </div>
 </template>
 
@@ -366,6 +374,17 @@ const handleSubmit = async () => {
       return;
     }
 
+    // Calculate total amount
+    let totalAmount = 0;
+    for (const product of selectedProducts.value) {
+      const productData = products.value.find(p => p._id === product.id);
+      if (productData) {
+        const price = productData.price || 0;
+        const quantity = parseInt(product.quantity);
+        totalAmount += price * quantity;
+      }
+    }
+
     const requestBody = {
       fields: {
         supplierId: supplierId.value,
@@ -376,6 +395,7 @@ const handleSubmit = async () => {
         productIds: selectedProducts.value.map(p => p.id),
         description: description.value || '',
         status: status.value,
+        totalAmount: totalAmount
       }
     };
 
@@ -553,12 +573,56 @@ const markAsComplete = async (restockId) => {
         collection: 'PurchaseProduct',
         data: restockId
       });
+      
+      // Update stock for restock
+      await updateStockForRestock(restockId);
     }
   } catch (err) {
     console.error('Error marking restock as complete:', err);
     error.value = err.response?.data?.message || err.message || 'Failed to update status';
   } finally {
     isLoading.value = false;
+  }
+};
+
+const updateStockForRestock = async (restockId) => {
+  // Get the restock order details
+  const restockOrder = restockData.value.find(order => order._id === restockId);
+  if (!restockOrder) return;
+  
+  // Update stock quantities for each product in the order
+  for (const product of restockOrder.products) {
+    try {
+      // Get current stock status
+      const stockResponse = await axios.get(
+        `${apiURL}/api/getDocsByField/Stock/productId/${product.id}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      if (stockResponse.data?.data?.[0]) {
+        const stock = stockResponse.data.data[0];
+        
+        // Calculate new quantity
+        const newQuantity = stock.quantity + product.quantity;
+        
+        // Update stock record
+        await axios.patch(
+          `${apiURL}/api/updateDoc/Stock/${stock._id}`,
+          {
+            fields: {
+              quantity: newQuantity,
+              isOutOfStock: newQuantity <= 0,
+              lastRestockedAt: new Date().toISOString(),
+              updatedBy: userId,
+              updatedAt: timestamp
+            }
+          },
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+      }
+    } catch (err) {
+      console.error(`Error updating stock for product ${product.id}:`, err);
+    }
   }
 };
 
@@ -687,7 +751,80 @@ onMounted(() => {
   fetchRestock();
   fetchSuppliers();
   fetchProducts();
+  
+  // Check for single restock item from Stock page
+  const restockItem = localStorage.getItem('restockItem');
+  if (restockItem) {
+    try {
+      const item = JSON.parse(restockItem);
+      // Pre-fill the form with the item
+      supplierId.value = item.supplierId;
+      selectedProducts.value = [{
+        id: item.productId,
+        quantity: item.quantity
+      }];
+      
+      // Clear the localStorage
+      localStorage.removeItem('restockItem');
+      
+      // Open the modal
+      openModal();
+    } catch (e) {
+      console.error('Error parsing restock item:', e);
+    }
+  }
+  
+  // Check for bulk restock items from Stock page
+  const bulkItems = localStorage.getItem('bulkRestockItems');
+  if (bulkItems) {
+    try {
+      const supplierGroups = JSON.parse(bulkItems);
+      const supplierIds = Object.keys(supplierGroups);
+      
+      if (supplierIds.length > 0) {
+        // Use the first supplier and its items
+        const firstSupplierId = supplierIds[0];
+        supplierId.value = firstSupplierId;
+        
+        // Map the items to the format expected by the form
+        selectedProducts.value = supplierGroups[firstSupplierId].map(item => ({
+          id: item.id,
+          quantity: item.quantity
+        }));
+        
+        // Clear the localStorage
+        localStorage.removeItem('bulkRestockItems');
+        
+        // Open the modal
+        openModal();
+      }
+    } catch (e) {
+      console.error('Error parsing bulk restock items:', e);
+    }
+  }
 });
+
+// Add a reactive ref for the total if you want to use it elsewhere
+const totalAmount = ref(0);
+
+// Add this watch to update totalAmount when products change
+watch(selectedProducts, () => {
+  totalAmount.value = calculateTotalAmount();
+}, { deep: true });
+
+// Add this function to your script setup section
+const calculateTotalAmount = () => {
+  let total = 0;
+  for (const product of selectedProducts.value) {
+    const productData = products.value.find(p => p._id === product.id);
+    if (productData && product.id) {
+      const price = productData.price || 0;
+      const quantity = parseInt(product.quantity || 0);
+      total += price * quantity;
+    }
+  }
+  return total;
+};
 </script>
 
 <style scoped>

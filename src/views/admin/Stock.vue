@@ -70,6 +70,54 @@
       </div>
     </div>
 
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Total Products</p>
+            <p class="text-xl font-bold">{{ totalItems }}</p>
+          </div>
+          <div class="p-3 rounded-full bg-blue-100">
+            <i class="fas fa-box text-blue-600"></i>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Low Stock Items</p>
+            <p class="text-xl font-bold">{{ lowStockItems }}</p>
+          </div>
+          <div class="p-3 rounded-full bg-yellow-100">
+            <i class="fas fa-triangle-exclamation text-yellow-600"></i>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-500">Out of Stock Items</p>
+            <p class="text-xl font-bold">{{ outOfStockItems }}</p>
+          </div>
+          <div class="p-3 rounded-full bg-red-100">
+            <i class="fas fa-circle-xmark text-red-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Restock All button -->
+    <div class="flex justify-end mb-3" v-if="lowStockItems > 0 || outOfStockItems > 0">
+      <button 
+        @click="restockAllLowItems" 
+        class="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-md border border-green-200 text-sm hover:bg-green-100 transition"
+      >
+        <i class="fa-solid fa-cart-shopping"></i>
+        Restock All Low Items
+      </button>
+    </div>
+
     <!-- Table -->
     <div class="overflow-y-auto mt-3 relative bg-white rounded-lg shadow-sm border border-gray-100" style="max-height: 60vh;">
       <!-- Loading Overlay -->
@@ -117,13 +165,24 @@
               </span>
             </td>
             <td class="px-4 py-2 flex justify-center gap-2">
-              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editStock(stock)">
+              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editStock(stock)" title="Edit">
                 <i class="fa-solid fa-pen-to-square text-blue-600"></i>
               </button>
-              <button class="p-1 rounded hover:bg-yellow-100 transition" @click="viewStockHistory(stock._id)">
+              
+              <!-- Add this restock button for low/out of stock items -->
+              <button 
+                v-if="stock.quantity <= stock.minThreshold" 
+                class="p-1 rounded hover:bg-green-100 transition" 
+                @click="restockItem(stock)"
+                title="Create restock order">
+                <i class="fa-solid fa-cart-plus text-green-600"></i>
+              </button>
+              
+              <button class="p-1 rounded hover:bg-yellow-100 transition" @click="viewStockHistory(stock._id)" title="History">
                 <i class="fa-solid fa-clock-rotate-left text-yellow-600"></i>
               </button>
-              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteStock(stock._id)">
+              
+              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteStock(stock._id)" title="Delete">
                 <i class="fa-solid fa-trash text-red-600"></i>
               </button>
             </td>
@@ -269,6 +328,9 @@ import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const showModal = ref(false);
 const showEditModal = ref(false);
@@ -306,6 +368,7 @@ const isOpen = ref(false);
 // Stats
 const totalItems = ref(0);
 const lowStockItems = ref(0);
+const outOfStockItems = ref(0);
 
 // Confirmation dialog
 const showConfirmDialog = ref(false);
@@ -591,6 +654,9 @@ const fetchStockData = async () => {
     lowStockItems.value = stocks.filter(item => 
       item.quantity > 0 && item.quantity <= item.minThreshold
     ).length;
+    outOfStockItems.value = stocks.filter(item => 
+      item.quantity <= 0 || item.isOutOfStock
+    ).length;
     
     // Set data
     stockData.value = stocks;
@@ -655,6 +721,68 @@ const getStockStatusIcon = (stock) => {
 watch([categoryFilter, stockStatusFilter], () => {
   fetchStockData();
 }, { immediate: false });
+
+// Add these functions to handle restocking
+
+// Function to restock a single item
+const restockItem = (stock) => {
+  // Get product and supplier details
+  const productData = products.value.find(p => p._id === stock.productId);
+  const supplierData = suppliers.value.find(s => s._id === stock.supplierId);
+  
+  // Calculate suggested quantity (double the min threshold minus current quantity)
+  const suggestedQty = Math.max(stock.minThreshold * 2 - stock.quantity, 1);
+  
+  // Store the selected item in localStorage
+  localStorage.setItem('restockItem', JSON.stringify({
+    productId: stock.productId,
+    productName: productData?.name || 'Unknown Product',
+    supplierId: stock.supplierId,
+    supplierName: supplierData?.name || 'Unknown Supplier',
+    quantity: suggestedQty
+  }));
+  
+  // Navigate to restock page
+  router.push('/admin/restock');
+};
+
+// Function to restock all low stock items
+const restockAllLowItems = () => {
+  // Get all items that need restocking
+  const itemsToRestock = stockData.value.filter(item => 
+    item.quantity <= item.minThreshold
+  );
+  
+  if (itemsToRestock.length === 0) return;
+  
+  // Prepare items for restock, grouped by supplier
+  const itemsBySupplier = {};
+  
+  itemsToRestock.forEach(stock => {
+    const productData = products.value.find(p => p._id === stock.productId);
+    if (!productData) return;
+    
+    const supplierId = stock.supplierId;
+    if (!itemsBySupplier[supplierId]) {
+      itemsBySupplier[supplierId] = [];
+    }
+    
+    // Calculate suggested quantity
+    const suggestedQty = Math.max(stock.minThreshold * 2 - stock.quantity, 1);
+    
+    itemsBySupplier[supplierId].push({
+      id: stock.productId,
+      name: productData.name,
+      quantity: suggestedQty
+    });
+  });
+  
+  // Store the items in localStorage
+  localStorage.setItem('bulkRestockItems', JSON.stringify(itemsBySupplier));
+  
+  // Navigate to restock page
+  router.push('/admin/restock');
+};
 
 // Initialize
 onMounted(() => {

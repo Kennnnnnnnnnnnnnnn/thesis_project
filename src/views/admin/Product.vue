@@ -29,10 +29,11 @@
           <i class="fa-solid fa-magnifying-glass"></i>
         </span>
       </div>
-      
+
       <!-- Category Filter -->
       <div class="relative w-full sm:w-40">
-        <select v-model="categoryFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+        <select v-model="categoryFilter"
+          class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
           <option value="all">All Categories</option>
           <option v-for="category in categories" :key="category._id" :value="category._id">
             {{ category.name }}
@@ -51,7 +52,8 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100" style="max-height: 60vh;">
+    <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100"
+      style="max-height: 60vh;">
       <!-- Loading Overlay -->
       <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
@@ -60,45 +62,94 @@
       <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">No</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Image</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Product</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Category</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Price</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Discount</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Stock</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Status</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Action</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">
+              No</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">
+              Image</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">
+              Product</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Category</th>
+
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Description</th>
+
+
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Price</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Discount</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Stock</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Status</th>
+            <th
+              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
+              Action</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(product, index) in productData" :key="index"
             class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
             <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
+
+
             <td class="px-4 py-2">
               <div class="w-12 h-12 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
-                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name" class="w-full h-full object-cover">
+                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name"
+                  class="w-full h-full object-cover">
                 <i v-else class="fas fa-image text-gray-400"></i>
               </div>
             </td>
+
+
+
             <td class="px-4 py-2 text-gray-700">
-              <div>
+      
                 <p class="font-medium">{{ product.name }}</p>
-                <p class="text-xs text-gray-500 truncate max-w-[150px]">{{ product.description || 'No description' }}</p>
-              </div>
+           
             </td>
+
+            
             <td class="px-4 py-2 text-center text-gray-600">
               {{ getCategoryName(product.categoryId) }}
             </td>
-            <td class="px-4 py-2 text-center text-gray-700 font-medium">${{ product.salePrice.toFixed(2) }}</td>
+
+
+
+            <td class="px-4 py-2 text-center">
+              <p class="font-medium">{{ product.description || '-' }} </p>
+            </td>
+
+
+            <td class="px-4 py-2 text-center text-gray-700 font-medium">{{ product.salePrice }} riel</td>
+
+
             <td class="px-4 py-2 text-center">
               <span v-if="product.discount > 0" class="text-red-600">{{ product.discount }}%</span>
               <span v-else>-</span>
             </td>
+
+
+
             <td class="px-4 py-2 text-center text-gray-600">{{ product.totalStock || 0 }}</td>
+
+
             <td class="px-4 py-2 text-center">
               <i :class="getStatusClass(product.status)"></i>
             </td>
+
+
+
             <td class="px-4 py-2 flex justify-center gap-2">
               <button class="p-1 rounded hover:bg-blue-100 transition" @click="editProduct(product)" aria-label="Edit">
                 <i class="fa-solid fa-pen-to-square text-blue-600 hover:text-blue-700"></i>
@@ -124,11 +175,12 @@
       :limitedPerPage="pageSize" :searchQuery="searchText" />
 
     <!-- Create/Edit Product Modal -->
-    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
-      <div class="font-sans w-[95%] md:w-[70%] lg:w-[60%] max-w-3xl mt-10 p-6 bg-white shadow-md rounded-lg relative z-50 m-auto">
+    <div v-if="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000] overflow-y-auto">
+      <div
+        class="font-sans w-[95%] md:w-[70%] lg:w-[60%] max-w-3xl mt-10 p-6 bg-white shadow-md rounded-lg relative z-50 m-auto">
         <!-- Close Button -->
-        <button class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
-          @click="closeModal">
+        <button class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors" @click="closeModal">
           <i class="fa-solid fa-xmark text-xl"></i>
         </button>
 
@@ -147,7 +199,7 @@
                 class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
                 placeholder="Enter product name" />
             </div>
-            
+
             <!-- Category -->
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1.5">
@@ -176,10 +228,10 @@
                 Price <span class="text-red-500">*</span>
               </label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <input v-model="salePrice" type="number" min="0" step="0.01" required
+                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">៛</span>
+                <input v-model="salePrice" type="number" step="100" min="0" required
                   class="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
-                  placeholder="0.00" />
+                  placeholder="0" />
               </div>
             </div>
 
@@ -197,8 +249,8 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <!-- Stock Quantity -->
+
+          <!-- Stock Quantity
             <div>
               <label class="block text-sm font-medium text-gray-600 mb-1.5">
                 Stock Quantity
@@ -206,24 +258,8 @@
               <input v-model="totalStock" type="number" min="0" step="1"
                 class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
                 placeholder="0" />
-            </div>
+            </div> -->
 
-            <!-- Status Toggle -->
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1.5">
-                Status
-              </label>
-              <div class="flex items-center space-x-3 mt-1.5">
-                <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
-                  :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
-                  <span class="sr-only">Enable status</span>
-                  <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
-                    :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
-                </Switch>
-                <span class="text-sm text-gray-600">{{ enabled ? 'Active' : 'Inactive' }}</span>
-              </div>
-            </div>
-          </div>
 
           <!-- Description -->
           <div>
@@ -240,7 +276,8 @@
             <label class="block text-sm font-medium text-gray-600 mb-1.5">
               Product Image
             </label>
-            <div class="border border-dashed border-gray-300 rounded-md p-6 hover:bg-gray-50 transition-all cursor-pointer"
+            <div
+              class="border border-dashed border-gray-300 rounded-md p-6 hover:bg-gray-50 transition-all cursor-pointer"
               @click="$refs.fileInput.click()">
               <div v-if="imagePreview" class="mb-4 flex justify-center">
                 <img :src="imagePreview" class="max-h-40 rounded-md object-contain" alt="Product preview" />
@@ -259,16 +296,34 @@
             </div>
           </div>
 
+
+
+          <!-- Status Toggle -->
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              Status
+            </label>
+            <div class="flex items-center space-x-3 mt-1.5">
+              <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+                :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
+                <span class="sr-only">Enable status</span>
+                <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
+                  :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+              </Switch>
+              <span class="text-sm text-gray-600">{{ enabled ? 'Active' : 'Inactive' }}</span>
+            </div>
+          </div>
+
           <!-- Error message -->
           <p v-if="error" class="text-red-500 text-sm mt-1 bg-red-50 p-2 rounded-md">{{ error }}</p>
 
           <!-- Action Buttons -->
           <div class="flex justify-end gap-4 mt-6 pt-4 border-t border-gray-100">
-            <button type="button" @click="resetForm" 
+            <button type="button" @click="resetForm"
               class="px-6 py-2.5 rounded-md text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
               Clear
             </button>
-            <button type="submit" 
+            <button type="submit"
               class="px-6 py-2.5 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors">
               {{ showEditModal ? 'Update' : 'Submit' }}
             </button>
@@ -276,13 +331,13 @@
         </form>
       </div>
     </div>
-  
+
     <!-- Confirmation Delete Dialog -->
     <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
       @confirm="handleDeleteConfirmation" />
-    </div>
-  </template>
-  
+  </div>
+</template>
+
 <script setup>
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
@@ -327,7 +382,7 @@ const idCustom = ref('');
 const name = ref('');
 const description = ref('');
 const categoryId = ref('');
-const salePrice = ref(0);
+const salePrice = ref('');
 const discount = ref(0);
 const totalStock = ref(0);
 const imageURL = ref('');
@@ -357,66 +412,47 @@ const formatDate = (dateString) => {
   });
 };
 
-const generateCustomId = async (branchId) => {
+
+// generate custom ID function
+
+const generateCustomId = async () => {
   try {
-    const currentBranchId = branchStore.getBranchId;
+    const token = localStorage.getItem('token');
 
-    if (!currentBranchId) {
-      return null;
-    }
-
-    const params = {
-      dynamicConditions: JSON.stringify([
-        { field: "_id", operator: "==", value: currentBranchId },
-        { field: "status", operator: "==", value: true },
-      ]),
-    };
-
-    const branchResponse = await axios.get(
-      `${apiURL}/loan/api/getAllDocs/Branch`,
-      {
-        params,
-      }
-    );
-
-    // Extract branch abbreviation
-    const branchData = branchResponse.data?.data?.[0];
-    const branchAbbr =
-      branchData?.abbreviation || getBranchNameById(currentBranchId);
-
-    if (!branchAbbr) {
-      return null;
-    }
-
-    const param= {
+    const param = {
       sortField: "createdAt",
       sortOrder: "desc",
-      limit: 1,
-     
+      limit: 1
     };
 
+    // Remove 'loan/' from the API path
     const response = await axios.get(
-      `${apiURL}/loan/api/getAllDocs/Product`,
+      `${apiURL}/api/getAllDocs/Product`,
       {
-        params: param
+        params: param,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       }
     );
 
     let lastId = response.data?.data?.[0]?.idCustom || null;
-
     let lastNumber = null;
 
     if (lastId) {
-      const matches = lastId.match(/[\-]?(\d+)$/);
-      lastNumber = matches ? matches[1] : null;
+      const matches = lastId.match(/(\d+)$/);
+      if (matches) lastNumber = matches[1];
     }
-    const nextNumber = getNextNumberId(lastNumber);
-    const customId = `CMD-${nextNumber}`;
 
-    return customId;
+    const nextNumber = getNextNumberId(lastNumber);
+    return `Pro-${nextNumber}`;
   } catch (error) {
     console.error("Error in generateCustomId:", error);
-    return null;
+    // Fallback: Generate a unique ID based on timestamp
+    const timestamp = new Date().getTime();
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    return `Pro-${timestamp % 100000}-${randomNum}`;
   }
 };
 
@@ -427,6 +463,9 @@ const getCategoryName = (categoryId) => {
   return category ? category.name : 'Unknown';
 };
 
+
+
+// pagination
 const handleListenToPagination = async (items) => {
   productData.value = items || [];
 };
@@ -492,53 +531,36 @@ const handleSubmit = async () => {
       error.value = 'Authentication required. Please login again.';
       return;
     }
-    
-    // Handle image upload if there's a new image file
-    let uploadedImageUrl = imageURL.value;
-    
+
+    // Use base64 approach for image upload like in Users.vue
     if (imageFile.value) {
       uploadStatus.value = {
-        message: 'Uploading image...',
+        message: 'Processing image...',
         color: 'text-blue-500'
       };
-      
-      // Create FormData for the image upload
-      const formData = new FormData();
-      formData.append('file', imageFile.value);
-      formData.append('collection', 'products');
-      
-      try {
-        // Upload the image to your server
-        const uploadResponse = await axios.post(
-          `${apiURL}/api/upload`, 
-          formData,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
-        
-        if (uploadResponse.data && uploadResponse.data.fileUrl) {
-          uploadedImageUrl = uploadResponse.data.fileUrl;
-          uploadStatus.value = {
-            message: 'Image uploaded successfully',
-            color: 'text-green-500'
-          };
-        }
-      } catch (uploadErr) {
-        console.error('Error uploading image:', uploadErr);
-        uploadStatus.value = {
-          message: 'Failed to upload image, but continuing with product save',
-          color: 'text-yellow-500'
+
+      // Convert image to base64 if it's not already
+      if (!imagePreview.value.startsWith('data:image')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imageURL.value = e.target.result; // Store the base64 data directly
         };
+        reader.readAsDataURL(imageFile.value);
+      } else {
+        // Image is already converted to base64 in handleImageUpload
+        imageURL.value = imagePreview.value;
       }
+    }
+
+    // Generate custom ID if needed
+    let customId = idCustom.value;
+    if (!customId) {
+      customId = await generateCustomId();
     }
 
     const requestBody = {
       fields: {
-        idCustom: idCustom.value || await generateCustomId(),
+        idCustom: customId,
         name: name.value,
         description: description.value || '',
         categoryId: categoryId.value,
@@ -546,7 +568,7 @@ const handleSubmit = async () => {
         discount: parseFloat(discount.value) || 0,
         totalStock: parseInt(totalStock.value) || 0,
         status: status.value,
-        imageURL: uploadedImageUrl || '',
+        imageURL: imageURL.value || '', // This now contains base64 image data
       }
     };
 
@@ -572,7 +594,7 @@ const handleSubmit = async () => {
           collection: 'Product',
           data: response.data.data._id
         });
-        
+
         isSubmitting.value = false;
         closeModal();
       } else {
@@ -605,7 +627,7 @@ const handleSubmit = async () => {
           collection: 'Product',
           data: response.data.data ? response.data.data._id : id.value
         });
-        
+
         isSubmitting.value = false;
         closeModal();
       } else {
@@ -633,12 +655,12 @@ const editProduct = (product) => {
   status.value = product.status;
   enabled.value = product.status;
   imageURL.value = product.imageURL || '';
-  
+
   // Set image preview if product has an image URL
   if (product.imageURL) {
     imagePreview.value = product.imageURL;
   }
-  
+
   showModal.value = true;
   showEditModal.value = true;
 };
@@ -762,16 +784,16 @@ const fetchProducts = async () => {
 const fetchCategories = async () => {
   try {
     const token = localStorage.getItem('token');
-    
+
     if (!token) return;
-    
+
     const response = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
-    
+
     if (response.data && response.data.data) {
       categories.value = response.data.data;
     }
@@ -798,7 +820,7 @@ watch(selectedItem, (newValue) => {
 const handleImageUpload = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  
+
   // Validate file type
   if (!file.type.match('image.*')) {
     uploadStatus.value = {
@@ -807,7 +829,7 @@ const handleImageUpload = async (e) => {
     };
     return;
   }
-  
+
   // Size validation (limit to 2MB)
   if (file.size > 2 * 1024 * 1024) {
     uploadStatus.value = {
@@ -816,30 +838,27 @@ const handleImageUpload = async (e) => {
     };
     return;
   }
-  
+
   imageFile.value = file;
-  
+
   // Create a preview
   const reader = new FileReader();
   reader.onload = (e) => {
     imagePreview.value = e.target.result;
   };
   reader.readAsDataURL(file);
-  
+
   uploadStatus.value = {
     message: 'Image ready to upload',
     color: 'text-green-500'
   };
-  
-  // Here you would typically upload the file to your server or storage
-  // For now we'll just store the file and handle actual upload during form submission
 };
 
 onMounted(() => {
   if (socket && socket.disconnected) {
     socket.connect();
   }
-  
+
   // Listen for socket updates
   socket.on('dataUpdated', (update) => {
     if (update.collection === 'Product') {
@@ -849,13 +868,14 @@ onMounted(() => {
       fetchCategories();
     }
   });
-  
+
   fetchProducts();
   fetchCategories();
 });
 </script>
 
 <style scoped>
+/* Custom scrollbar */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }
