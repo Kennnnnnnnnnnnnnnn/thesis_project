@@ -109,7 +109,7 @@
                 <i class="fa-solid fa-trash text-red-600 hover:text-red-700"></i>
               </button>
               <button v-if="restock.status" class="p-1 rounded hover:bg-green-100 transition" 
-                @click="markAsComplete(restock._id)" aria-label="Complete">
+                @click="markAsComplete(restock._id)">
                 <i class="fa-solid fa-check text-green-600 hover:text-green-700"></i>
               </button>
             </td>
@@ -550,7 +550,8 @@ const markAsComplete = async (restockId) => {
       return;
     }
 
-    const response = await axios.patch(
+    // 🔃 Update status to "Completed"
+    const updateRes = await axios.patch(
       `${apiURL}/api/updateDoc/PurchaseProduct/${restockId}`,
       {
         fields: {
@@ -561,70 +562,85 @@ const markAsComplete = async (restockId) => {
       },
       {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       }
     );
 
-    if (response.data.success) {
+    if (updateRes.data.success) {
+      await updateStockForRestock(restockId, token, userId, timestamp);
+
       socket.emit('dataUpdate', {
         action: 'update',
         collection: 'PurchaseProduct',
         data: restockId
       });
-      
-      // Update stock for restock
-      await updateStockForRestock(restockId);
     }
   } catch (err) {
     console.error('Error marking restock as complete:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to update status';
+    error.value = err.response?.data?.message || err.message || 'Failed to complete restock';
   } finally {
     isLoading.value = false;
   }
 };
+const updateStockForRestock = async (restockId, token, userId, timestamp) => {
+  try {
+    console.log('📦 Starting stock update for restock:', restockId);
 
-const updateStockForRestock = async (restockId) => {
-  // Get the restock order details
-  const restockOrder = restockData.value.find(order => order._id === restockId);
-  if (!restockOrder) return;
-  
-  // Update stock quantities for each product in the order
-  for (const product of restockOrder.products) {
-    try {
-      // Get current stock status
-      const stockResponse = await axios.get(
-        `${apiURL}/api/getDocsByField/Stock/productId/${product.id}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      
-      if (stockResponse.data?.data?.[0]) {
-        const stock = stockResponse.data.data[0];
-        
-        // Calculate new quantity
-        const newQuantity = stock.quantity + product.quantity;
-        
-        // Update stock record
-        await axios.patch(
-          `${apiURL}/api/updateDoc/Stock/${stock._id}`,
-          {
-            fields: {
-              quantity: newQuantity,
-              isOutOfStock: newQuantity <= 0,
-              lastRestockedAt: new Date().toISOString(),
-              updatedBy: userId,
-              updatedAt: timestamp
-            }
-          },
-          { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-      }
-    } catch (err) {
-      console.error(`Error updating stock for product ${product.id}:`, err);
+    const restockOrder = restockData.value.find(r => r._id === restockId);
+    if (!restockOrder) {
+      console.warn('❗Restock order not found:', restockId);
+      return;
     }
+
+    for (const product of restockOrder.products) {
+      console.log(`🔄 Product: ${product.id}, Qty to add: ${product.quantity}`);
+
+      const res = await axios.get(
+        `${apiURL}/api/getDocsByField/Stock/productId/${product.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const stock = res.data?.data?.[0];
+      if (!stock) {
+        console.warn('⚠️ Stock not found for product ID:', product.id);
+        continue;
+      }
+
+      const newQuantity = stock.quantity + parseInt(product.quantity);
+      console.log(`✅ Updating stock ID ${stock._id}: ${stock.quantity} ➕ ${product.quantity} = ${newQuantity}`);
+
+      await axios.patch(
+        `${apiURL}/api/updateDoc/Stock/${stock._id}`,
+        {
+          fields: {
+            quantity: newQuantity,
+            isOutOfStock: newQuantity <= 0,
+            lastRestockedAt: timestamp,
+            updatedAt: timestamp,
+            updatedBy: userId
+          }
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      socket.emit('dataUpdate', {
+        action: 'update',
+        collection: 'Stock',
+        data: stock._id
+      });
+    }
+
+    console.log('✅ All stock updated successfully for restock:', restockId);
+
+  } catch (err) {
+    console.error('❌ updateStockForRestock error:', err);
   }
 };
+
+
+
 
 watch(enabled, (newValue) => {
   status.value = newValue;

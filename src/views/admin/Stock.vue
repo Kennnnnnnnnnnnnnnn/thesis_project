@@ -635,68 +635,80 @@ const fetchStockData = async () => {
       error.value = 'Authentication required. Please login again.';
       return;
     }
-    
-    const response = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+
+    // Fetch stock list
+    const stockResponse = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
+      headers: { Authorization: `Bearer ${token}` }
     });
-    
-    // Process and populate references
-    const stocks = response.data.data || [];
-    
-    // Fetch related data if needed
-    await fetchRelatedData();
-    
-    // Calculate statistics
-    totalItems.value = stocks.length;
-    lowStockItems.value = stocks.filter(item => 
-      item.quantity > 0 && item.quantity <= item.minThreshold
-    ).length;
-    outOfStockItems.value = stocks.filter(item => 
-      item.quantity <= 0 || item.isOutOfStock
-    ).length;
-    
-    // Set data
-    stockData.value = stocks;
-    
+    const stocks = stockResponse.data.data || [];
+
+    // Fetch product/category/supplier maps
+    const [productsRes, categoriesRes, suppliersRes] = await Promise.all([
+      axios.get(`${apiURL}/api/getAllDocs/Product`, { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get(`${apiURL}/api/getAllDocs/Category`, { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get(`${apiURL}/api/getAllDocs/Supplier`, { headers: { Authorization: `Bearer ${token}` } }),
+    ]);
+
+    const productMap = {};
+    productsRes.data.data.forEach(p => { productMap[p._id] = p });
+
+    const categoryMap = {};
+    categoriesRes.data.data.forEach(c => { categoryMap[c._id] = c });
+
+    const supplierMap = {};
+    suppliersRes.data.data.forEach(s => { supplierMap[s._id] = s });
+
+    // Merge manually
+    const enriched = stocks.map(stock => ({
+      ...stock,
+      product: productMap[stock.productId] || null,
+      category: categoryMap[stock.categoryId] || null,
+      supplier: supplierMap[stock.supplierId] || null
+    }));
+
+    stockData.value = enriched;
+
+    // Update counters
+    totalItems.value = enriched.length;
+    lowStockItems.value = enriched.filter(item => item.quantity <= item.minThreshold && item.quantity > 0).length;
+    outOfStockItems.value = enriched.filter(item => item.quantity <= 0 || item.isOutOfStock).length;
+
   } catch (err) {
-    error.value = err.response?.data?.message || err.message || 'Failed to fetch inventory data';
-    stockData.value = [];
+    console.error('Error fetching data:', err);
+    error.value = err.message || 'Failed to fetch stock data';
   } finally {
     isLoading.value = false;
   }
 };
+
 
 // Fetch related data for dropdowns
 const fetchRelatedData = async () => {
   try {
     const token = localStorage.getItem('token');
     if (!token) return;
-    
-    // Fetch products
-    const productsResponse = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    products.value = productsResponse.data.data || [];
-    
-    // Fetch categories
-    const categoriesResponse = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    categories.value = categoriesResponse.data.data || [];
-    
-    // Fetch suppliers
-    const suppliersResponse = await axios.get(`${apiURL}/api/getAllDocs/Supplier`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    suppliers.value = suppliersResponse.data.data || [];
-    
+
+    const [productsRes, categoriesRes, suppliersRes] = await Promise.all([
+      axios.get(`${apiURL}/api/getAllDocs/Product`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      axios.get(`${apiURL}/api/getAllDocs/Category`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }),
+      axios.get(`${apiURL}/api/getAllDocs/Supplier`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    ]);
+
+    products.value = productsRes.data.data || [];
+    categories.value = categoriesRes.data.data || [];
+    suppliers.value = suppliersRes.data.data || [];
+
   } catch (err) {
-    console.error('Error fetching related data:', err);
+    console.error("❌ Failed to fetch dropdown data:", err);
   }
 };
+
 
 // Utility functions for stock status display
 const getStockStatusText = (stock) => {
@@ -798,6 +810,7 @@ onMounted(() => {
   });
   
   fetchStockData();
+  fetchRelatedData();
 });
 </script>
 
