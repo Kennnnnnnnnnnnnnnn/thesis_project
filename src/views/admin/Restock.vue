@@ -134,17 +134,16 @@
       </table>
     </div>
 
-      <!-- Pagination -->
-      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
-        <Pagination 
-          :currentPage="currentPage" 
-          @onEmitDataFromPagination="handleListenToPagination"
-          @onEmitIsLoading="handleListenIsLoading" 
-          @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-          :limitedPerPage="pageSize" 
-          :searchQuery="searchText" 
-        />
-      </div>
+    <!-- Pagination -->
+    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
+      <Pagination 
+        :currentPage="currentPage" 
+        @onEmitDataFromPagination="handleListenToPagination"
+        @onEmitIsLoading="handleListenIsLoading" 
+        @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+        :limitedPerPage="pageSize" 
+        :searchQuery="searchText" 
+      />
     </div>
 
     <!-- Create/Edit Modal -->
