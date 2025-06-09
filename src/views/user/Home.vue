@@ -73,7 +73,7 @@
                   ៛{{ formatPrice(product.salePrice) }}
                 </p>
                 <p class="text-xl font-bold text-gray-800">
-                  ${{ formatPrice(calculateFinalPrice(product)) }}
+                  ៛{{ formatPrice(calculateFinalPrice(product)) }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
                   Save {{ product.discount }}%
@@ -142,10 +142,10 @@
               <!-- Price -->
               <div class="text-center my-4">
                 <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
-                  ${{ formatPrice(product.salePrice) }}
+                  ៛{{ formatPrice(product.salePrice) }}
                 </p>
                 <p class="text-xl font-bold text-gray-800">
-                  ${{ formatPrice(calculateFinalPrice(product)) }}
+                  ៛{{ formatPrice(calculateFinalPrice(product)) }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
                   Save {{ product.discount }}%
