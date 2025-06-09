@@ -60,150 +60,79 @@
       </div>
     </div>
 
-    <!-- Main Table Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
-      <!-- Table Header -->
-      <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Restock Orders</h3>
-        <p class="text-sm text-gray-600 mt-1 font-medium">{{ restockData.length }} orders total</p>
+    <!-- Table -->
+    <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100" style="max-height: 60vh;">
+      <!-- Loading Overlay -->
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
       </div>
 
-      <!-- Table Container -->
-      <div class="relative overflow-hidden">
-        <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-          <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium">Loading...</span>
-          </div>
-        </div>
-        
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50/50">
-              <tr>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Supplier</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Products</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Total Amount</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Created At</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-100">
-              <tr v-for="(restock, index) in restockData" :key="restock._id"
-                class="hover:bg-amber-50/50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                  {{ index + 1 }}
-                </td>
-                
-                <!-- Supplier Column -->
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-bold text-gray-900">
-                    {{ getSupplierName(restock.supplierId) }}
+      <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">No</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Supplier</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Products</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Description</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Status</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Created At</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(restock, index) in restockData" :key="index"
+            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
+            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
+            <td class="px-4 py-2 text-gray-700">
+              {{ getSupplierName(restock.supplierId) }}
+            </td>
+            <td class="px-4 py-2">
+              <div class="flex flex-col gap-1">
+                <div v-for="product in restock.products" :key="product.id" 
+                  class="flex items-center gap-2 bg-gray-50 p-1 rounded">
+                  <div class="w-8 h-8 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                    <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name" 
+                      class="w-full h-full object-cover">
+                    <i v-else class="fas fa-box text-gray-400"></i>
                   </div>
-                </td>
-                
-                <!-- Products Column -->
-                <td class="px-6 py-4">
-                  <div class="flex flex-col gap-1">
-                    <div v-for="(product, idx) in restock.products" :key="idx" 
-                      class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
-                      <div class="w-8 h-8 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-                        <img v-if="getProductImage(product)" :src="getProductImage(product)" 
-                          :alt="getProductName(product)" class="w-full h-full object-cover">
-                        <i v-else class="fas fa-box text-gray-400 text-xs"></i>
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">
-                          {{ getProductName(product) }}
-                        </p>
-                        <p class="text-xs text-gray-500">
-                          Qty: {{ getProductQuantity(product) }} {{ debugProductUnit(product) }}
-                        </p>
-                      </div>
-                    </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</p>
+                    <p class="text-xs text-gray-500">Qty: {{ product.quantity }}</p>
                   </div>
-                </td>
-                
-                <!-- Total Amount Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="text-sm font-bold text-gray-900">
-                    {{ formatPrice(restock.totalAmount) }}
-                  </div>
-                </td>
-                
-                <!-- Status Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
-                    :class="restock.status ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-green-100 text-green-700 border-green-200'">
-                    <i :class="restock.status ? 'fas fa-clock' : 'fas fa-circle-check'" class="text-xs"></i>
-                    {{ restock.status ? 'Pending' : 'Completed' }}
-                  </span>
-                </td>
-                
-                <!-- Created At Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="text-sm text-gray-600">
-                    {{ formatDate(restock.createdAt) }}
-                  </div>
-                </td>
-                
-                <!-- Actions Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="flex items-center justify-center gap-2">
-                    <!-- Edit Button -->
-                    <button 
-                      class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200" 
-                      @click="editRestock(restock)" 
-                      title="Edit restock order">
-                      <i class="fas fa-edit text-sm"></i>
-                    </button>
-                    
-                    <!-- Complete Button (only for pending orders) -->
-                    <button v-if="restock.status" 
-                      class="p-2.5 rounded-xl hover:bg-green-50 text-green-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-green-200" 
-                      @click="markAsComplete(restock._id)" 
-                      title="Mark as completed">
-                      <i class="fas fa-check text-sm"></i>
-                    </button>
-                    
-                    <!-- Delete Button -->
-                    <button 
-                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200" 
-                      @click="deleteRestock(restock._id)" 
-                      title="Delete restock order">
-                      <i class="fas fa-trash text-sm"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              
-              <!-- Empty State -->
-              <tr v-if="restockData.length === 0 && !isLoading">
-                <td colspan="7" class="px-6 py-20 text-center">
-                  <div class="flex flex-col items-center gap-4">
-                    <div class="p-6 rounded-2xl bg-amber-50 border border-amber-200">
-                      <i class="fas fa-shopping-cart text-5xl text-amber-400"></i>
-                    </div>
-                    <div>
-                      <h3 class="text-lg font-bold text-gray-900">No restock orders found</h3>
-                      <p class="text-sm text-gray-600 mt-1 font-medium">Create your first restock order to get started</p>
-                    </div>
-                    <button 
-                      @click="openModal"
-                      class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-                      <i class="fas fa-plus text-xs"></i>
-                      Create First Order
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ restock.description || 'N/A' }}</td>
+            <td class="px-4 py-2 text-center">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
+                :class="restock.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+                <i :class="restock.status ? 'fa-solid fa-circle-check' : 'fa-solid fa-clock'"></i>
+                {{ restock.status ? 'Active' : 'Completed' }}
+              </span>
+            </td>
+            <td class="px-4 py-2 text-center text-gray-600">{{ formatDate(restock.createdAt) }}</td>
+            <td class="px-4 py-2 flex justify-center gap-2">
+              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editRestock(restock)" aria-label="Edit">
+                <i class="fa-solid fa-pen-to-square text-blue-600 hover:text-blue-700"></i>
+              </button>
+              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteRestock(restock._id)"
+                aria-label="Delete">
+                <i class="fa-solid fa-trash text-red-600 hover:text-red-700"></i>
+              </button>
+              <button v-if="restock.status" class="p-1 rounded hover:bg-green-100 transition" 
+                @click="markAsComplete(restock._id)" aria-label="Complete">
+                <i class="fa-solid fa-check text-green-600 hover:text-green-700"></i>
+              </button>
+            </td>
+          </tr>
+          <tr v-if="restockData.length === 0 && !isLoading">
+            <td colspan="7" class="px-4 py-8 text-center text-gray-400 italic">
+              No restock orders found
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
       <!-- Pagination -->
       <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
@@ -819,7 +748,8 @@ const markAsComplete = async (restockId) => {
       return;
     }
 
-    const response = await axios.patch(
+    // 🔃 Update status to "Completed"
+    const updateRes = await axios.patch(
       `${apiURL}/api/updateDoc/PurchaseProduct/${restockId}`,
       {
         fields: {
@@ -830,13 +760,15 @@ const markAsComplete = async (restockId) => {
       },
       {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       }
     );
 
-    if (response.data.success) {
+    if (updateRes.data.success) {
+      await updateStockForRestock(restockId, token, userId, timestamp);
+
       socket.emit('dataUpdate', {
         action: 'update',
         collection: 'PurchaseProduct',
@@ -845,9 +777,50 @@ const markAsComplete = async (restockId) => {
     }
   } catch (err) {
     console.error('Error marking restock as complete:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to update status';
+    error.value = err.response?.data?.message || err.message || 'Failed to complete restock';
   } finally {
     isLoading.value = false;
+  }
+};
+
+const updateStockForRestock = async (restockId) => {
+  // Get the restock order details
+  const restockOrder = restockData.value.find(order => order._id === restockId);
+  if (!restockOrder) return;
+  
+  // Update stock quantities for each product in the order
+  for (const product of restockOrder.products) {
+    try {
+      // Get current stock status
+      const stockResponse = await axios.get(
+        `${apiURL}/api/getDocsByField/Stock/productId/${product.id}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      
+      if (stockResponse.data?.data?.[0]) {
+        const stock = stockResponse.data.data[0];
+        
+        // Calculate new quantity
+        const newQuantity = stock.quantity + product.quantity;
+        
+        // Update stock record
+        await axios.patch(
+          `${apiURL}/api/updateDoc/Stock/${stock._id}`,
+          {
+            fields: {
+              quantity: newQuantity,
+              isOutOfStock: newQuantity <= 0,
+              lastRestockedAt: new Date().toISOString(),
+              updatedBy: userId,
+              updatedAt: timestamp
+            }
+          },
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+      }
+    } catch (err) {
+      console.error(`Error updating stock for product ${product.id}:`, err);
+    }
   }
 };
 

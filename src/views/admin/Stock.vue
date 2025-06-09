@@ -937,8 +937,8 @@ const fetchStockData = async () => {
     stockData.value = response.data.data || [];
     
   } catch (err) {
-    error.value = err.response?.data?.message || err.message || 'Failed to fetch inventory data';
-    stockData.value = [];
+    console.error('Error fetching data:', err);
+    error.value = err.message || 'Failed to fetch stock data';
   } finally {
     isLoading.value = false;
   }
@@ -963,7 +963,7 @@ const fetchRelatedData = async () => {
     categories.value = categoriesResponse.data.data || [];
     
   } catch (err) {
-    console.error('Error fetching related data:', err);
+    console.error("❌ Failed to fetch dropdown data:", err);
   }
 };
 
@@ -981,6 +981,7 @@ onMounted(() => {
   });
   
   fetchStockData();
+  fetchRelatedData();
 });
 </script>
 
