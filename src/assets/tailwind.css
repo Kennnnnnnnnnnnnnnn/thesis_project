@@ -1,5 +1,24 @@
 @tailwind base;
-
 @tailwind components;
-
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Khmer:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* Base font styles */
+@layer base {
+  body {
+    font-family: 'Noto Serif Khmer', serif;
+  }
+}
+
+/* Custom font utilities */
+@layer utilities {
+  .font-khmer {
+    font-family: 'Noto Serif Khmer', serif;
+  }
+  
+  .font-inter {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}

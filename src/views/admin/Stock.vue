@@ -1,325 +1,447 @@
 <template>
-  <div class="p-5 font-sans bg-white rounded-md">
-    <!-- Header, Create Button, Search and Filter -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200 mt-10">
-      <div class="flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 3v16a2 2 0 01-2 2H6a2 2 0 01-2-2V3"></path>
-          <path d="M8 21V7"></path>
-          <path d="M16 21V7"></path>
-          <path d="M12 7V3"></path>
-          <path d="M2 7h20"></path>
-        </svg>
-        <div>
-          <p class="text-left font-semibold text-lg">Inventory Management</p>
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter overflow-y-auto ">
+    <!-- Header Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <!-- Title -->
+        <div class="flex items-center gap-4">
+          <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 3v16a2 2 0 01-2 2H6a2 2 0 01-2-2V3"></path>
+              <path d="M8 21V7"></path>
+              <path d="M16 21V7"></path>
+              <path d="M12 7V3"></path>
+              <path d="M2 7h20"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Inventory Management</h1>
+            <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your stock levels and inventory</p> -->
+          </div>
         </div>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-3 items-center w-full sm:w-auto">
-        <!-- Dropdown (Items per page) -->
-        <div class="w-full md:w-auto mb-2 md:mb-0">
+        
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <!-- Items per page -->
           <div class="relative">
             <button @click="toggleDropdownRow"
-              class="flex items-center justify-between w-full min-w-[90px] px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">
-              <span class="text-sm font-medium">{{ selectedItem }}</span>
-              <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
-          </button>
+              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+              <span>{{ selectedItem }} items</span>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+            </button>
             <div v-show="isOpen"
-              class="absolute left-0 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg p-1 z-50">
+              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
               <div v-for="item in items" :key="item" @click="selectItem(item)"
-                class="px-3 py-1 cursor-pointer hover:bg-gray-100 rounded">
-                {{ item }}
+                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
+                {{ item }} items
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Search -->
-        <!-- <div class="relative w-full sm:w-64">
-          <input v-model="searchQuery" type="text" placeholder="Search products..."
-            class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </span>
-        </div> -->
-
-        <!-- Category Filter -->
-        <div class="relative w-full sm:w-40">
-          <select v-model="categoryFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+          <!-- Filters -->
+          <select v-model="categoryFilter" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Categories</option>
             <option v-for="category in categories" :key="category._id" :value="category._id">
               {{ category.name }}
             </option>
           </select>
-        </div>
 
-        <!-- Stock Status Filter -->
-        <div class="relative w-full sm:w-40">
-          <select v-model="stockStatusFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+          <!-- Enhanced Filters -->
+          <select v-model="stockStatusFilter" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Status</option>
             <option value="in-stock">In Stock</option>
             <option value="low-stock">Low Stock</option>
+            <option value="critical-stock">Very Low Stock</option>
             <option value="out-of-stock">Out of Stock</option>
           </select>
-        </div>
 
-        <button
-          class="bg-gradient-to-br from-green-400 to-green-600 text-white px-4 py-2 rounded-md text-xs font-semibold shadow hover:from-green-500 hover:to-green-700 transition min-w-[100px]"
-          @click="openModal">
-          + Add Inventory
-        </button>
-      </div>
-    </div>
-
-    <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Total Products</p>
-            <p class="text-xl font-bold">{{ totalItems }}</p>
-          </div>
-          <div class="p-3 rounded-full bg-blue-100">
-            <i class="fas fa-box text-blue-600"></i>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Low Stock Items</p>
-            <p class="text-xl font-bold">{{ lowStockItems }}</p>
-          </div>
-          <div class="p-3 rounded-full bg-yellow-100">
-            <i class="fas fa-triangle-exclamation text-yellow-600"></i>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm text-gray-500">Out of Stock Items</p>
-            <p class="text-xl font-bold">{{ outOfStockItems }}</p>
-          </div>
-          <div class="p-3 rounded-full bg-red-100">
-            <i class="fas fa-circle-xmark text-red-600"></i>
-          </div>
+          <!-- Add Button -->
+          <button
+            class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+            @click="openModal">
+            <i class="fas fa-plus text-xs"></i>
+            Add Item
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Restock All button -->
-    <div class="flex justify-end mb-3" v-if="lowStockItems > 0 || outOfStockItems > 0">
-      <button 
-        @click="restockAllLowItems" 
-        class="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-md border border-green-200 text-sm hover:bg-green-100 transition"
-      >
-        <i class="fa-solid fa-cart-shopping"></i>
-        Restock All Low Items
-      </button>
-    </div>
-
-    <!-- Table -->
-    <div class="overflow-y-auto mt-3 relative bg-white rounded-lg shadow-sm border border-gray-100" style="max-height: 60vh;">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-900"></div>
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <!-- Total Products -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Products</p>
+            <p class="text-3xl font-bold text-gray-900 tracking-tight">{{ totalItems }}</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-amber-50 border border-amber-100">
+            <i class="fas fa-box text-amber-600 text-xl"></i>
+          </div>
+        </div>
       </div>
       
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">No</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">Product</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Category</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Supplier</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Quantity</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Unit</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Status</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr v-for="(stock, index) in stockData" :key="stock._id"
-            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
-            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
-            <td class="px-4 py-2 align-middle">
-              <div class="flex items-center gap-2 w-full">
-                <div v-if="stock.product && stock.product.image" class="w-10 h-10 rounded-md bg-gray-200 overflow-hidden">
-                  <img :src="stock.product.image" alt="Product" class="w-full h-full object-cover" />
-                </div>
-                <div v-else class="w-10 h-10 rounded-md bg-gray-200 flex items-center justify-center text-gray-400">
-                  <i class="fas fa-box"></i>
-                </div>
-                <span class="text-gray-800 whitespace-nowrap">{{ stock.product ? stock.product.name : 'Unknown Product' }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ stock.category ? stock.category.name : 'Unknown Category' }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ stock.supplier ? stock.supplier.name : 'Unknown Supplier' }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ stock.quantity }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ stock.unit }}</td>
-            <td class="px-4 py-2 text-center">
-              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
-                :class="getStockStatusClass(stock)">
-                <i :class="getStockStatusIcon(stock)"></i>
-                {{ getStockStatusText(stock) }}
-              </span>
-            </td>
-            <td class="px-4 py-2 flex justify-center gap-2">
-              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editStock(stock)" title="Edit">
-                <i class="fa-solid fa-pen-to-square text-blue-600"></i>
-              </button>
-              
-              <!-- Add this restock button for low/out of stock items -->
-              <button 
-                v-if="stock.quantity <= stock.minThreshold" 
-                class="p-1 rounded hover:bg-green-100 transition" 
-                @click="restockItem(stock)"
-                title="Create restock order">
-                <i class="fa-solid fa-cart-plus text-green-600"></i>
-              </button>
-              
-              <button class="p-1 rounded hover:bg-yellow-100 transition" @click="viewStockHistory(stock._id)" title="History">
-                <i class="fa-solid fa-clock-rotate-left text-yellow-600"></i>
-              </button>
-              
-              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteStock(stock._id)" title="Delete">
-                <i class="fa-solid fa-trash text-red-600"></i>
-              </button>
-            </td>
-          </tr>
-          <tr v-if="stockData.length === 0 && !isLoading">
-            <td colspan="8" class="px-4 py-8 text-center text-gray-400 italic">
-              No inventory items found
-            </td>
-          </tr>
-          </tbody>
-        </table>
+      <!-- In Stock -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">In Stock</p>
+            <p class="text-3xl font-bold text-green-600 tracking-tight">{{ inStockItems }}</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
+            <i class="fas fa-circle-check text-green-600 text-xl"></i>
+          </div>
+        </div>
       </div>
       
-    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
-      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-      :limitedPerPage="pageSize" :searchQuery="searchText" />
-
-    <!-- Create/Edit Stock Modal -->
-    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
-      <div class="font-sans w-full max-w-lg sm:w-[95%] sm:max-w-lg bg-white rounded-lg shadow-md p-4 sm:p-8 relative">
-        <!-- Close Button -->
-        <i class="fa-solid fa-circle-xmark cursor-pointer text-red-700 text-lg absolute top-4 right-4
-          hover:text-red-500 transform hover:scale-110 transition-all duration-300 ease-in-out"
-          @click="closeModal"></i>
-        <h2 class="text-lg font-semibold mb-5 text-gray-700 text-center mt-[-12px]">
-          {{ showEditModal ? 'Update Inventory' : 'Add Inventory Item' }}
-        </h2>
-        <form @submit.prevent="handleSubmit" class="space-y-4 flex flex-col">
-          <!-- Product Selection -->
+      <!-- Low Stock (includes critical) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="flex items-center justify-between">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Product <span class="text-red-500">*</span>
-            </label>
-            <select v-model="productId" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
-              <option value="" disabled>Select product</option>
-              <option v-for="product in products" :key="product._id" :value="product._id">
-                {{ product.name }}
-              </option>
-            </select>
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Low Stock</p>
+            <p class="text-3xl font-bold text-orange-600 tracking-tight">{{ lowStockItems }}</p>
           </div>
-
-          <!-- Category Selection -->
+          <div class="p-4 rounded-2xl bg-orange-50 border border-orange-100">
+            <i class="fas fa-triangle-exclamation text-orange-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Out of Stock -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="flex items-center justify-between">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Category <span class="text-red-500">*</span>
-            </label>
-            <select v-model="categoryId" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
-              <option value="" disabled>Select category</option>
-              <option v-for="category in categories" :key="category._id" :value="category._id">
-                {{ category.name }}
-              </option>
-            </select>
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Out of Stock</p>
+            <p class="text-3xl font-bold text-red-600 tracking-tight">{{ outOfStockItems }}</p>
           </div>
+          <div class="p-4 rounded-2xl bg-red-50 border border-red-100">
+            <i class="fas fa-circle-xmark text-red-600 text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          <!-- Supplier Selection -->
+    <!-- Main Table Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+      <!-- Table Header -->
+      <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Inventory Items</h3>
+        <p class="text-sm text-gray-600 mt-1 font-medium">{{ filteredStockData.length }} items total</p>
+      </div>
+
+      <!-- Table Container -->
+      <div class="relative overflow-hidden">
+        <!-- Loading Overlay -->
+        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
+          <div class="flex items-center gap-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
+            <span class="text-gray-700 font-medium">Loading...</span>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Level</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Unit</th>
+                <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Thresholds</th> -->
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="(stock, index) in filteredStockData" :key="stock._id"
+                class="hover:bg-amber-50/50 transition-colors duration-200">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  {{ index + 1 }}
+                </td>
+                
+                <!-- Product Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0">
+                      <div v-if="getProductImage(stock.productId)" 
+                        class="h-12 w-12 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
+                        <img :src="getProductImage(stock.productId)" alt="Product" 
+                          class="h-full w-full object-cover" />
+                      </div>
+                      <div v-else 
+                        class="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                        <i class="fas fa-box text-gray-400"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900">
+                        {{ getProductName(stock.productId) }}
+                      </div>
+                      <div class="text-xs text-gray-500 font-medium mt-0.5">
+                        ID: {{ getProductIdCustom(stock.productId) }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                
+                <!-- Category Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center font-khmer">
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                    {{ getCategoryName(stock.categoryId) }}
+                  </span>
+                </td>
+                
+                <!-- Stock Level Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex flex-col items-center gap-2.5">
+                    <span class="text-lg font-bold text-gray-900">{{ stock.quantity }}</span>
+                    <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                      <div class="h-2.5 rounded-full transition-all duration-300"
+                        :class="getStockBarColor(stock)"
+                        :style="{ width: getStockPercentage(stock) + '%' }"></div>
+                    </div>
+                    <span class="text-xs text-gray-500 font-medium">
+                      {{ Math.round(getStockPercentage(stock)) }}%
+                    </span>
+                  </div>
+                </td>
+                
+                <!-- Unit Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700 font-medium">
+                  {{ stock.unit }}
+                </td>
+                
+                <!-- Thresholds Column -->
+                <!-- <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-xs space-y-1.5">
+                    <div class="flex items-center justify-center gap-1.5">
+                      <span class="text-gray-500 font-medium">Min:</span>
+                      <span class="font-bold text-orange-600">{{ stock.minThreshold }}</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-1.5">
+                      <span class="text-gray-500 font-medium">Max:</span>
+                      <span class="font-bold text-amber-600">{{ stock.maxCapacity }}</span>
+                    </div>
+                  </div>
+                </td> -->
+                
+                <!-- Status Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
+                    :class="getStockStatusClass(stock)">
+                    <i :class="getStockStatusIcon(stock)" class="text-xs"></i>
+                    {{ getStockStatusText(stock) }}
+                  </span>
+                  <!-- Optional: Add stock level indicator -->
+                  <div class="text-xs text-gray-500 mt-1 font-medium">
+                    {{ getStockLevel(stock) }}
+                  </div>
+                </td>
+                
+                <!-- Actions Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <!-- Edit Button -->
+                    <button 
+                      class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200" 
+                      @click="editStock(stock)" 
+                      title="Edit stock details">
+                      <i class="fas fa-edit text-sm"></i>
+                    </button>
+                    
+                    <!-- History Button -->
+                    <!-- <button 
+                      class="p-2.5 rounded-xl hover:bg-orange-50 text-orange-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-orange-200" 
+                      @click="viewStockHistory(stock._id)" 
+                      title="View stock history">
+                      <i class="fas fa-clock-rotate-left text-sm"></i>
+                    </button> -->
+                    
+                    <!-- Delete Button -->
+                    <button 
+                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200" 
+                      @click="deleteStock(stock._id)" 
+                      title="Delete stock record">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr v-if="filteredStockData.length === 0 && !isLoading">
+                <td colspan="8" class="px-6 py-20 text-center">
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="p-6 rounded-2xl bg-amber-50 border border-amber-200">
+                      <i class="fas fa-box-open text-5xl text-amber-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-bold text-gray-900">No inventory items found</h3>
+                      <p class="text-sm text-gray-600 mt-1 font-medium">Add your first inventory item to get started</p>
+                    </div>
+                    <button 
+                      @click="openModal"
+                      class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                      <i class="fas fa-plus text-xs"></i>
+                      Add First Item
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
+        <Pagination 
+          :currentPage="currentPage" 
+          @onEmitDataFromPagination="handleListenToPagination"
+          @onEmitIsLoading="handleListenIsLoading" 
+          @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+          :limitedPerPage="pageSize" 
+          :searchQuery="searchText" 
+        />
+      </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Supplier <span class="text-red-500">*</span>
-            </label>
-            <select v-model="supplierId" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
-              <option value="" disabled>Select supplier</option>
-              <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id">
-                {{ supplier.name }}
-              </option>
-            </select>
+            <h2 class="text-xl font-bold text-gray-900 tracking-tight">
+              {{ showEditModal ? 'Update Inventory' : 'Add New Inventory Item' }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1 font-medium">
+              {{ showEditModal ? 'Modify existing inventory details' : 'Add a new product to your inventory' }}
+            </p>
           </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Quantity -->
+          <button 
+            class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+            @click="closeModal">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
+          <!-- Product and Category Selection -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">
-                Quantity <span class="text-red-500">*</span>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Product <span class="text-red-500">*</span>
               </label>
-              <input v-model="quantity" type="number" min="0" required
-                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+              <select v-model="productId" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
+                <option value="" disabled>Select a product</option>
+                <option v-for="product in products" :key="product._id" :value="product._id">
+                  {{ product.name }} ({{ product.idCustom }})
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <select v-model="categoryId" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
+                <option value="" disabled>Select a category</option>
+                <option v-for="category in categories" :key="category._id" :value="category._id">
+                  {{ category.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quantity and Unit -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Initial Quantity <span class="text-red-500">*</span>
+              </label>
+              <input v-model.number="quantity" type="number" min="0" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
                 placeholder="Enter quantity" />
             </div>
 
-            <!-- Unit -->
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
                 Unit <span class="text-red-500">*</span>
               </label>
               <input v-model="unit" type="text" required
-                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
-                placeholder="e.g. pcs, kg, liters" />
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="e.g., kg, pcs, liters" />
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Min Threshold -->
+          <!-- Thresholds -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">
-                Min Threshold <span class="text-red-500">*</span>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Low Stock Alert <span class="text-red-500">*</span>
               </label>
-              <input v-model="minThreshold" type="number" min="0" required
-                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
-                placeholder="Low stock level" />
+              <input v-model.number="minThreshold" type="number" min="0" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all font-medium"
+                placeholder="Minimum threshold" />
+              <p class="text-xs text-gray-500 mt-2 font-medium">Alert when stock falls below this level</p>
             </div>
 
-            <!-- Max Capacity -->
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
                 Max Capacity <span class="text-red-500">*</span>
               </label>
-              <input v-model="maxCapacity" type="number" min="0" required
-                class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
-                placeholder="Max storage capacity" />
+              <input v-model.number="maxCapacity" type="number" min="0" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Maximum capacity" />
+              <p class="text-xs text-gray-500 mt-2 font-medium">Maximum storage capacity</p>
             </div>
           </div>
 
-          <!-- Error message -->
-          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
+          <!-- Error Message -->
+          <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-circle text-red-500"></i>
+              <p class="text-red-700 text-sm font-semibold">{{ error }}</p>
+            </div>
+          </div>
 
           <!-- Action Buttons -->
-          <div class="flex justify-end gap-3 mt-6">
-            <button type="button" class="px-5 py-2 rounded-full text-base font-normal bg-gray-100 text-gray-700 shadow-sm
-             hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 transition" @click="resetForm">
-              Clear
+          <div class="flex gap-4 pt-4">
+            <button type="button" 
+              class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
+              @click="resetForm">
+              Reset
             </button>
-            <button type="submit" class="px-5 py-2 rounded-full text-base font-normal bg-yellow-500 text-white shadow-sm
-             hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-300 transition">
-              {{ showEditModal ? 'Update Inventory' : 'Add Inventory' }}
+            <button type="submit" 
+              :disabled="isSubmitting"
+              class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
+              <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                <i class="fas fa-spinner fa-spin"></i>
+                {{ showEditModal ? 'Updating...' : 'Adding...' }}
+              </span>
+              <span v-else>
+                {{ showEditModal ? 'Update Stock' : 'Add Stock' }}
+              </span>
             </button>
-        </div>
+          </div>
         </form>
       </div>
     </div>
 
     <!-- Confirmation Dialog -->
-    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation" @confirm="handleDeleteConfirmation" />
-    </div>
-  </template>
-  
+    <DeleteConfirmation 
+      :show="showConfirmDialog" 
+      @cancel="handleCancelConfirmation" 
+      @confirm="handleDeleteConfirmation" 
+    />
+  </div>
+</template>
+
 <script setup>
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
@@ -327,11 +449,9 @@ import Pagination from '@/components/Pagination.vue';
 import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue';
 
-const router = useRouter();
-
+// Reactive variables
 const showModal = ref(false);
 const showEditModal = ref(false);
 const isLoading = ref(false);
@@ -341,17 +461,14 @@ const stockData = ref([]);
 const currentId = ref('');
 const productId = ref('');
 const categoryId = ref('');
-const supplierId = ref('');
 const quantity = ref(0);
 const unit = ref('');
 const minThreshold = ref(5);
 const maxCapacity = ref(100);
-const isOutOfStock = ref(false);
 
-// References
+// Reference data
 const products = ref([]);
 const categories = ref([]);
-const suppliers = ref([]);
 
 // UI controls
 const items = ref([10, 25, 50, 100]);
@@ -365,16 +482,192 @@ const categoryFilter = ref('all');
 const stockStatusFilter = ref('all');
 const isOpen = ref(false);
 
-// Stats
-const totalItems = ref(0);
-const lowStockItems = ref(0);
-const outOfStockItems = ref(0);
-
 // Confirmation dialog
 const showConfirmDialog = ref(false);
 const pendingStockId = ref(null);
 
-// Pagination handlers
+// 🎯 Enhanced Stock Status Logic (Frontend Only)
+const getStockStatus = (stock) => {
+  // Validate input
+  if (!stock || typeof stock.quantity !== 'number' || typeof stock.minThreshold !== 'number') {
+    return {
+      text: 'Unknown',
+      class: 'bg-gray-100 text-gray-700 border-gray-200',
+      icon: 'fas fa-question-circle',
+      barColor: 'bg-gray-400',
+      priority: 0
+    };
+  }
+
+  const { quantity, minThreshold } = stock;
+
+  // Out of Stock - Priority check for zero or negative quantities
+  if (quantity <= 0) {
+    return {
+      text: 'Out of Stock',
+      class: 'bg-red-100 text-red-700 border-red-200',
+      icon: 'fas fa-circle-xmark',
+      barColor: 'bg-red-500',
+      priority: 3 // Highest priority for sorting
+    };
+  }
+
+  // Critical Stock - Very low (less than half of minimum threshold)
+  if (quantity <= Math.floor(minThreshold / 2) && minThreshold > 0) {
+    return {
+      text: 'Critical Stock',
+      class: 'bg-red-100 text-red-700 border-red-200',
+      icon: 'fas fa-triangle-exclamation',
+      barColor: 'bg-red-500',
+      priority: 2
+    };
+  }
+
+  // Low Stock - At or below minimum threshold
+  if (quantity <= minThreshold) {
+    return {
+      text: 'Low Stock',
+      class: 'bg-orange-100 text-orange-700 border-orange-200',
+      icon: 'fas fa-triangle-exclamation',
+      barColor: 'bg-orange-500',
+      priority: 1
+    };
+  }
+
+  // In Stock - Above minimum threshold
+  return {
+    text: 'In Stock',
+    class: 'bg-green-100 text-green-700 border-green-200',
+    icon: 'fas fa-circle-check',
+    barColor: 'bg-green-500',
+    priority: 0 // Lowest priority
+  };
+};
+
+// Individual status helper functions using the main logic
+const getStockStatusText = (stock) => getStockStatus(stock).text;
+const getStockStatusClass = (stock) => getStockStatus(stock).class;
+const getStockStatusIcon = (stock) => getStockStatus(stock).icon;
+const getStockBarColor = (stock) => getStockStatus(stock).barColor;
+
+// Enhanced percentage calculation
+const getStockPercentage = (stock) => {
+  if (!stock || !stock.maxCapacity || stock.maxCapacity <= 0) return 0;
+  return Math.min((stock.quantity / stock.maxCapacity) * 100, 100);
+};
+
+// Stock level indicator for additional context
+const getStockLevel = (stock) => {
+  const percentage = getStockPercentage(stock);
+  if (percentage <= 0) return 'Empty';
+  if (percentage <= 25) return 'Very Low';
+  if (percentage <= 50) return 'Low';
+  if (percentage <= 75) return 'Medium';
+  return 'High';
+};
+
+// Enhanced computed properties using frontend logic
+const totalItems = computed(() => stockData.value.length);
+
+const lowStockItems = computed(() => 
+  stockData.value.filter(item => {
+    const status = getStockStatus(item);
+    return status.text === 'Low Stock' || status.text === 'Critical Stock';
+  }).length
+);
+
+const outOfStockItems = computed(() => 
+  stockData.value.filter(item => 
+    getStockStatus(item).text === 'Out of Stock'
+  ).length
+);
+
+const criticalStockItems = computed(() => 
+  stockData.value.filter(item => 
+    getStockStatus(item).text === 'Critical Stock'
+  ).length
+);
+
+const inStockItems = computed(() => 
+  stockData.value.filter(item => 
+    getStockStatus(item).text === 'In Stock'
+  ).length
+);
+
+// Enhanced filtering with frontend status logic
+const filteredStockData = computed(() => {
+  let filtered = stockData.value;
+
+  // Filter by category
+  if (categoryFilter.value !== 'all') {
+    filtered = filtered.filter(item => item.categoryId === categoryFilter.value);
+  }
+
+  // Filter by stock status using frontend logic
+  if (stockStatusFilter.value !== 'all') {
+    switch (stockStatusFilter.value) {
+      case 'in-stock':
+        filtered = filtered.filter(item => 
+          getStockStatus(item).text === 'In Stock'
+        );
+        break;
+      case 'low-stock':
+        filtered = filtered.filter(item => {
+          const status = getStockStatus(item).text;
+          return status === 'Low Stock' || status === 'Critical Stock';
+        });
+        break;
+      case 'out-of-stock':
+        filtered = filtered.filter(item => 
+          getStockStatus(item).text === 'Out of Stock'
+        );
+        break;
+      case 'critical-stock':
+        filtered = filtered.filter(item => 
+          getStockStatus(item).text === 'Critical Stock'
+        );
+        break;
+    }
+  }
+
+  return filtered;
+});
+
+// Sort by stock priority (optional - you can use this instead of filteredStockData)
+const sortedStockData = computed(() => {
+  return [...filteredStockData.value].sort((a, b) => {
+    const priorityA = getStockStatus(a).priority;
+    const priorityB = getStockStatus(b).priority;
+    return priorityB - priorityA; // Higher priority (more urgent) first
+  });
+});
+
+// Helper functions for product and category data
+const getProductData = (productId) => {
+  return products.value.find(p => p._id === productId) || null;
+};
+
+const getProductName = (productId) => {
+  const product = getProductData(productId);
+  return product ? product.name : 'Unknown Product';
+};
+
+const getProductIdCustom = (productId) => {
+  const product = getProductData(productId);
+  return product ? product.idCustom : 'N/A';
+};
+
+const getProductImage = (productId) => {
+  const product = getProductData(productId);
+  return product ? product.imageURL : null;
+};
+
+const getCategoryName = (categoryId) => {
+  const category = categories.value.find(c => c._id === categoryId);
+  return category ? category.name : 'Unknown Category';
+};
+
+// Event handlers
 const handleListenToPagination = async (items) => {
   stockData.value = items || [];
 };
@@ -386,14 +679,14 @@ const handleListenIsLoading = (status) => {
 const handleListenIsLastRecordOnPage = (page) => {
   currentPageIsLastRecord.value = page;
   if (currentPage.value > 1) {
-    currentPage.value -= 1; // Move to previous page
+    currentPage.value -= 1;
   }
 };
 
 // Watch for search changes
 watch(searchQuery, (newValue) => {
   searchText.value = newValue;
-  currentPage.value = 1; // Reset to page 1 when searching
+  currentPage.value = 1;
 }, { immediate: true });
 
 // Dropdown handlers
@@ -424,7 +717,6 @@ const resetForm = () => {
   currentId.value = '';
   productId.value = '';
   categoryId.value = '';
-  supplierId.value = '';
   quantity.value = 0;
   unit.value = '';
   minThreshold.value = 5;
@@ -432,9 +724,9 @@ const resetForm = () => {
   error.value = '';
 };
 
-// Submit form handler
+// Submit form handler (removed isOutOfStock from backend call)
 const handleSubmit = async () => {
-  if (!productId.value || !categoryId.value || !supplierId.value || !unit.value || 
+  if (!productId.value || !categoryId.value || !unit.value || 
       quantity.value === null || minThreshold.value === null || maxCapacity.value === null) {
     error.value = 'Required fields cannot be empty';
     return;
@@ -466,12 +758,11 @@ const handleSubmit = async () => {
       fields: {
         productId: productId.value,
         categoryId: categoryId.value,
-        supplierId: supplierId.value,
         unit: unit.value,
         quantity: parseInt(quantity.value),
         minThreshold: parseInt(minThreshold.value),
-        maxCapacity: parseInt(maxCapacity.value),
-        isOutOfStock: parseInt(quantity.value) <= 0
+        maxCapacity: parseInt(maxCapacity.value)
+        // Removed isOutOfStock - let frontend handle status logic
       }
     };
 
@@ -489,8 +780,7 @@ const handleSubmit = async () => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
-        }
-      );
+        });
 
       if (response.data.success) {
         socket.emit('dataUpdate', {
@@ -530,8 +820,7 @@ const handleSubmit = async () => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
-        }
-      );
+        });
 
       if (response.data.success || response.data.message === 'Stock updated') {
         socket.emit('dataUpdate', {
@@ -559,7 +848,6 @@ const editStock = (stock) => {
   currentId.value = stock._id;
   productId.value = stock.productId;
   categoryId.value = stock.categoryId;
-  supplierId.value = stock.supplierId;
   quantity.value = stock.quantity;
   unit.value = stock.unit;
   minThreshold.value = stock.minThreshold;
@@ -568,11 +856,11 @@ const editStock = (stock) => {
   showEditModal.value = true;
 };
 
-// View stock history handler (placeholder)
-const viewStockHistory = (stockId) => {
-  console.log('View history for stock:', stockId);
-  // Implement view history functionality
-};
+// View stock history handler
+// const viewStockHistory = (stockId) => {
+//   console.log('View history for stock:', stockId);
+//   // TODO: Implement view history functionality
+// };
 
 // Delete stock handler
 const deleteStock = (stockId) => {
@@ -609,7 +897,7 @@ const handleDeleteConfirmation = async () => {
         data: response.data.data._id
       });
       fetchStockData();
-      closeModal(); // Close the modal if it's open
+      closeModal();
     } else {
       throw new Error(response.data.message || 'Failed to delete stock item');
     }
@@ -636,6 +924,9 @@ const fetchStockData = async () => {
       return;
     }
     
+    // First fetch all necessary data
+    await fetchRelatedData();
+    
     const response = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -643,23 +934,7 @@ const fetchStockData = async () => {
       }
     });
     
-    // Process and populate references
-    const stocks = response.data.data || [];
-    
-    // Fetch related data if needed
-    await fetchRelatedData();
-    
-    // Calculate statistics
-    totalItems.value = stocks.length;
-    lowStockItems.value = stocks.filter(item => 
-      item.quantity > 0 && item.quantity <= item.minThreshold
-    ).length;
-    outOfStockItems.value = stocks.filter(item => 
-      item.quantity <= 0 || item.isOutOfStock
-    ).length;
-    
-    // Set data
-    stockData.value = stocks;
+    stockData.value = response.data.data || [];
     
   } catch (err) {
     error.value = err.response?.data?.message || err.message || 'Failed to fetch inventory data';
@@ -669,13 +944,13 @@ const fetchStockData = async () => {
   }
 };
 
-// Fetch related data for dropdowns
+// Fetch related data for dropdowns and product information
 const fetchRelatedData = async () => {
   try {
     const token = localStorage.getItem('token');
     if (!token) return;
     
-    // Fetch products
+    // Fetch products first (needed for stock data display)
     const productsResponse = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -687,101 +962,9 @@ const fetchRelatedData = async () => {
     });
     categories.value = categoriesResponse.data.data || [];
     
-    // Fetch suppliers
-    const suppliersResponse = await axios.get(`${apiURL}/api/getAllDocs/Supplier`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    suppliers.value = suppliersResponse.data.data || [];
-    
   } catch (err) {
     console.error('Error fetching related data:', err);
   }
-};
-
-// Utility functions for stock status display
-const getStockStatusText = (stock) => {
-  if (stock.isOutOfStock || stock.quantity <= 0) return 'Out of Stock';
-  if (stock.quantity <= stock.minThreshold) return 'Low Stock';
-  return 'In Stock';
-};
-
-const getStockStatusClass = (stock) => {
-  if (stock.isOutOfStock || stock.quantity <= 0) return 'bg-red-100 text-red-700';
-  if (stock.quantity <= stock.minThreshold) return 'bg-yellow-100 text-yellow-700';
-  return 'bg-green-100 text-green-700';
-};
-
-const getStockStatusIcon = (stock) => {
-  if (stock.isOutOfStock || stock.quantity <= 0) return 'fa-solid fa-circle-xmark';
-  if (stock.quantity <= stock.minThreshold) return 'fa-solid fa-triangle-exclamation';
-  return 'fa-solid fa-circle-check';
-};
-
-// Filter handlers
-watch([categoryFilter, stockStatusFilter], () => {
-  fetchStockData();
-}, { immediate: false });
-
-// Add these functions to handle restocking
-
-// Function to restock a single item
-const restockItem = (stock) => {
-  // Get product and supplier details
-  const productData = products.value.find(p => p._id === stock.productId);
-  const supplierData = suppliers.value.find(s => s._id === stock.supplierId);
-  
-  // Calculate suggested quantity (double the min threshold minus current quantity)
-  const suggestedQty = Math.max(stock.minThreshold * 2 - stock.quantity, 1);
-  
-  // Store the selected item in localStorage
-  localStorage.setItem('restockItem', JSON.stringify({
-    productId: stock.productId,
-    productName: productData?.name || 'Unknown Product',
-    supplierId: stock.supplierId,
-    supplierName: supplierData?.name || 'Unknown Supplier',
-    quantity: suggestedQty
-  }));
-  
-  // Navigate to restock page
-  router.push('/admin/restock');
-};
-
-// Function to restock all low stock items
-const restockAllLowItems = () => {
-  // Get all items that need restocking
-  const itemsToRestock = stockData.value.filter(item => 
-    item.quantity <= item.minThreshold
-  );
-  
-  if (itemsToRestock.length === 0) return;
-  
-  // Prepare items for restock, grouped by supplier
-  const itemsBySupplier = {};
-  
-  itemsToRestock.forEach(stock => {
-    const productData = products.value.find(p => p._id === stock.productId);
-    if (!productData) return;
-    
-    const supplierId = stock.supplierId;
-    if (!itemsBySupplier[supplierId]) {
-      itemsBySupplier[supplierId] = [];
-    }
-    
-    // Calculate suggested quantity
-    const suggestedQty = Math.max(stock.minThreshold * 2 - stock.quantity, 1);
-    
-    itemsBySupplier[supplierId].push({
-      id: stock.productId,
-      name: productData.name,
-      quantity: suggestedQty
-    });
-  });
-  
-  // Store the items in localStorage
-  localStorage.setItem('bulkRestockItems', JSON.stringify(itemsBySupplier));
-  
-  // Navigate to restock page
-  router.push('/admin/restock');
 };
 
 // Initialize
@@ -802,16 +985,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #f9f9f6;
-  border-radius: 20px;
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 10px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 2px solid #f8fafc;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Enhanced focus states */
+button:focus,
+select:focus,
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+/* Better table row hover effect */
+tbody tr:hover {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Improved modal backdrop */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
 }
 </style>

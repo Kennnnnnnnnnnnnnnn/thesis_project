@@ -1,218 +1,275 @@
 <template>
-  <div class="p-5 font-sans bg-white rounded-md h-[100vh] overflow-y-auto mt-10">
-    <p class="text-left font-semibold text-lg">Product Management</p>
-
-    <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mt-4 w-full">
-      <!-- Dropdown (Items per page) -->
-      <div class="w-full md:w-auto mb-2 md:mb-0">
-        <div class="relative">
-          <button @click="toggleDropdownRow"
-            class="flex items-center justify-between w-full min-w-[90px] px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">
-            <span class="text-sm font-medium">{{ selectedItem }}</span>
-            <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
-          </button>
-          <div v-show="isOpen"
-            class="absolute left-0 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg p-1 z-50">
-            <div v-for="item in items" :key="item" @click="selectItem(item)"
-              class="px-3 py-1 cursor-pointer hover:bg-gray-100 rounded">
-              {{ item }}
+  <div class="p-4 md:p-6 bg-gray-50 font-inter">
+    <!-- Header Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <!-- Title -->
+        <div class="flex items-center gap-4">
+          <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Product Management</h1>
+            <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your product catalog and inventory</p> -->
+          </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <!-- Items per page -->
+          <div class="relative">
+            <button @click="toggleDropdownRow"
+              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+              <span>{{ selectedItem }} items</span>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+            </button>
+            <div v-show="isOpen"
+              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
+              <div v-for="item in items" :key="item" @click="selectItem(item)"
+                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
+                {{ item }} items
+              </div>
             </div>
           </div>
+
+          <!-- Search Input -->
+          <div class="relative">
+            <input v-model="searchQuery" type="text" placeholder="Search products..."
+              class="w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
+
+          <!-- Category Filter -->
+          <select v-model="categoryFilter" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
+            <option value="all">All Categories</option>
+            <option v-for="category in categories" :key="category._id" :value="category._id">
+              {{ category.name }}
+            </option>
+          </select>
+
+          <!-- Add Button -->
+          <button
+            class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+            @click="openModal">
+            <i class="fas fa-plus text-xs"></i>
+            Add Product
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+      <!-- Table Header -->
+      <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Product Catalog</h3>
+        <p class="text-sm text-gray-600 mt-1 font-medium">{{ filteredProducts.length }} products total</p>
+      </div>
+
+      <!-- Table Container -->
+      <div class="relative overflow-hidden">
+        <!-- Loading Overlay -->
+        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
+          <div class="flex items-center gap-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
+            <span class="text-gray-700 font-medium">Loading...</span>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Price</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Discount</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="(product, index) in filteredProducts" :key="product._id"
+                class="hover:bg-amber-50/50 transition-colors duration-200">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  {{ index + 1 }}
+                </td>
+                
+                <!-- Product Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0">
+                      <div v-if="product.imageURL" 
+                        class="h-12 w-12 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
+                        <img :src="product.imageURL" :alt="product.name" 
+                          class="h-full w-full object-cover" />
+                      </div>
+                      <div v-else 
+                        class="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                        <i class="fas fa-image text-gray-400"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900">
+                        {{ product.name }}
+                      </div>
+                      <div class="text-xs text-gray-500 font-medium mt-0.5">
+                        ID: {{ product.idCustom || 'N/A' }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                
+                <!-- Category Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center font-khmer">
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                    {{ getCategoryName(product.categoryId) }}
+                  </span>
+                </td>
+                
+                <!-- Description Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="max-w-32 text-sm text-gray-600 truncate">
+                    {{ product.description || '-' }}
+                  </div>
+                </td>
+                
+                <!-- Price Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm font-bold text-gray-900">
+                    {{ formatPrice(product.salePrice) }}
+                  </div>
+                </td>
+                
+                <!-- Discount Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span v-if="product.discount > 0" 
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
+                    {{ product.discount }}%
+                  </span>
+                  <span v-else class="text-gray-400 font-medium">-</span>
+                </td>
+                
+                <!-- Stock Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm font-bold text-gray-900">
+                    {{ product.totalStock || 0 }}
+                  </div>
+                </td>
+                
+                <!-- Status Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
+                    :class="product.status ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'">
+                    <i :class="product.status ? 'fas fa-circle-check' : 'fas fa-circle-xmark'" class="text-xs"></i>
+                    {{ product.status ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                
+                <!-- Actions Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <!-- Edit Button -->
+                    <button 
+                      class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200" 
+                      @click="editProduct(product)" 
+                      title="Edit product">
+                      <i class="fas fa-edit text-sm"></i>
+                    </button>
+                    
+                    <!-- Delete Button -->
+                    <button 
+                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200" 
+                      @click="deleteProduct(product._id)" 
+                      title="Delete product">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr v-if="filteredProducts.length === 0 && !isLoading">
+                <td colspan="9" class="px-6 py-20 text-center">
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="p-6 rounded-2xl bg-amber-50 border border-amber-200">
+                      <i class="fas fa-shopping-bag text-5xl text-amber-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-bold text-gray-900">No products found</h3>
+                      <p class="text-sm text-gray-600 mt-1 font-medium">Add your first product to get started</p>
+                    </div>
+                    <button 
+                      @click="openModal"
+                      class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                      <i class="fas fa-plus text-xs"></i>
+                      Add First Product
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- Search Input -->
-      <div class="relative w-full md:w-64 lg:w-72 xl:w-80">
-        <input v-model="searchQuery" type="text" placeholder="Search Product..."
-          class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
-        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </span>
-      </div>
-
-      <!-- Category Filter -->
-      <div class="relative w-full sm:w-40">
-        <select v-model="categoryFilter"
-          class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
-          <option value="all">All Categories</option>
-          <option v-for="category in categories" :key="category._id" :value="category._id">
-            {{ category.name }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Add New Button -->
-      <div class="md:ml-auto w-full md:w-auto flex md:block">
-        <button @click="openModal"
-          class="bg-gradient-to-br from-green-400 to-green-700 text-white px-4 py-2 rounded-md text-xs font-semibold shadow hover:from-green-500 hover:to-green-600 transition"
-          style="min-width: 100px;">
-          + Create
-        </button>
+      <!-- Pagination -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
+        <Pagination 
+          :currentPage="currentPage" 
+          @onEmitDataFromPagination="handleListenToPagination"
+          @onEmitIsLoading="handleListenIsLoading" 
+          @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+          :limitedPerPage="pageSize" 
+          :searchQuery="searchText" 
+        />
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100"
-      style="max-height: 60vh;">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
-      </div>
-
-      <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">
-              No</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">
-              Image</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">
-              Product</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Category</th>
-
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Description</th>
-
-
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Price</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Discount</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Stock</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Status</th>
-            <th
-              class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">
-              Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(product, index) in productData" :key="index"
-            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
-            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
-
-
-            <td class="px-4 py-2">
-              <div class="w-12 h-12 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
-                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name"
-                  class="w-full h-full object-cover">
-                <i v-else class="fas fa-image text-gray-400"></i>
-              </div>
-            </td>
-
-
-
-            <td class="px-4 py-2 text-gray-700">
-      
-                <p class="font-medium">{{ product.name }}</p>
-           
-            </td>
-
-            
-            <td class="px-4 py-2 text-center text-gray-600">
-              {{ getCategoryName(product.categoryId) }}
-            </td>
-
-
-
-            <td class="px-4 py-2 text-center">
-              <p class="font-medium">{{ product.description || '-' }} </p>
-            </td>
-
-
-            <td class="px-4 py-2 text-center text-gray-700 font-medium">{{ product.salePrice }} riel</td>
-
-
-            <td class="px-4 py-2 text-center">
-              <span v-if="product.discount > 0" class="text-red-600">{{ product.discount }}%</span>
-              <span v-else>-</span>
-            </td>
-
-
-
-            <td class="px-4 py-2 text-center text-gray-600">{{ product.totalStock || 0 }}</td>
-
-
-            <td class="px-4 py-2 text-center">
-              <i :class="getStatusClass(product.status)"></i>
-            </td>
-
-
-
-            <td class="px-4 py-2 flex justify-center gap-2">
-              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editProduct(product)" aria-label="Edit">
-                <i class="fa-solid fa-pen-to-square text-blue-600 hover:text-blue-700"></i>
-              </button>
-              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteProduct(product._id)"
-                aria-label="Delete">
-                <i class="fa-solid fa-trash text-red-600 hover:text-red-700"></i>
-              </button>
-            </td>
-          </tr>
-          <tr v-if="productData.length === 0 && !isLoading">
-            <td colspan="9" class="px-4 py-8 text-center text-gray-400 italic">
-              No products found
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination Component -->
-    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
-      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-      :limitedPerPage="pageSize" :searchQuery="searchText" />
-
-    <!-- Create/Edit Product Modal -->
-    <div v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000] overflow-y-auto">
-      <div
-        class="font-sans w-[95%] md:w-[70%] lg:w-[60%] max-w-3xl mt-10 p-6 bg-white shadow-md rounded-lg relative z-50 m-auto">
-        <!-- Close Button -->
-        <button class="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors" @click="closeModal">
-          <i class="fa-solid fa-xmark text-xl"></i>
-        </button>
-
-        <h2 class="text-xl font-semibold mb-6 text-gray-700 text-center">
-          {{ showEditModal ? 'Update Product' : 'Create New Product' }}
-        </h2>
-
-        <form @submit.prevent="handleSubmit" class="space-y-5">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <!-- Product Name -->
+    <!-- Create/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-200">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 tracking-tight">
+              {{ showEditModal ? 'Update Product' : 'Create New Product' }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1 font-medium">
+              {{ showEditModal ? 'Modify existing product details' : 'Add a new product to your catalog' }}
+            </p>
+          </div>
+          <button 
+            class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+            @click="closeModal">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
+          <!-- Product Name and Category -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
                 Product Name <span class="text-red-500">*</span>
               </label>
               <input v-model="name" type="text" required
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
                 placeholder="Enter product name" />
             </div>
 
-            <!-- Category -->
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
                 Category <span class="text-red-500">*</span>
               </label>
               <select v-model="categoryId" required
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all appearance-none bg-white"
-                :style="{
-                  backgroundImage: 'url(\'data:image/svg+xml;charset=US-ASCII,%3Csvg width=%2220%22 height=%2220%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cpath d=%22M7 7l3-3 3 3m0 6l-3 3-3-3%22 stroke=%22%239CA3AF%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E\')',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 0.75rem center',
-                  paddingRight: '2.5rem'
-                }">
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
                 <option value="" disabled>Select category</option>
                 <option v-for="category in categories" :key="category._id" :value="category._id">
                   {{ category.name }}
@@ -221,139 +278,137 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <!-- Price -->
+          <!-- Price and Discount -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
                 Price <span class="text-red-500">*</span>
               </label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">៛</span>
+                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">៛</span>
                 <input v-model="salePrice" type="number" step="100" min="0" required
-                  class="w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                  class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
                   placeholder="0" />
               </div>
             </div>
 
-            <!-- Discount -->
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1.5">
+              <label class="block text-sm font-bold text-gray-700 mb-3">
                 Discount %
               </label>
               <div class="relative">
                 <input v-model="discount" type="number" min="0" max="100" step="1"
-                  class="w-full pr-8 pl-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
+                  class="w-full pr-8 pl-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
                   placeholder="0" />
-                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">%</span>
               </div>
             </div>
           </div>
 
-
-          <!-- Stock Quantity
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-1.5">
-                Stock Quantity
-              </label>
-              <input v-model="totalStock" type="number" min="0" step="1"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all"
-                placeholder="0" />
-            </div> -->
-
-
           <!-- Description -->
           <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1.5">
+            <label class="block text-sm font-bold text-gray-700 mb-3">
               Description
             </label>
             <textarea v-model="description" rows="3"
-              class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-100 focus:border-green-500 transition-all resize-none"
+              class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all resize-none font-medium"
               placeholder="Enter product description"></textarea>
           </div>
 
           <!-- Product Image -->
           <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1.5">
+            <label class="block text-sm font-bold text-gray-700 mb-3">
               Product Image
             </label>
             <div
-              class="border border-dashed border-gray-300 rounded-md p-6 hover:bg-gray-50 transition-all cursor-pointer"
+              class="border-2 border-dashed border-gray-200 rounded-2xl p-8 hover:bg-amber-50/30 hover:border-amber-300 transition-all cursor-pointer"
               @click="$refs.fileInput.click()">
               <div v-if="imagePreview" class="mb-4 flex justify-center">
-                <img :src="imagePreview" class="max-h-40 rounded-md object-contain" alt="Product preview" />
+                <img :src="imagePreview" class="max-h-48 rounded-2xl object-contain shadow-lg" alt="Product preview" />
               </div>
               <div class="flex flex-col items-center justify-center">
-                <div class="bg-green-50 rounded-full p-3 mb-2">
-                  <i class="fa-solid fa-cloud-arrow-up text-green-500 text-xl"></i>
+                <div class="bg-amber-100 rounded-full p-4 mb-3 border border-amber-200">
+                  <i class="fas fa-cloud-upload-alt text-amber-600 text-2xl"></i>
                 </div>
-                <p class="text-sm text-gray-600 font-medium">Click to upload image</p>
-                <p class="text-xs text-gray-400 mt-1">PNG, JPG or JPEG (Max 2MB)</p>
+                <p class="text-sm text-gray-700 font-bold">Click to upload image</p>
+                <p class="text-xs text-gray-500 mt-1 font-medium">PNG, JPG or JPEG (Max 2MB)</p>
                 <input ref="fileInput" type="file" class="hidden" @change="handleImageUpload" accept="image/*" />
               </div>
-              <p v-if="uploadStatus" class="mt-3 text-xs text-center" :class="uploadStatus.color">
+              <p v-if="uploadStatus" class="mt-4 text-xs text-center font-semibold" :class="uploadStatus.color">
                 {{ uploadStatus.message }}
               </p>
             </div>
           </div>
 
-
-
           <!-- Status Toggle -->
           <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1.5">
+            <label class="block text-sm font-bold text-gray-700 mb-3">
               Status
             </label>
-            <div class="flex items-center space-x-3 mt-1.5">
+            <div class="flex items-center space-x-3">
               <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
-                :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
+                :class="enabled ? 'bg-amber-500' : 'bg-gray-300'">
                 <span class="sr-only">Enable status</span>
                 <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
                   :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
               </Switch>
-              <span class="text-sm text-gray-600">{{ enabled ? 'Active' : 'Inactive' }}</span>
+              <span class="text-sm text-gray-700 font-medium">{{ enabled ? 'Active' : 'Inactive' }}</span>
             </div>
           </div>
 
-          <!-- Error message -->
-          <p v-if="error" class="text-red-500 text-sm mt-1 bg-red-50 p-2 rounded-md">{{ error }}</p>
+          <!-- Error Message -->
+          <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-circle text-red-500"></i>
+              <p class="text-red-700 text-sm font-semibold">{{ error }}</p>
+            </div>
+          </div>
 
           <!-- Action Buttons -->
-          <div class="flex justify-end gap-4 mt-6 pt-4 border-t border-gray-100">
-            <button type="button" @click="resetForm"
-              class="px-6 py-2.5 rounded-md text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
-              Clear
+          <div class="flex gap-4 pt-4">
+            <button type="button" 
+              class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
+              @click="resetForm">
+              Reset
             </button>
-            <button type="submit"
-              class="px-6 py-2.5 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors">
-              {{ showEditModal ? 'Update' : 'Submit' }}
+            <button type="submit" 
+              :disabled="isSubmitting"
+              class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
+              <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                <i class="fas fa-spinner fa-spin"></i>
+                {{ showEditModal ? 'Updating...' : 'Creating...' }}
+              </span>
+              <span v-else>
+                {{ showEditModal ? 'Update Product' : 'Create Product' }}
+              </span>
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- Confirmation Delete Dialog -->
-    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
-      @confirm="handleDeleteConfirmation" />
+    <!-- Confirmation Dialog -->
+    <DeleteConfirmation 
+      :show="showConfirmDialog" 
+      @cancel="handleCancelConfirmation" 
+      @confirm="handleDeleteConfirmation" 
+    />
   </div>
 </template>
 
 <script setup>
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
-import getStatusClass from '@/components/GetStatus.vue';
 import Pagination from '@/components/Pagination.vue';
-import { getNextNumberId } from "@/composables/getNextId";
 import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-
 // State
-const items = ref([1, 10, 50, 100, 500, 1000]);
+const items = ref([10, 25, 50, 100]);
 const selectedItem = ref(10);
 const isLoading = ref(false);
 const currentPage = ref(1);
@@ -399,6 +454,29 @@ const router = useRouter();
 // Add fileInput ref in the script section
 const fileInput = ref(null);
 
+// Computed properties
+const filteredProducts = computed(() => {
+  let filtered = productData.value;
+
+  // Filter by category
+  if (categoryFilter.value !== 'all') {
+    filtered = filtered.filter(product => product.categoryId === categoryFilter.value);
+  }
+
+  // Search filter would be handled by pagination component
+  return filtered;
+});
+
+// Helper functions
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('km-KH').format(price || 0) + '៛';
+};
+
+const getCategoryName = (categoryId) => {
+  const category = categories.value.find(cat => cat._id === categoryId);
+  return category ? category.name : 'Unknown';
+};
+
 // Format date function
 const formatDate = (dateString) => {
   if (!dateString) return '';
@@ -412,24 +490,16 @@ const formatDate = (dateString) => {
   });
 };
 
-
-// generate custom ID function
-
+// Generate custom ID function
+// Generate custom ID function
 const generateCustomId = async () => {
   try {
     const token = localStorage.getItem('token');
-
-    const param = {
-      sortField: "createdAt",
-      sortOrder: "desc",
-      limit: 1
-    };
-
-    // Remove 'loan/' from the API path
+    
+    // Get ALL products instead of just the most recent one
     const response = await axios.get(
       `${apiURL}/api/getAllDocs/Product`,
       {
-        params: param,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -437,33 +507,36 @@ const generateCustomId = async () => {
       }
     );
 
-    let lastId = response.data?.data?.[0]?.idCustom || null;
-    let lastNumber = null;
-
-    if (lastId) {
-      const matches = lastId.match(/(\d+)$/);
-      if (matches) lastNumber = matches[1];
+    let highestNumber = 0;
+    
+    if (response.data?.data?.length > 0) {
+      // Loop through all products to find the highest ID number
+      response.data.data.forEach(product => {
+        if (product.idCustom) {
+          const matches = product.idCustom.match(/Pro-(\d+)$/);
+          if (matches && matches[1]) {
+            const currentNumber = parseInt(matches[1], 10);
+            if (!isNaN(currentNumber) && currentNumber > highestNumber) {
+              highestNumber = currentNumber;
+            }
+          }
+        }
+      });
     }
-
-    const nextNumber = getNextNumberId(lastNumber);
+    
+    // Increment the highest number by 1 and format with leading zeros
+    const nextNumber = (highestNumber + 1).toString().padStart(6, '0');
+    console.log(`Generated next ID: Pro-${nextNumber} (from highest existing ID: ${highestNumber})`);
+    
     return `Pro-${nextNumber}`;
   } catch (error) {
     console.error("Error in generateCustomId:", error);
-    // Fallback: Generate a unique ID based on timestamp
+    // Fallback with timestamp-based ID to ensure uniqueness
     const timestamp = new Date().getTime();
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     return `Pro-${timestamp % 100000}-${randomNum}`;
   }
 };
-
-
-// Get category name by ID
-const getCategoryName = (categoryId) => {
-  const category = categories.value.find(cat => cat._id === categoryId);
-  return category ? category.name : 'Unknown';
-};
-
-
 
 // pagination
 const handleListenToPagination = async (items) => {
@@ -477,15 +550,14 @@ const handleListenIsLoading = (status) => {
 const handleListenIsLastRecordOnPage = (page) => {
   currentPageIsLastRecord.value = page;
   if (currentPage.value > 1) {
-    currentPage.value -= 1; // Move to previous page
+    currentPage.value -= 1;
   }
 };
 
 watch(searchQuery, (newValue) => {
   searchText.value = newValue;
-  // Reset to page 1 when searching
   currentPage.value = 1;
-}, { immediate: true }); // Add immediate option to trigger on component mount
+}, { immediate: true });
 
 // Dropdown handlers
 const toggleDropdownRow = () => {
@@ -532,27 +604,23 @@ const handleSubmit = async () => {
       return;
     }
 
-    // Use base64 approach for image upload like in Users.vue
     if (imageFile.value) {
       uploadStatus.value = {
         message: 'Processing image...',
         color: 'text-blue-500'
       };
 
-      // Convert image to base64 if it's not already
       if (!imagePreview.value.startsWith('data:image')) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          imageURL.value = e.target.result; // Store the base64 data directly
+          imageURL.value = e.target.result;
         };
         reader.readAsDataURL(imageFile.value);
       } else {
-        // Image is already converted to base64 in handleImageUpload
         imageURL.value = imagePreview.value;
       }
     }
 
-    // Generate custom ID if needed
     let customId = idCustom.value;
     if (!customId) {
       customId = await generateCustomId();
@@ -568,12 +636,11 @@ const handleSubmit = async () => {
         discount: parseFloat(discount.value) || 0,
         totalStock: parseInt(totalStock.value) || 0,
         status: status.value,
-        imageURL: imageURL.value || '', // This now contains base64 image data
+        imageURL: imageURL.value || '',
       }
     };
 
     if (!showEditModal.value) {
-      // Create new product
       requestBody.fields.createdAt = timestamp;
       requestBody.fields.createdBy = userId;
 
@@ -601,7 +668,6 @@ const handleSubmit = async () => {
         throw new Error(response.data.message || 'Failed to create product');
       }
     } else {
-      // Update existing product
       if (!id.value) {
         error.value = 'Error: Missing product ID for update operation';
         return;
@@ -656,7 +722,6 @@ const editProduct = (product) => {
   enabled.value = product.status;
   imageURL.value = product.imageURL || '';
 
-  // Set image preview if product has an image URL
   if (product.imageURL) {
     imagePreview.value = product.imageURL;
   }
@@ -803,10 +868,8 @@ const fetchCategories = async () => {
 };
 
 watch(categoryFilter, (newValue) => {
-  // If we want to filter products by category
-  // This would typically trigger a search or filter on the existing data
   if (newValue !== 'all') {
-    // Implement category filtering
+    // Category filtering is handled by computed property
   }
 });
 
@@ -821,7 +884,6 @@ const handleImageUpload = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Validate file type
   if (!file.type.match('image.*')) {
     uploadStatus.value = {
       message: 'Please select an image file',
@@ -830,7 +892,6 @@ const handleImageUpload = async (e) => {
     return;
   }
 
-  // Size validation (limit to 2MB)
   if (file.size > 2 * 1024 * 1024) {
     uploadStatus.value = {
       message: 'Image size should be less than 2MB',
@@ -841,7 +902,6 @@ const handleImageUpload = async (e) => {
 
   imageFile.value = file;
 
-  // Create a preview
   const reader = new FileReader();
   reader.onload = (e) => {
     imagePreview.value = e.target.result;
@@ -859,7 +919,6 @@ onMounted(() => {
     socket.connect();
   }
 
-  // Listen for socket updates
   socket.on('dataUpdated', (update) => {
     if (update.collection === 'Product') {
       fetchProducts();
@@ -874,19 +933,34 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-/* Custom scrollbar */
-.overflow-y-auto::-webkit-scrollbar {
+<style lang="scss" scoped>
+/* Enhanced scrollbar styling - Extra small */
+.overflow-x-auto::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #f9f9f6;
-  border-radius: 20px;
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 2px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 2px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Smooth scrolling */
+.overflow-x-auto {
+  scroll-behavior: smooth;
 }
 
 /* Footer scroll animation */
@@ -898,10 +972,5 @@ onMounted(() => {
   100% {
     left: 100%;
   }
-}
-
-.animate-scroll {
-  position: absolute;
-  animation: scroll 20s linear infinite;
 }
 </style>

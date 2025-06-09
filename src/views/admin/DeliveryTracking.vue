@@ -1,82 +1,270 @@
 <template>
-  <div class=" bg-[#F4F7FB] p-8 max-w-screen-xl mx-auto bg-white h-screen overflow-y-auto mt-10 	">
-    <h1 class="flex items-center text-2xl font-bold mb-6 gap-2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500 " fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <rect x="1" y="7" width="15" height="13" rx="2" />
-        <path d="M16 16h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-2" />
-        <circle cx="5.5" cy="18.5" r="2.5" />
-        <circle cx="18.5" cy="18.5" r="2.5" />
-      </svg>
-      <span class="text-[#222] tracking-wide">Tracking View</span>
-    </h1>
-
-
-    <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Map Section -->
-      <div class="bg-white rounded-2xl shadow-lg p-6 relative flex-1 min-h-[400px]">
-        <GMapMap :center="mapCenter" :zoom="12" :options="mapOptions" class="w-full h-[340px] lg:h-[400px] rounded-xl"
-          @click="handleMapClick">
-          <!-- Driver Markers (click to select as origin) -->
-          <GMapMarker v-for="marker in markers" :key="marker.id" :position="{ lat: marker.lat, lng: marker.lng }"
-            @click="selectOrigin(marker)" />
-          <!-- Destination Marker (click on map to set) -->
-          <GMapMarker v-if="destination" :position="destination" :icon="{
-            url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-            scaledSize: { width: 42, height: 42 }
-          }" />
-          <!-- Route Polyline -->
-          <GMapDirectionsRenderer v-if="directions" :directions="directions" :options="routeOptions" />
-          <!-- Info Windows for Drivers -->
-          <GMapInfoWindow v-for="marker in markers" :key="'popup-' + marker.id"
-            :position="{ lat: marker.lat, lng: marker.lng }" :opened="marker.show" @closeclick="marker.show = false">
-            <div class="text-gray-800 font-bold mb-1">{{ marker.name }}</div>
-            <div class="text-xs text-gray-500 mb-1">{{ marker.address }}</div>
-            <div class="text-xs">On site since {{ marker.since }}</div>
-          </GMapInfoWindow>
-        </GMapMap>
-      </div>
-      <!-- Table Section -->
-      <div class="bg-white rounded-2xl shadow-lg p-6 flex-1 min-h-[400px]">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-bold text-gray-800">Driver List</h2>
-          <input v-model="tableSearch" type="text" placeholder="Search drivers..."
-            class="px-3 py-2 border rounded bg-gray-50 w-64" />
+  <div class="p-4 md:p-6 font-inter">
+    <!-- Header Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
+      <div class="flex items-center gap-3 md:gap-4">
+        <div class="p-2 md:p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="7" width="15" height="13" rx="2" />
+            <path d="M16 16h2a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-2" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
         </div>
-        <div class="overflow-x-auto max-h-[340px] lg:max-h-[400px]">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="border-b">
-                <th class="py-2 px-3 text-left font-semibold text-gray-600">Driver Name</th>
-                <th class="py-2 px-3 text-left font-semibold text-gray-600">Registration Plate</th>
-                <th class="py-2 px-3 text-left font-semibold text-gray-600">Truck Number</th>
-                <th class="py-2 px-3 text-left font-semibold text-gray-600">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="driver in filteredDrivers" :key="driver.id" class="border-b hover:bg-gray-50">
-                <td class="py-2 px-3 flex items-center gap-2">
-                  <img :src="driver.avatar" class="w-7 h-7 rounded-full" />
-                  <span class="font-medium">{{ driver.name }}</span>
-                </td>
-                <td class="py-2 px-3">{{ driver.plate }}</td>
-                <td class="py-2 px-3">{{ driver.truck }}</td>
-                <td class="py-2 px-3">
-                  <span :class="[
-                    'px-3 py-1 rounded-full text-xs font-semibold',
-                    driver.status.includes('Driving')
-                      ? 'bg-green-100 text-green-600'
-                      : 'bg-blue-100 text-blue-600'
-                  ]">
-                    {{ driver.status }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div v-if="filteredDrivers.length === 0" class="text-center text-gray-400 py-6">No drivers found.</div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">Delivery Tracking</h1>
+          <!-- <p class="text-xs md:text-sm text-gray-600 mt-0.5 font-medium">Real-time delivery monitoring and route management</p> -->
         </div>
       </div>
     </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Map Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+        <!-- Map Header -->
+        <div class="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 bg-gray-50/50">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-base md:text-lg font-bold text-gray-900 tracking-tight">Live Map View</h3>
+              <!-- <p class="text-xs md:text-sm text-gray-600 mt-1 font-medium">Click drivers to select origin, click map to set destination</p> -->
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span class="text-xs font-medium text-gray-600">Live</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="relative">
+          <GMapMap :center="mapCenter" :zoom="12" :options="mapOptions" 
+            class="w-full h-[400px] md:h-[500px]"
+            @click="handleMapClick">
+            <!-- Driver Markers -->
+            <GMapMarker v-for="marker in markers" :key="marker.id" 
+              :position="{ lat: marker.lat, lng: marker.lng }"
+              @click="selectOrigin(marker)" />
+            <!-- Destination Marker -->
+            <GMapMarker v-if="destination" :position="destination" :icon="{
+              url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+              scaledSize: { width: 42, height: 42 }
+            }" />
+            <!-- Route Polyline -->
+            <GMapDirectionsRenderer v-if="directions" :directions="directions" :options="routeOptions" />
+            <!-- Info Windows for Drivers -->
+            <GMapInfoWindow v-for="marker in markers" :key="'popup-' + marker.id"
+              :position="{ lat: marker.lat, lng: marker.lng }" :opened="marker.show" @closeclick="marker.show = false">
+              <div class="p-2">
+                <div class="text-gray-900 font-bold mb-1">{{ marker.name }}</div>
+                <div class="text-xs text-gray-600 mb-1">{{ marker.address }}</div>
+                <div class="text-xs text-amber-600 font-medium">On site since {{ marker.since }}</div>
+              </div>
+            </GMapInfoWindow>
+          </GMapMap>
+
+          <!-- Map Controls Overlay -->
+          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-gray-200">
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2 text-xs">
+                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span class="text-gray-700 font-medium">Drivers</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span class="text-gray-700 font-medium">Destination</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs">
+                <div class="w-4 h-0.5 bg-blue-600"></div>
+                <span class="text-gray-700 font-medium">Route</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Driver List Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+        <!-- Table Header -->
+        <div class="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 bg-gray-50/50">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h3 class="text-base md:text-lg font-bold text-gray-900 tracking-tight">Active Drivers</h3>
+              <p class="text-xs md:text-sm text-gray-600 mt-1 font-medium">{{ filteredDrivers.length }} drivers online</p>
+            </div>
+            
+            <!-- Search Input -->
+            <div class="relative">
+              <input v-model="tableSearch" type="text" placeholder="Search drivers..."
+                class="w-full md:w-64 px-3 md:px-4 py-2 md:py-2.5 pl-8 md:pl-10 border border-gray-200 rounded-xl text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+              <i class="fas fa-search absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs md:text-sm"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="block md:hidden max-h-[500px] overflow-y-auto">
+          <div class="divide-y divide-gray-100">
+            <div v-for="driver in filteredDrivers" :key="driver.id" class="p-4 hover:bg-amber-50/50 transition-colors">
+              <div class="flex items-start gap-3">
+                <!-- Driver Avatar -->
+                <div class="flex-shrink-0">
+                  <div class="h-12 w-12 rounded-xl overflow-hidden border border-amber-200">
+                    <img :src="driver.avatar" :alt="driver.name" class="h-full w-full object-cover" />
+                  </div>
+                </div>
+                
+                <!-- Driver Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="text-sm font-bold text-gray-900 truncate">{{ driver.name }}</h3>
+                      <p class="text-xs text-gray-500 mt-0.5">{{ driver.truck }}</p>
+                      <div class="flex items-center gap-2 mt-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700">
+                          {{ driver.plate }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold"
+                          :class="driver.status.includes('Driving') ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'">
+                          <i :class="driver.status.includes('Driving') ? 'fas fa-truck-moving' : 'fas fa-circle'" class="text-xs"></i>
+                          {{ driver.status }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden md:block">
+          <div class="overflow-x-auto max-h-[500px]">
+            <table class="min-w-full divide-y divide-gray-100">
+              <thead class="bg-gray-50/50 sticky top-0">
+                <tr>
+                  <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Driver</th>
+                  <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Plate</th>
+                  <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Truck</th>
+                  <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-100">
+                <tr v-for="driver in filteredDrivers" :key="driver.id"
+                  class="hover:bg-amber-50/50 transition-colors duration-200">
+                  <!-- Driver Column -->
+                  <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <div class="flex-shrink-0">
+                        <div class="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl overflow-hidden border border-amber-200">
+                          <img :src="driver.avatar" :alt="driver.name" class="h-full w-full object-cover" />
+                        </div>
+                      </div>
+                      <div class="min-w-0">
+                        <div class="text-sm font-bold text-gray-900 truncate">
+                          {{ driver.name }}
+                        </div>
+                        <div class="text-xs text-gray-500 font-medium mt-0.5">
+                          Driver ID: {{ driver.id }}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <!-- Plate Column -->
+                  <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                    <span class="inline-flex items-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                      {{ driver.plate }}
+                    </span>
+                  </td>
+                  
+                  <!-- Truck Column -->
+                  <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                    <span class="text-sm text-gray-600 font-medium">{{ driver.truck }}</span>
+                  </td>
+                  
+                  <!-- Status Column -->
+                  <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                    <span class="inline-flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-bold"
+                      :class="driver.status.includes('Driving') ? 'bg-green-100 text-green-700 border-green-200' : 'bg-blue-100 text-blue-700 border-blue-200'">
+                      <i :class="driver.status.includes('Driving') ? 'fas fa-truck-moving' : 'fas fa-circle'" class="text-xs"></i>
+                      <span class="hidden lg:inline">{{ driver.status }}</span>
+                    </span>
+                  </td>
+                </tr>
+                
+                <!-- Empty State -->
+                <tr v-if="filteredDrivers.length === 0">
+                  <td :colspan="4" class="px-4 lg:px-6 py-12 lg:py-20 text-center">
+                    <div class="flex flex-col items-center gap-4">
+                      <div class="p-4 lg:p-6 rounded-xl lg:rounded-2xl bg-amber-50 border border-amber-200">
+                        <i class="fas fa-truck text-3xl lg:text-5xl text-amber-400"></i>
+                      </div>
+                      <div>
+                        <h3 class="text-base lg:text-lg font-bold text-gray-900">No drivers found</h3>
+                        <p class="text-xs lg:text-sm text-gray-600 mt-1 font-medium">Try adjusting your search criteria</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6">
+        <div class="flex items-center gap-3">
+          <div class="p-2 md:p-3 rounded-xl bg-green-100 text-green-600">
+            <i class="fas fa-truck-moving text-lg md:text-xl"></i>
+          </div>
+          <div>
+            <p class="text-xs md:text-sm text-gray-600 font-medium">Active Drivers</p>
+            <p class="text-lg md:text-2xl font-bold text-gray-900">{{ drivers.filter(d => d.status.includes('Driving')).length }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6">
+        <div class="flex items-center gap-3">
+          <div class="p-2 md:p-3 rounded-xl bg-blue-100 text-blue-600">
+            <i class="fas fa-circle text-lg md:text-xl"></i>
+          </div>
+          <div>
+            <p class="text-xs md:text-sm text-gray-600 font-medium">Online Drivers</p>
+            <p class="text-lg md:text-2xl font-bold text-gray-900">{{ drivers.filter(d => d.status.includes('Online')).length }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6">
+        <div class="flex items-center gap-3">
+          <div class="p-2 md:p-3 rounded-xl bg-amber-100 text-amber-600">
+            <i class="fas fa-route text-lg md:text-xl"></i>
+          </div>
+          <div>
+            <p class="text-xs md:text-sm text-gray-600 font-medium">Active Routes</p>
+            <p class="text-lg md:text-2xl font-bold text-gray-900">{{ directions ? 1 : 0 }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6">
+        <div class="flex items-center gap-3">
+          <div class="p-2 md:p-3 rounded-xl bg-purple-100 text-purple-600">
+            <i class="fas fa-map-marker-alt text-lg md:text-xl"></i>
+          </div>
+          <div>
+            <p class="text-xs md:text-sm text-gray-600 font-medium">Map Markers</p>
+            <p class="text-lg md:text-2xl font-bold text-gray-900">{{ markers.length }}</p>
+          </div>
+        </div>
+      </div>
+    </div> -->
   </div>
 </template>
 
@@ -136,11 +324,12 @@ function handleMapClick(event) {
 // Directions API result
 const directions = ref(null);
 
-// Route polyline style
+// Route polyline style - Updated to amber color
 const routeOptions = {
   polylineOptions: {
-    strokeColor: "#2979FF", // blue line
-    strokeWeight: 5
+    strokeColor: "#F59E0B", // amber-500
+    strokeWeight: 5,
+    strokeOpacity: 0.8
   }
 };
 
@@ -169,11 +358,9 @@ async function fetchRoute(origin, destination) {
 
 // Watch for origin & destination, update route
 watch([origin, destination], async ([o, d]) => {
-  console.log('Origin:', o, 'Destination:', d); // Debug log
   if (o && d) {
     try {
       directions.value = await fetchRoute(o, d);
-      console.log('Directions:', directions.value); // Debug log
     } catch (err) {
       directions.value = null;
       console.error("Directions error", err);
@@ -183,8 +370,7 @@ watch([origin, destination], async ([o, d]) => {
   }
 });
 
-
-// Table search and driver list (unchanged)
+// Table search and driver list
 const tableSearch = ref("");
 const drivers = ref([
   { id: 1, name: "Smith", avatar: "https://randomuser.me/api/portraits/men/1.jpg", plate: "A555 WOW", truck: "TRUCK 03", status: "Driving" },
@@ -203,7 +389,7 @@ const filteredDrivers = computed(() => {
   );
 });
 
-// Map style options (minimal/clean)
+// Map style options (updated for better visibility)
 const mapOptions = ref({
   styles: [
     {
@@ -214,17 +400,12 @@ const mapOptions = ref({
     {
       "featureType": "administrative",
       "elementType": "labels.text.fill",
-      "stylers": [{ "color": "#bdbdbd" }]
+      "stylers": [{ "color": "#9ca3af" }]
     },
     {
       "featureType": "poi",
       "elementType": "geometry",
-      "stylers": [{ "color": "#f5f5f5" }]
-    },
-    {
-      "featureType": "poi",
-      "elementType": "labels.text.fill",
-      "stylers": [{ "color": "#bdbdbd" }]
+      "stylers": [{ "color": "#f3f4f6" }]
     },
     {
       "featureType": "road",
@@ -232,67 +413,47 @@ const mapOptions = ref({
       "stylers": [{ "color": "#ffffff" }]
     },
     {
-      "featureType": "road.arterial",
-      "elementType": "labels.text.fill",
-      "stylers": [{ "color": "#757575" }]
-    },
-    {
       "featureType": "road.highway",
       "elementType": "geometry",
-      "stylers": [{ "color": "#dadada" }]
-    },
-    {
-      "featureType": "road.highway",
-      "elementType": "labels.text.fill",
-      "stylers": [{ "color": "#616161" }]
-    },
-    {
-      "featureType": "transit",
-      "elementType": "geometry",
-      "stylers": [{ "color": "#e5e5e5" }]
-    },
-    {
-      "featureType": "transit",
-      "elementType": "labels.text.fill",
-      "stylers": [{ "color": "#bdbdbd" }]
+      "stylers": [{ "color": "#e5e7eb" }]
     },
     {
       "featureType": "water",
       "elementType": "geometry",
-      "stylers": [{ "color": "#c9c9c9" }]
-    },
-    {
-      "featureType": "water",
-      "elementType": "labels.text.fill",
-      "stylers": [{ "color": "#9e9e9e" }]
+      "stylers": [{ "color": "#ddd6fe" }]
     }
   ]
 });
 </script>
 
-
 <style scoped>
+/* Enhanced scrollbar styling */
+.overflow-x-auto::-webkit-scrollbar,
 .overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
+  height: 4px;
 }
 
+.overflow-x-auto::-webkit-scrollbar-thumb,
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #f9f9f6;
-  border-radius: 20px;
+  background-color: #d1d5db;
+  border-radius: 2px;
 }
 
+.overflow-x-auto::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track,
 .overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
+  border-radius: 2px;
 }
 
-/* Footer scroll animation */
-@keyframes scroll {
-  0% {
-    left: -22%;
-  }
-
-  100% {
-    left: 100%;
-  }
+/* Smooth scrolling */
+.overflow-x-auto,
+.overflow-y-auto {
+  scroll-behavior: smooth;
 }
 </style>

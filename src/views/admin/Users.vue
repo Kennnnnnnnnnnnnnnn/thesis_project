@@ -1,238 +1,390 @@
 <template>
-  <div class="p-5 font-sans bg-white rounded-md">
-    <!-- Header, Create Button, Search and Filter -->
-    <div
-      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200 mt-10">
-      <p class="text-left font-semibold text-lg">User Management</p>
-      <div class="flex flex-col sm:flex-row gap-3 items-center w-full sm:w-auto">
-
-        <!-- Dropdown (Items per page) -->
-        <div class="w-full md:w-auto mb-2 md:mb-0">
+  <div class="p-4 md:p-6 font-inter">
+    <!-- Header Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 md:gap-6">
+        <!-- Title -->
+        <div class="flex items-center gap-3 md:gap-4">
+          <div class="p-2 md:p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="m22 21-3-3m0 0a5.5 5.5 0 1 0-7.78 0L22 21Z"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">User Management</h1>
+            <!-- <p class="text-xs md:text-sm text-gray-600 mt-0.5 font-medium">Manage users and their information</p> -->
+          </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row gap-2 md:gap-3 items-stretch sm:items-center">
+          <!-- Items per page -->
           <div class="relative">
             <button @click="toggleDropdownRow"
-              class="flex items-center justify-between w-full min-w-[90px] px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">
-              <span class="text-sm font-medium">{{ selectedItem }}</span>
-              <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+              class="flex items-center justify-between w-full sm:min-w-[110px] px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-200 rounded-xl text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+              <span>{{ selectedItem }} items</span>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
             </button>
             <div v-show="isOpen"
-              class="absolute left-0 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg p-1 z-50">
+              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
               <div v-for="item in items" :key="item" @click="selectItem(item)"
-                class="px-3 py-1 cursor-pointer hover:bg-gray-100 rounded">
-                {{ item }}
+                class="px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
+                {{ item }} items
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Input -->
+          <div class="relative">
+            <input v-model="searchQuery" type="text" placeholder="Search users..."
+              class="w-full sm:w-48 md:w-64 px-3 md:px-4 py-2 md:py-2.5 pl-8 md:pl-10 border border-gray-200 rounded-xl text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+            <i class="fas fa-search absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs md:text-sm"></i>
+          </div>
+
+          <!-- Role Filter -->
+          <div class="relative">
+            <select class="w-full sm:w-40 px-3 md:px-4 py-2 md:py-2.5 border border-gray-200 rounded-xl text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all bg-white">
+              <option value="">All Roles</option>
+              <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
+            </select>
+          </div>
+
+          <!-- Create Button -->
+          <button @click="openModal"
+            class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-xs md:text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 hover:scale-105 min-w-[120px]">
+            <i class="fas fa-plus text-xs"></i>
+            <span>Create User</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Table Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+      <!-- Table Header -->
+      <div class="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 bg-gray-50/50">
+        <h3 class="text-base md:text-lg font-bold text-gray-900 tracking-tight">User Directory</h3>
+        <p class="text-xs md:text-sm text-gray-600 mt-1 font-medium">{{ userData.length }} users total</p>
+      </div>
+
+      <!-- Table Container -->
+      <div class="relative">
+        <!-- Loading Overlay -->
+        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
+          <div class="flex items-center gap-3">
+            <div class="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-2 border-amber-600 border-t-transparent"></div>
+            <span class="text-gray-700 font-medium text-sm md:text-base">Loading...</span>
+          </div>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="block md:hidden">
+          <div class="divide-y divide-gray-100">
+            <div v-for="(user, index) in userData" :key="user._id" class="p-4 hover:bg-amber-50/50 transition-colors">
+              <div class="flex items-start gap-3">
+                <!-- User Avatar -->
+                <div class="flex-shrink-0">
+                  <div class="h-12 w-12 rounded-xl overflow-hidden border border-amber-200">
+                    <img :src="user.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name)"
+                      :alt="user.name" class="h-full w-full object-cover" />
+                  </div>
+                </div>
+                
+                <!-- User Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <h3 class="text-sm font-bold text-gray-900 truncate">{{ user.name }}</h3>
+                      <p class="text-xs text-gray-500 mt-0.5">{{ user.email || 'No email' }}</p>
+                      <div class="flex items-center gap-2 mt-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold bg-blue-50 text-blue-700">
+                          {{ user.role }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold"
+                          :class="user.status ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                          <i :class="user.status ? 'fas fa-circle-check' : 'fas fa-circle-xmark'" class="text-xs"></i>
+                          {{ user.status ? 'Active' : 'Inactive' }}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex items-center gap-1 ml-2">
+                      <button class="p-2 rounded-lg hover:bg-blue-50 text-blue-600 transition-all"
+                        @click="editUser(user)" title="Edit User">
+                        <i class="fas fa-edit text-sm"></i>
+                      </button>
+                      <button class="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-all"
+                        @click="deleteUser(user._id)" title="Delete User">
+                        <i class="fas fa-trash text-sm"></i>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Additional Info -->
+                  <div class="mt-3 pt-3 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                      <span>Phone: {{ user.phoneNumber || 'N/A' }}</span>
+                      <span class="capitalize">{{ user.gender || 'N/A' }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-
-        <!-- Search -->
-        <div class="relative w-full sm:w-64">
-          <input v-model="searchQuery" type="text" placeholder="Search name..."
-            class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </span>
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/50 sticky top-0">
+              <tr>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Gender</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Phone</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">Email</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="(user, index) in userData" :key="user._id"
+                class="hover:bg-amber-50/50 transition-colors duration-200">
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  {{ index + 1 }}
+                </td>
+                
+                <!-- User Column -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0">
+                      <div class="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl overflow-hidden border border-amber-200">
+                        <img :src="user.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name)"
+                          :alt="user.name" class="h-full w-full object-cover" />
+                      </div>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-sm font-bold text-gray-900 truncate max-w-32 lg:max-w-none">
+                        {{ user.name }}
+                      </div>
+                      <!-- <div class="text-xs text-gray-500 font-medium mt-0.5">
+                        ID: {{ user._id.slice(-6) }}
+                      </div> -->
+                    </div>
+                  </div>
+                </td>
+                
+                <!-- Gender Column -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                  <span class="text-sm text-gray-600 capitalize">{{ user.gender || '-' }}</span>
+                </td>
+                
+                <!-- Phone Column -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                  <span class="text-sm text-gray-600">{{ user.phoneNumber || '-' }}</span>
+                </td>
+                
+                <!-- Email Column (Hidden on smaller screens) -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center hidden lg:table-cell">
+                  <div class="max-w-32 text-sm text-gray-600 truncate">
+                    {{ user.email || 'N/A' }}
+                  </div>
+                </td>
+                
+                <!-- Role Column -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                    {{ user.role }}
+                  </span>
+                </td>
+                
+                <!-- Status Column -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-bold"
+                    :class="user.status ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'">
+                    <i :class="user.status ? 'fas fa-circle-check' : 'fas fa-circle-xmark'" class="text-xs"></i>
+                    <span class="hidden lg:inline">{{ user.status ? 'Active' : 'Inactive' }}</span>
+                  </span>
+                </td>
+                
+                <!-- Actions Column -->
+                <td class="px-4 lg:px-6 py-3 lg:py-4 whitespace-nowrap text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button class="p-2 lg:p-2.5 rounded-lg lg:rounded-xl hover:bg-blue-50 text-blue-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-blue-200"
+                      @click="editUser(user)" title="Edit User">
+                      <i class="fas fa-edit text-sm"></i>
+                    </button>
+                    <button class="p-2 lg:p-2.5 rounded-lg lg:rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200"
+                      @click="deleteUser(user._id)" title="Delete User">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr v-if="userData.length === 0 && !isLoading">
+                <td :colspan="8" class="px-4 lg:px-6 py-12 lg:py-20 text-center">
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="p-4 lg:p-6 rounded-xl lg:rounded-2xl bg-amber-50 border border-amber-200">
+                      <i class="fas fa-users text-3xl lg:text-5xl text-amber-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-base lg:text-lg font-bold text-gray-900">No users found</h3>
+                      <p class="text-xs lg:text-sm text-gray-600 mt-1 font-medium">Users will appear here when available</p>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <!-- Role Dropdown -->
-        <div class="relative w-full sm:w-40">
-          <select class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
-            <option value="">All Roles</option>
-            <option>
-              {{ }}
-            </option>
-          </select>
-        </div>
+      </div>
 
-
-        <button
-          class="bg-gradient-to-br from-green-400 to-green-600 text-white px-4 py-2 rounded-md text-xs font-semibold shadow hover:from-green-500 hover:to-green-700 transition min-w-[100px]"
-          @click="openModal">
-          + Create User
-        </button>
+      <!-- Pagination -->
+      <div class="px-4 md:px-6 py-3 md:py-4 border-t border-gray-100 bg-gray-50/30">
+        <Pagination 
+          :currentPage="currentPage" 
+          @onEmitDataFromPagination="handleListenToPagination"
+          @onEmitIsLoading="handleListenIsLoading" 
+          @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+          :limitedPerPage="pageSize" 
+          :searchQuery="searchText" 
+        />
       </div>
     </div>
 
-
-
-
-    <!-- Table -->
-    <div class="overflow-y-auto mt-3 relative bg-white rounded-lg shadow-sm border border-gray-100 " style="max-height: 60vh;">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
-      </div>
-
-
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">No</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">Name</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Gender</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">PhoneNumber</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Email</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Role</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Status</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user, index) in userData" :key="user._id"
-            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
-            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
-            <td class="px-4 py-2 text-center align-middle">
-              <div class="flex items-center gap-2 w-full">
-                <img :src="user.profilePicture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name)"
-                  class="w-8 h-8 rounded-full border border-yellow-200 object-cover" :alt="user.name" />
-                <span class="text-gray-800 whitespace-nowrap">{{ user.name }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-2 text-center text-gray-600 capitalize">{{ user.gender }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ user.phoneNumber }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ user.email || 'N/A' }}</td>
-            <td class="px-4 py-2 text-center">
-              <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                {{ user.role }}
-              </span>
-            </td>
-            <td class="px-4 py-2 text-center">
-              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
-                :class="user.status ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-                <i :class="user.status ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
-                {{ user.status ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="px-4 py-2 flex justify-center gap-2">
-              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editUser(user)">
-                <i class="fa-solid fa-pen-to-square text-blue-600"></i>
-              </button>
-              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteUser(user._id)">
-                <i class="fa-solid fa-trash text-red-600"></i>
-              </button>
-            </td>
-          </tr>
-          <tr v-if="userData.length === 0 && !isLoading">
-            <td colspan="6" class="px-4 py-8 text-center text-gray-400 italic">
-              No users found
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-    </div>
-    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
-      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-      :limitedPerPage="pageSize" :searchQuery="searchText" />
-
-    <!-- Create User Modal (unchanged) -->
+    <!-- Create/Edit User Modal -->
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
-      <div class="font-sans w-full max-w-lg sm:w-[95%] sm:max-w-lg bg-white rounded-lg shadow-md p-4 sm:p-8 relative">
+      <div class="font-inter w-full max-w-lg sm:w-[95%] sm:max-w-lg bg-white rounded-2xl shadow-xl p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
-        <i class="fa-solid fa-circle-xmark cursor-pointer text-red-700 text-lg absolute top-4 right-4
-          hover:text-red-500 transform hover:scale-110 transition-all duration-300 ease-in-out"
-          @click="closeModal"></i>
-        <h2 class="text-lg font-semibold mb-5 text-gray-700 text-center mt-[-12px]"> {{ showEditModal ? 'Update User' :
-          'Create New User' }}</h2>
-        <form @submit.prevent="handleSubmit" class="space-y-4 flex flex-col">
+        <button @click="closeModal" class="absolute top-4 right-4 p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+        
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white mb-4">
+            <i class="fas fa-user text-lg"></i>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900">{{ showEditModal ? 'Update User' : 'Create New User' }}</h2>
+          <p class="text-sm text-gray-600 mt-1">{{ showEditModal ? 'Modify user information' : 'Add a new user to the system' }}</p>
+        </div>
+
+        <form @submit.prevent="handleSubmit" class="space-y-4">
           <!-- Full Name -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
               Full Name <span class="text-red-500">*</span>
             </label>
             <input v-model="name" type="text" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
               placeholder="Enter full name" />
           </div>
+
           <!-- Email -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Email
-            </label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
             <input v-model="email" type="email"
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
               placeholder="Enter email address" />
           </div>
 
           <!-- Phone Number -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Phone Number<span class="text-red-500">*</span>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Phone Number <span class="text-red-500">*</span>
             </label>
             <input v-model="phoneNumber" type="text" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
-              placeholder="Enter your number" />
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
+              placeholder="Enter phone number" />
           </div>
+
           <!-- Gender -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Gender
-            </label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
             <select v-model="gender"
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
-              <option value="" class="text-gray-600" disabled>Select Gender</option>
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
+              <option value="" disabled>Select Gender</option>
               <option v-for="option in genderOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
             </select>
           </div>
+
           <!-- Role -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
               Role <span class="text-red-500">*</span>
             </label>
             <select v-model="role" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition">
+              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
               <option value="" disabled>Select role</option>
               <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
             </select>
           </div>
+
           <!-- Password -->
           <div class="relative">
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Password
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Password {{ !showEditModal ? '*' : '' }}
             </label>
-            <input :type="showPassword ? 'text' : 'password'" v-model="password" minlength="6"
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition pr-10"
-              placeholder="Set a password (min 6 chars)" />
-            <span
-              class="absolute right-3 top-9 transform -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-700"
-              @click="showPassword = !showPassword">
-              <i :class="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
-            </span>
+            <div class="relative">
+              <input :type="showPassword ? 'text' : 'password'" v-model="password" 
+                :required="!showEditModal" minlength="6"
+                class="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
+                :placeholder="showEditModal ? 'Leave empty to keep current password' : 'Set a password (min 6 chars)'" />
+              <button type="button" @click="showPassword = !showPassword"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
           </div>
 
           <!-- Profile Image Upload -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Profile Image
-            </label>
-            <div class="flex items-center gap-3">
-              <input type="file" accept="image/*" class="block text-sm" @change="onFileChange" />
-              <img v-if="profilePicture" :src="profilePicture"
-                class="w-10 h-10 rounded-full border border-yellow-200 object-cover" alt="Preview" />
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Image</label>
+            <div class="flex items-center gap-4">
+              <input type="file" accept="image/*" @change="onFileChange"
+                class="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all text-sm" />
+              <div v-if="profilePicture" class="w-12 h-12 rounded-xl overflow-hidden border border-amber-200">
+                <img :src="profilePicture" alt="Preview" class="w-full h-full object-cover" />
+              </div>
             </div>
           </div>
+
           <!-- Status Toggle -->
-          <div class="flex items-center gap-3">
-            <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+            <div>
+              <label class="text-sm font-semibold text-gray-700">User Status</label>
+              <p class="text-xs text-gray-500 mt-1">Enable or disable user account</p>
+            </div>
+            <Switch v-model="enabled" 
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
               :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
               <span class="sr-only">Enable status</span>
-              <span class="inline-block h-4 w-4 transform bg-white rounded-full transition"
+              <span class="inline-block h-4 w-4 transform bg-white rounded-full transition-transform"
                 :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
             </Switch>
-            <span class="text-gray-600 text-sm">Status</span>
           </div>
+
           <!-- Error message -->
-          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
+          <div v-if="error" class="p-4 bg-red-50 border border-red-200 rounded-xl">
+            <p class="text-red-600 text-sm font-medium">{{ error }}</p>
+          </div>
+
           <!-- Action Buttons -->
-          <div class="flex justify-end gap-3 mt-6">
-            <button type="button" class="px-5 py-2 rounded-full text-base font-normal bg-gray-100 text-gray-700 shadow-sm
-             hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 transition" @click="resetForm">
+          <div class="flex gap-3 pt-4">
+            <button type="button" @click="resetForm"
+              class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all">
               Clear
             </button>
-            <button type="submit" class="px-5 py-2 rounded-full text-base font-normal bg-green-500 text-white shadow-sm
-             hover:bg-green-600 focus:ring-2 focus:ring-green-300 transition">
-              {{ showEditModal ? 'Update User' : 'Create User' }}
+            <button type="submit" :disabled="isSubmitting"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-700 transition-all disabled:opacity-50">
+              {{ isSubmitting ? 'Saving...' : (showEditModal ? 'Update User' : 'Create User') }}
             </button>
           </div>
         </form>
@@ -240,6 +392,8 @@
     </div>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
@@ -583,6 +737,35 @@ onMounted(() => {
 
 
 <style scoped>
+
+/* Enhanced scrollbar styling */
+.overflow-x-auto::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 2px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 2px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Smooth scrolling */
+.overflow-x-auto {
+  scroll-behavior: smooth;
+}
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }

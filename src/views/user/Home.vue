@@ -1,50 +1,98 @@
 <template>
-  <div class="home">
+  <div class="bg-white text-center">
     <!-- Search Section -->
-    <section class="search-section">
-      <div class="container">
-        <input type="text" v-model="searchQuery" placeholder="Search products..." class="search-box">
+    <section class="py-8 mt-8">
+      <div class="max-w-6xl mx-auto px-5">
+        <input type="text" v-model="searchQuery" placeholder="Search products..."
+          class="w-full max-w-2xl px-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white mx-auto block focus:border-orange-400">
       </div>
     </section>
 
     <!-- Image Carousel -->
-    <section class="carousel-section">
-      <div class="carousel-container">
-        <div class="carousel-slide" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
-          <div class="slide" v-for="(slide, index) in slides" :key="index">
-            <img :src="slide.image" :alt="slide.alt">
+    <section class="my-8">
+      <div class="relative overflow-hidden rounded-lg border border-yellow-200">
+        <div class="flex transition-transform duration-500 ease-in-out"
+          :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+          <div v-for="(slide, index) in slides" :key="index" class="min-w-full">
+            <img :src="slide.image" :alt="slide.alt" class="w-full h-96 md:h-80 lg:h-96 object-fill">
           </div>
         </div>
-        <button class="carousel-btn prev" @click="prevSlide">❮</button>
-        <button class="carousel-btn next" @click="nextSlide">❯</button>
+
+        <!-- Navigation Buttons -->
+        <button @click="prevSlide"
+          class="absolute top-1/2 left-5 transform -translate-y-1/2 bg-white/90 text-gray-800 border border-yellow-200 rounded-full p-3 hover:bg-yellow-400 transition-all duration-300 z-10">
+          ❮
+        </button>
+        <button @click="nextSlide"
+          class="absolute top-1/2 right-5 transform -translate-y-1/2 bg-white/90 text-gray-800 border border-yellow-200 rounded-full p-3 hover:bg-yellow-400 transition-all duration-300 z-10">
+          ❯
+        </button>
       </div>
     </section>
 
     <!-- New Products Section -->
-    <section class="product-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>New Products</h2>
-          <router-link to="/products" class="view-all">View All</router-link>
+    <section class="py-10">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl font-bold text-gray-800">New Products</h2>
+          <router-link to="/products"
+            class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
+            View All
+          </router-link>
         </div>
-        <div class="grid">
-          <div class="product-card" v-for="product in newProducts" :key="product.id">
-            <div class="product-image">
-              <img :src="product.image || require('@/assets/image.png')" alt="Product Image">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          <div v-for="product in newProducts" :key="product.id"
+            class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
+            <!-- Product Image -->
+            <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
+              <img :src="product.imageURL || require('@/assets/image.png')" alt="Product Image"
+                class="max-w-full max-h-40 object-contain">
             </div>
-            <div class="product-info">
-              <div class="rating">
+
+            <!-- Product Info in New Products Section -->
+            <div class="p-4 flex flex-col flex-grow">
+              <!-- Rating -->
+              <div class="text-yellow-400 text-base mb-2">
                 ★★★★★
               </div>
-              <h3 class="product-name">{{ product.name }}</h3>
-              <p class="product-description">Premium quality product</p>
-              <p class="product-price">${{ product.price.toFixed(2) }}</p>
-              <div class="button-row">
-                <button class="favorite-btn" @click="toggleFavorite(product)" 
-                  :class="{ 'is-favorite': product.isFavorite }">
-                  <span class="heart-icon"></span>
+
+              <!-- Product Name -->
+              <h3 class="text-base font-bold text-center mb-2 text-gray-800">
+                {{ product.name }}
+              </h3>
+
+              <!-- Description -->
+              <p class="text-sm text-gray-600 text-center mb-3 flex-grow">
+                {{ product.description || 'Premium quality product' }}
+              </p>
+
+              <!-- Price -->
+              <div class="text-center my-4">
+                <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
+                  ៛{{ formatPrice(product.salePrice) }}
+                </p>
+                <p class="text-xl font-bold text-gray-800">
+                  ${{ formatPrice(calculateFinalPrice(product)) }}
+                </p>
+                <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
+                  Save {{ product.discount }}%
+                </span>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex justify-between items-center mt-2">
+                <button @click="toggleFavorite(product)" :class="[
+                  'bg-transparent border-none cursor-pointer p-2 transition-all duration-300',
+                  product.isFavorite ? 'text-red-600' : 'text-gray-400 hover:text-yellow-400'
+                ]">
+                  <span class="text-xl">❤</span>
                 </button>
-                <button class="buy-btn" @click="addToCart(product)">Add to Cart</button>
+
+                <button @click="addToCart(product)"
+                  class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow ml-2 hover:bg-orange-400 hover:text-white">
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>
@@ -53,30 +101,70 @@
     </section>
 
     <!-- All Products Section -->
-    <section class="product-section">
-      <div class="container">
-        <div class="section-header">
-          <h2>All Products</h2>
-          <router-link to="/products" class="view-all">View All</router-link>
+    <section class="py-10">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl font-bold text-gray-800">All Products</h2>
+          <router-link to="/products"
+            class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
+            View All
+          </router-link>
         </div>
-        <div class="grid">
-          <div class="product-card" v-for="product in filteredProducts.slice(0, 8)" :key="product.id">
-            <div class="product-image">
-              <img :src="product.image || require('@/assets/image.png')" alt="Product Image">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <!-- Loading/Error States (similar to above) -->
+          
+          <div v-for="product in filteredProducts.slice(0, 8)" :key="product._id"
+            class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
+            <!-- Product Image -->
+            <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
+              <img :src="product.imageURL || require('@/assets/image.png')" alt="Product Image"
+                class="max-w-full max-h-40 object-contain">
             </div>
-            <div class="product-info">
-              <div class="rating">
+
+            <!-- Product Info -->
+            <div class="p-4 flex flex-col flex-grow">
+              <!-- Rating -->
+              <div class="text-yellow-400 text-base mb-2">
                 ★★★★★
               </div>
-              <h3 class="product-name">{{ product.name }}</h3>
-              <p class="product-description">Premium quality product</p>
-              <p class="product-price">${{ product.price.toFixed(2) }}</p>
-              <div class="button-row">
-                <button class="favorite-btn" @click="toggleFavorite(product)" 
-                  :class="{ 'is-favorite': product.isFavorite }">
-                  <span class="heart-icon"></span>
+
+              <!-- Product Name -->
+              <h3 class="text-base font-bold text-center mb-2 text-gray-800">
+                {{ product.name }}
+              </h3>
+
+              <!-- Description -->
+              <p class="text-sm text-gray-600 text-center mb-3 flex-grow">
+                {{ product.description || 'Premium quality product' }}
+              </p>
+
+              <!-- Price -->
+              <div class="text-center my-4">
+                <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
+                  ${{ formatPrice(product.salePrice) }}
+                </p>
+                <p class="text-xl font-bold text-gray-800">
+                  ${{ formatPrice(calculateFinalPrice(product)) }}
+                </p>
+                <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
+                  Save {{ product.discount }}%
+                </span>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex justify-between items-center mt-2">
+                <button @click="toggleFavorite(product)" :class="[
+                  'bg-transparent border-none cursor-pointer p-2 transition-all duration-300',
+                  product.isFavorite ? 'text-red-600' : 'text-gray-400 hover:text-yellow-400'
+                ]">
+                  <span class="text-xl">❤</span>
                 </button>
-                <button class="buy-btn" @click="addToCart(product)">Add to Cart</button>
+
+                <button @click="addToCart(product)"
+                  class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow ml-2 hover:bg-orange-400 hover:text-white">
+                  Add to Cart
+                </button>
               </div>
             </div>
           </div>
@@ -85,456 +173,288 @@
     </section>
 
     <!-- Footer -->
-    <footer class="site-footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h3>About Us</h3>
-            <p>Premium Store offers the finest selections at unbeatable prices.</p>
+    <footer ref="footerRef" :class="[
+      'bg-gray-900 text-white py-10 transition-all duration-700',
+      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+    ]">
+      <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Company Logo and Slogan -->
+        <div class="flex flex-col items-center md:items-start">
+          <img src="@/assets/logo-removebg.png" alt="Taing Eang Huot Rice Mill" class="w-32 mb-4" />
+          <p class="text-sm italic">Better Rice, Better Life!</p>
+        </div>
+
+        <!-- Factory Address -->
+        <div class="flex items-start gap-4">
+          <div class="bg-yellow-400 text-black rounded-full p-2 flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+              <circle cx="12" cy="9" r="2.5" />
+            </svg>
           </div>
-          <div class="footer-section">
-            <h3>Quick Links</h3>
-            <ul>
-              <li><router-link to="/">Home</router-link></li>
-              <li><router-link to="/products">Products</router-link></li>
-              <li><router-link to="/about">About</router-link></li>
-              <li><router-link to="/contact">Contact</router-link></li>
-            </ul>
-          </div>
-          <div class="footer-section">
-            <h3>Contact Us</h3>
-            <p>Email: info@premiumstore.com</p>
-            <p>Phone: (123) 456-7890</p>
+          <div>
+            <h3 class="font-bold mb-1">Factory address</h3>
+            <p class="text-sm">No.01, Street 1510, Andong Jenh Village, Ouchar District, Battambang City, Battambang
+              Province, Cambodia.</p>
           </div>
         </div>
-        <div class="footer-bottom">
-          <p>© 2023 Premium Store. All rights reserved.</p>
+
+        <!-- Office Address -->
+        <div class="flex items-start gap-4">
+          <div class="bg-yellow-400 text-black rounded-full p-2 flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+              <circle cx="12" cy="9" r="2.5" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold mb-1">Office address</h3>
+            <p class="text-sm">No.1 Borey Honglay, Street Lu5, Stung Mean Chey 3, Mean Chey, Phnom Penh, Cambodia.</p>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="flex items-start gap-4">
+          <div class="bg-yellow-400 text-black rounded-full p-2 flex-shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16v16H4z" stroke="none" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold mb-1">Email Us</h3>
+            <p class="text-sm">Info@tehrice.com</p>
+          </div>
         </div>
       </div>
     </footer>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HomePage',
-  data() {
-    return {
-      searchQuery: '',
-      products: this.getProductsFromStorage(),
-      currentSlide: 0,
-      slides: [
-        {
-          image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-          alt: 'Electronics Collection'
-        },
-        {
-          image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-          alt: 'Headphones Sale'
-        },
-        {
-          image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-          alt: 'Sneakers Promotion'
+<script setup>
+import apiURL from '@/api/config'
+import cover1 from '@/assets/cover1.png'
+import cover2 from '@/assets/cover2.png'
+import cover4 from '@/assets/cover4.png'
+import socket from '@/services/socket'  // Import the socket service
+import axios from 'axios'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+
+// Reactive data
+const searchQuery = ref('')
+const currentSlide = ref(0)
+const carouselInterval = ref(null)
+const footerRef = ref(null)
+const isVisible = ref(false)
+const isLoading = ref(false)
+const error = ref(null)
+
+// Slides data
+const slides = ref([
+  {
+    image: cover1,
+    alt: 'cover1'
+  },
+  {
+    image: cover2,
+    alt: 'cover2'
+  },
+  {
+    image: cover4,
+    alt: 'cover4'
+  }
+])
+
+// Products data
+const products = ref([])
+
+// Fetch products from API
+async function fetchProducts() {
+  try {
+    isLoading.value = true
+    error.value = null
+    console.log('Fetching products from public API...')
+    
+    // Use the public endpoint that doesn't require authentication
+    const response = await axios.get(`${apiURL}/api/public/products`, {
+      params: {
+        sortField: 'createdAt',
+        sortOrder: 'desc',
+        limit: 20 // Or any number you prefer, or remove for all products
+      }
+    })
+    
+    console.log('API response:', response.data)
+    
+    if (response.data && response.data.success && response.data.data) {
+      products.value = response.data.data
+      console.log('Products loaded:', products.value.length)
+      applyFavorites()
+    } else {
+      console.warn('No product data in response')
+      products.value = []
+    }
+  } catch (err) {
+    console.error('Error fetching products:', err)
+    error.value = 'Failed to load products: ' + (err.message || 'Unknown error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Get favorites from localStorage and mark products
+function applyFavorites() {
+  const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || []
+  
+  products.value.forEach(product => {
+    product.isFavorite = storedFavorites.some(fav => fav.id === product._id)
+  })
+}
+
+// Calculate final price after discount
+function calculateFinalPrice(product) {
+  if (!product.discount || product.discount === 0) {
+    return product.salePrice
+  }
+  
+  const discountAmount = (product.salePrice * product.discount) / 100
+  return product.salePrice - discountAmount
+}
+
+// Format price for display
+function formatPrice(price) {
+  return price.toFixed(2)
+}
+
+// Computed properties
+const filteredProducts = computed(() => {
+  return products.value.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
+
+// For "new products" we'll show the most recently added products
+const newProducts = computed(() => {
+  // Sort by createdAt date in descending order (newest first)
+  return [...products.value]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5)
+})
+
+// Methods
+function addToCart(product) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || []
+  let existingItem = cart.find(item => item.id === product._id)
+  
+  const finalPrice = calculateFinalPrice(product)
+  
+  if (existingItem) {
+    existingItem.quantity += 1
+  } else {
+    cart.push({ 
+      id: product._id,
+      name: product.name,
+      price: finalPrice,
+      originalPrice: product.salePrice,
+      discount: product.discount,
+      image: product.imageURL,
+      quantity: 1
+    })
+  }
+  
+  localStorage.setItem("cart", JSON.stringify(cart))
+  localStorage.setItem("cartCount", cart.length)
+  window.dispatchEvent(new Event("storage"))
+}
+
+function toggleFavorite(product) {
+  let favorites = JSON.parse(localStorage.getItem("favorites")) || []
+  const isFavorited = favorites.some(item => item.id === product._id)
+  
+  if (isFavorited) {
+    favorites = favorites.filter(item => item.id !== product._id)
+    product.isFavorite = false
+  } else {
+    favorites.push({
+      id: product._id,
+      name: product.name,
+      price: calculateFinalPrice(product),
+      image: product.imageURL
+    })
+    product.isFavorite = true
+  }
+  
+  localStorage.setItem("favorites", JSON.stringify(favorites))
+}
+
+function nextSlide() {
+  currentSlide.value = (currentSlide.value + 1) % slides.value.length
+}
+
+function prevSlide() {
+  currentSlide.value = (currentSlide.value - 1 + slides.value.length) % slides.value.length
+}
+
+function startCarousel() {
+  carouselInterval.value = setInterval(() => {
+    nextSlide()
+  }, 5000)
+}
+
+function setupIntersectionObserver() {
+  if (!footerRef.value) return
+  
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true
         }
-      ],
-      carouselInterval: null
-    };
-  },
-  computed: {
-    filteredProducts() {
-      return this.products.filter(product => 
-        product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      })
     },
-    newProducts() {
-      return this.products.filter(product => product.isNew).slice(0, 5);
-    }
-  },
-  methods: {
-    getProductsFromStorage() {
-      let storedProducts = JSON.parse(localStorage.getItem("products")) || [
-        { id: 1, name: 'Premium Smartphone', price: 799.99, isBestSeller: true, isNew: true },
-        { id: 2, name: 'Ultra HD Laptop', price: 1499.99, isBestSeller: true, isNew: true },
-        { id: 3, name: 'Noise Cancelling Headphones', price: 249.99, isBestSeller: false, isNew: true },
-        { id: 4, name: 'Pro Gaming Console', price: 599.99, isBestSeller: true, isNew: false },
-        { id: 5, name: 'Smart Fitness Watch', price: 299.99, isBestSeller: true, isNew: false },
-        { id: 6, name: 'Wireless Earbuds Pro', price: 179.99, isBestSeller: false, isNew: true },
-        { id: 7, name: '4K Smart TV', price: 899.99, isBestSeller: true, isNew: false },
-        { id: 8, name: 'Foldable Tablet', price: 1299.99, isBestSeller: false, isNew: true }
-      ];
+    { threshold: 0.1 }
+  )
+  
+  observer.observe(footerRef.value)
+}
 
-      let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
-
-      storedProducts.forEach(product => {
-        product.isFavorite = storedFavorites.some(fav => fav.id === product.id);
-      });
-
-      localStorage.setItem("products", JSON.stringify(storedProducts));
-      return storedProducts;
-    },
-    addToCart(product) {
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      let existingItem = cart.find(item => item.id === product.id);
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cart.push({ ...product, quantity: 1 });
-      }
-      localStorage.setItem("cart", JSON.stringify(cart));
-      localStorage.setItem("cartCount", cart.length);
-      window.dispatchEvent(new Event("storage"));
-    },
-    toggleFavorite(product) {
-      let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      const isFavorited = favorites.some(item => item.id === product.id);
-      if (isFavorited) {
-        favorites = favorites.filter(item => item.id !== product.id);
-        product.isFavorite = false;
-      } else {
-        favorites.push(product);
-        product.isFavorite = true;
-      }
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-    },
-    nextSlide() {
-      this.currentSlide = (this.currentSlide + 1) % this.slides.length;
-    },
-    prevSlide() {
-      this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
-    },
-    startCarousel() {
-      this.carouselInterval = setInterval(() => {
-        this.nextSlide();
-      }, 5000);
-    }
-  },
-  mounted() {
-    this.startCarousel();
-  },
-  beforeUnmount() {
-    if (this.carouselInterval) {
-      clearInterval(this.carouselInterval);
-    }
+// Setup socket connection for real-time updates
+function setupSocketConnection() {
+  // Connect to socket if disconnected
+  if (socket && socket.disconnected) {
+    socket.connect()
   }
-};
+
+  // Listen for product updates
+  socket.on('dataUpdate', async (update) => {
+    console.log('Socket update received:', update)
+    
+    if (update.collection === 'Product') {
+      console.log('Product collection updated, refreshing products...')
+      await fetchProducts() // Refresh products when there's an update
+    }
+  })
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  fetchProducts()
+  startCarousel()
+  setupIntersectionObserver()
+  setupSocketConnection() // Setup socket connection
+})
+
+onUnmounted(() => {
+  if (carouselInterval.value) {
+    clearInterval(carouselInterval.value)
+  }
+  
+  // Clean up socket listeners to prevent memory leaks
+  if (socket) {
+    socket.off('dataUpdated')
+  }
+})
 </script>
-
-<style scoped>
-/* General */
-.home {
-  text-align: center;
-  background-color: #fff;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* Search Section */
-.search-section {
-  padding: 30px 0;
-  margin-top: 30px;
-}
-
-.search-box {
-  width: 100%;
-  max-width: 600px;
-  padding: 12px 20px;
-  border: 1px solid #FFD700;
-  border-radius: 25px;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.3s;
-  background-color: white;
-  margin: 0 auto;
-  display: block;
-}
-
-.search-box:focus {
-  border-color: #FFA500;
-}
-
-/* Carousel Section */
-.carousel-section {
-  margin: 30px 0;
-}
-
-.carousel-container {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 8px;
-  border: 1px solid #FFEC8B;
-}
-
-.carousel-slide {
-  display: flex;
-  transition: transform 0.5s ease;
-}
-
-.slide {
-  min-width: 100%;
-  box-sizing: border-box;
-}
-
-.slide img {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-}
-
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #333;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-  border-radius: 50%;
-  font-size: 1rem;
-  z-index: 10;
-  transition: all 0.3s;
-  border: 1px solid #FFEC8B;
-}
-
-.carousel-btn:hover {
-  background-color: #FFD700;
-}
-
-.prev {
-  left: 20px;
-}
-
-.next {
-  right: 20px;
-}
-
-/* Product Sections */
-.product-section {
-  padding: 40px 0;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.section-header h2 {
-  font-size: 1.8rem;
-  color: #333;
-  margin: 0;
-}
-
-.view-all {
-  color: #FF8C00;
-  font-weight: bold;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.view-all:hover {
-  color: #FF4500;
-  text-decoration: underline;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-/* New Product Card Design */
-.product-card {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e0e0e0;
-  transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Product Image */
-.product-image {
-  background-color: #f9f9f9;
-  padding: 15px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.product-image img {
-  max-width: 100%;
-  max-height: 170px;
-  object-fit: contain;
-}
-
-/* Product Info */
-.product-info {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.rating {
-  color: #FFD700;
-  font-size: 1rem;
-  margin-bottom: 8px;
-}
-
-.product-name {
-  font-size: 1rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.product-description {
-  font-size: 0.8rem;
-  color: #666;
-  text-align: center;
-  margin-bottom: 12px;
-  flex-grow: 1;
-}
-
-.product-price {
-  font-size: 1.2rem;
-  color: #333;
-  margin: 15px 0;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* Buttons */
-.button-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.favorite-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  transition: all 0.3s;
-}
-
-.heart-icon::before {
-  content: "❤";
-  font-size: 20px;
-  color: #ccc;
-  transition: all 0.3s ease;
-}
-
-.favorite-btn:hover .heart-icon::before {
-  color: #FFD700;
-}
-
-.favorite-btn.is-favorite .heart-icon::before {
-  color: #b90909;
-}
-
-.buy-btn {
-  background-color: #FFD700;
-  color: #333;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: bold;
-  font-size: 0.9rem;
-  flex-grow: 1;
-  margin-left: 10px;
-}
-
-.buy-btn:hover {
-  background-color: #FFA500;
-  color: white;
-}
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-  
-  .slide img {
-    height: 350px;
-  }
-}
-
-@media (max-width: 768px) {
-  .search-section {
-    padding: 20px 0;
-  }
-  
-  .carousel-section {
-    margin: 20px 0;
-  }
-  
-  .slide img {
-    height: 300px;
-  }
-  
-  .section-header h2 {
-    font-size: 1.5rem;
-  }
-  
-  .product-section {
-    padding: 30px 0;
-  }
-}
-
-@media (max-width: 576px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-  }
-  
-  .slide img {
-    height: 200px;
-  }
-  
-  .footer-content {
-    grid-template-columns: 1fr;
-  }
-  
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .view-all {
-    align-self: flex-end;
-  }
-}
-
-@media (max-width: 400px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .search-box {
-    padding: 10px 15px;
-    font-size: 0.9rem;
-  }
-}
-</style>

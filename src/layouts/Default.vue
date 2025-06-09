@@ -1,17 +1,25 @@
 <template>
-  <div>
-    <Navbar :isSidebarOpen="isSidebarOpen" @toggle="toggleSidebar" />
-    <Sidebar :isOpen="isSidebarOpen" @toggle="toggleSidebar" />
-    <div :class="['transition-all duration-300 overflow-y-auto', isSidebarOpen ? 'md:ml-64' : 'ml-0']">
-      <router-view></router-view>
+  <div class="h-screen flex flex-col overflow-hidden bg-gray-50">
+    <!-- Fixed Navbar at top -->
+    <Navbar :isSidebarOpen="isSidebarOpen" @toggle="toggleSidebar" class="flex-shrink-0" />
+    
+    <!-- Main content area with sidebar -->
+    <div class="flex-1 flex overflow-hidden ">
+      <!-- Sidebar -->
+      <Sidebar :isOpen="isSidebarOpen" @toggle="toggleSidebar" class="flex-shrink-0" />
+      
+      <!-- Main scrollable content -->
+      <div :class="['flex-1 overflow-y-auto transition-all duration-300 bg-gray-50', isSidebarOpen ? 'md:ml-56' : 'ml-0']">
+        <router-view></router-view>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
 import Navbar from '@/views/admin/Navbar.vue';
 import Sidebar from '@/views/admin/Sidebar.vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 export default {
   components: {
@@ -49,20 +57,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/* Add your styles here if needed */
-/* Custom scrollbar */
+/* Enhanced scrollbar styling */
 .overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #f9f9f6;
-  border-radius: 20px;
+  background-color: #d1d5db;
+  border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f3f4f6;
+  border-radius: 4px;
 }
+
+/* Smooth scrolling */
+.overflow-y-auto {
+  scroll-behavior: smooth;
+}
+
 /* Footer scroll animation */
 @keyframes scroll {
   0% {

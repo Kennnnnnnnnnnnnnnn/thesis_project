@@ -1,194 +1,308 @@
 <template>
-  <div class="p-5 font-sans bg-white rounded-md">
-    <!-- Header, Create Button, Search and Filter -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 pb-4 border-b border-yellow-200 mt-10">
-      <div class="flex items-center gap-3">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-        <p class="text-left font-semibold text-lg">Supplier Management</p>
-      </div>
-      <div class="flex flex-col sm:flex-row gap-3 items-center w-full sm:w-auto">
-        <!-- Dropdown (Items per page) -->
-        <div class="w-full md:w-auto mb-2 md:mb-0">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter">
+    <!-- Header Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <!-- Title -->
+        <div class="flex items-center gap-4">
+          <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Supplier Management</h1>
+            <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your suppliers and vendor relationships</p> -->
+          </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <!-- Items per page -->
           <div class="relative">
             <button @click="toggleDropdownRow"
-              class="flex items-center justify-between w-full min-w-[90px] px-3 py-2 bg-gray-100 rounded-lg border border-gray-200">
-              <span class="text-sm font-medium">{{ selectedItem }}</span>
-              <i class="fas fa-chevron-down transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+              <span>{{ selectedItem }} items</span>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
             </button>
             <div v-show="isOpen"
-              class="absolute left-0 mt-2 w-full bg-white border border-gray-200 shadow-lg rounded-lg p-1 z-50">
+              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
               <div v-for="item in items" :key="item" @click="selectItem(item)"
-                class="px-3 py-1 cursor-pointer hover:bg-gray-100 rounded">
-                {{ item }}
+                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
+                {{ item }} items
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Search -->
-        <div class="relative w-full sm:w-64">
-          <input v-model="searchQuery" type="text" placeholder="Search supplier..."
-            class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </span>
-        </div>
+          <!-- Search Input -->
+          <div class="relative">
+            <input v-model="searchQuery" type="text" placeholder="Search suppliers..."
+              class="w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
 
-        <!-- Status Filter -->
-        <div class="relative w-full sm:w-40">
-          <select v-model="statusFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
+          <!-- Status Filter -->
+          <select v-model="statusFilter" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Status</option>
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
+
+          <!-- Add Button -->
+          <button
+            class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+            @click="openModal">
+            <i class="fas fa-plus text-xs"></i>
+            Create Supplier
+          </button>
         </div>
-
-        <button
-          class="bg-gradient-to-br from-green-400 to-green-600 text-white px-4 py-2 rounded-md text-xs font-semibold shadow hover:from-green-500 hover:to-green-700 transition min-w-[100px]"
-          @click="openModal">
-          + Create Supplier
-        </button>
       </div>
     </div>
 
-    <!-- Table -->
-    <div class="overflow-y-auto mt-3 relative bg-white rounded-lg shadow-sm border border-gray-100"  style="max-height: 60vh;">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
+    <!-- Main Table Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
+      <!-- Table Header -->
+      <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Suppliers</h3>
+        <p class="text-sm text-gray-600 mt-1 font-medium">{{ supplierData.length }} suppliers total</p>
       </div>
 
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">No</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide">Name</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Address</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Contact</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Description</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Status</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(supplier, index) in supplierData" :key="supplier._id"
-            class="hover:bg-yellow-50 transition-colors duration-100 border-b border-gray-100 last:border-none">
-            <td class="px-4 py-2 text-gray-800">{{ index + 1 }}</td>
-            <td class="px-4 py-2 text-center align-middle">
-              <div class="flex items-center gap-2 w-full">
-                <span class="text-gray-800 whitespace-nowrap">{{ supplier.name }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ supplier.address }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ supplier.contact }}</td>
-            <td class="px-4 py-2 text-center text-gray-600">{{ supplier.description || 'N/A' }}</td>
-            <td class="px-4 py-2 text-center">
-              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
-                :class="supplier.status ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
-                <i :class="supplier.status ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
-                {{ supplier.status ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="px-4 py-2 flex justify-center gap-2">
-              <button class="p-1 rounded hover:bg-blue-100 transition" @click="editSupplier(supplier)">
-                <i class="fa-solid fa-pen-to-square text-blue-600"></i>
-              </button>
-              <button class="p-1 rounded hover:bg-red-100 transition" @click="deleteSupplier(supplier._id)">
-                <i class="fa-solid fa-trash text-red-600"></i>
-              </button>
-            </td>
-          </tr>
-          <tr v-if="supplierData.length === 0 && !isLoading">
-            <td colspan="7" class="px-4 py-8 text-center text-gray-400 italic">
-              No suppliers found
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Table Container -->
+      <div class="relative overflow-hidden">
+        <!-- Loading Overlay -->
+        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
+          <div class="flex items-center gap-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
+            <span class="text-gray-700 font-medium">Loading...</span>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50/50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Supplier Name</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Address</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Contact</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <tr v-for="(supplier, index) in supplierData" :key="supplier._id"
+                class="hover:bg-amber-50/50 transition-colors duration-200">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  {{ index + 1 }}
+                </td>
+                
+                <!-- Supplier Name Column -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-4">
+                    <div class="flex-shrink-0">
+                      <div class="h-12 w-12 rounded-2xl bg-amber-50 flex items-center justify-center border border-amber-200">
+                        <i class="fas fa-building text-amber-600"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <div class="text-sm font-bold text-gray-900">
+                        {{ supplier.name }}
+                      </div>
+                      <!-- <div class="text-xs text-gray-500 font-medium mt-0.5">
+                        Supplier ID: {{ supplier._id.slice(-6) }}
+                      </div> -->
+                    </div>
+                  </div>
+                </td>
+                
+                <!-- Address Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm text-gray-900 font-medium">{{ supplier.address }}</div>
+                </td>
+                
+                <!-- Contact Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm text-gray-900 font-medium">{{ supplier.contact }}</div>
+                </td>
+                
+                <!-- Description Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm text-gray-600 max-w-xs truncate">
+                    {{ supplier.description || 'N/A' }}
+                  </div>
+                </td>
+                
+                <!-- Status Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
+                    :class="supplier.status ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'">
+                    <i :class="supplier.status ? 'fas fa-circle-check' : 'fas fa-circle-xmark'" class="text-xs"></i>
+                    {{ supplier.status ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                
+                <!-- Actions Column -->
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <!-- Edit Button -->
+                    <button 
+                      class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200" 
+                      @click="editSupplier(supplier)" 
+                      title="Edit supplier">
+                      <i class="fas fa-edit text-sm"></i>
+                    </button>
+                    
+                    <!-- Delete Button -->
+                    <button 
+                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200" 
+                      @click="deleteSupplier(supplier._id)" 
+                      title="Delete supplier">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr v-if="supplierData.length === 0 && !isLoading">
+                <td colspan="7" class="px-6 py-20 text-center">
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="p-6 rounded-2xl bg-amber-50 border border-amber-200">
+                      <i class="fas fa-building text-5xl text-amber-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-bold text-gray-900">No suppliers found</h3>
+                      <p class="text-sm text-gray-600 mt-1 font-medium">Add your first supplier to get started</p>
+                    </div>
+                    <button 
+                      @click="openModal"
+                      class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                      <i class="fas fa-plus text-xs"></i>
+                      Add First Supplier
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
+        <Pagination 
+          :currentPage="currentPage" 
+          @onEmitDataFromPagination="handleListenToPagination"
+          @onEmitIsLoading="handleListenIsLoading" 
+          @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+          :limitedPerPage="pageSize" 
+          :searchQuery="searchText" 
+        />
+      </div>
     </div>
 
-    <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
-      @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-      :limitedPerPage="pageSize" :searchQuery="searchText" />
-
-    <!-- Create/Edit Supplier Modal -->
-    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
-      <div class="font-sans w-full max-w-lg sm:w-[95%] sm:max-w-lg bg-white rounded-lg shadow-md p-4 sm:p-8 relative">
-        <!-- Close Button -->
-        <i class="fa-solid fa-circle-xmark cursor-pointer text-red-700 text-lg absolute top-4 right-4
-          hover:text-red-500 transform hover:scale-110 transition-all duration-300 ease-in-out"
-          @click="closeModal"></i>
-        <h2 class="text-lg font-semibold mb-5 text-gray-700 text-center mt-[-12px]">
-          {{ showEditModal ? 'Update Supplier' : 'Create New Supplier' }}
-        </h2>
-        <form @submit.prevent="handleSubmit" class="space-y-4 flex flex-col">
-          <!-- Name -->
+    <!-- Create/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
+            <h2 class="text-xl font-bold text-gray-900 tracking-tight">
+              {{ showEditModal ? 'Update Supplier' : 'Create New Supplier' }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1 font-medium">
+              {{ showEditModal ? 'Modify existing supplier details' : 'Add a new supplier to your system' }}
+            </p>
+          </div>
+          <button 
+            class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+            @click="closeModal">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
+          <!-- Supplier Name -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-3">
               Supplier Name <span class="text-red-500">*</span>
             </label>
             <input v-model="name" type="text" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+              class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
               placeholder="Enter supplier name" />
           </div>
 
           <!-- Address -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
+            <label class="block text-sm font-bold text-gray-700 mb-3">
               Address <span class="text-red-500">*</span>
             </label>
             <input v-model="address" type="text" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
-              placeholder="Enter address" />
+              class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+              placeholder="Enter supplier address" />
           </div>
 
           <!-- Contact -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
+            <label class="block text-sm font-bold text-gray-700 mb-3">
               Contact Number <span class="text-red-500">*</span>
             </label>
             <input v-model="contact" type="text" required
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
+              class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
               placeholder="Enter contact number" />
           </div>
 
           <!-- Description -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">
-              Description
-            </label>
-            <textarea v-model="description"
-              class="border border-gray-300 focus:border-yellow-500 focus:ring-yellow-100 rounded-md px-3 py-2 w-full outline-none transition"
-              rows="3" placeholder="Enter description"></textarea>
+            <label class="block text-sm font-bold text-gray-700 mb-3">Description</label>
+            <textarea v-model="description" rows="3"
+              class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all resize-none font-medium"
+              placeholder="Enter supplier description"></textarea>
           </div>
 
           <!-- Status Toggle -->
-          <div class="flex items-center gap-3">
-            <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
-              :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
-              <span class="sr-only">Enable status</span>
-              <span class="inline-block h-4 w-4 transform bg-white rounded-full transition"
-                :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
-            </Switch>
-            <span class="text-gray-600 text-sm">Status</span>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-3">Status</label>
+            <div class="flex items-center space-x-3">
+              <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+                :class="enabled ? 'bg-amber-500' : 'bg-gray-300'">
+                <span class="sr-only">Enable status</span>
+                <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
+                  :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+              </Switch>
+              <span class="text-sm text-gray-700 font-medium">{{ enabled ? 'Active' : 'Inactive' }}</span>
+            </div>
           </div>
 
-          <!-- Error message -->
-          <p v-if="error" class="text-red-500 text-xs">{{ error }}</p>
+          <!-- Error Message -->
+          <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-circle text-red-500"></i>
+              <p class="text-red-700 text-sm font-semibold">{{ error }}</p>
+            </div>
+          </div>
 
           <!-- Action Buttons -->
-          <div class="flex justify-end gap-3 mt-6">
-            <button type="button" class="px-5 py-2 rounded-full text-base font-normal bg-gray-100 text-gray-700 shadow-sm
-             hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 transition" @click="resetForm">
+          <div class="flex gap-4 pt-4">
+            <button type="button" 
+              class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
+              @click="resetForm">
               Clear
             </button>
-            <button type="submit" class="px-5 py-2 rounded-full text-base font-normal bg-green-500 text-white shadow-sm
-             hover:bg-green-600 focus:ring-2 focus:ring-green-300 transition">
-              {{ showEditModal ? 'Update Supplier' : 'Create Supplier' }}
+            <button type="submit" 
+              :disabled="isSubmitting"
+              class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
+              <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                <i class="fas fa-spinner fa-spin"></i>
+                {{ showEditModal ? 'Updating...' : 'Creating...' }}
+              </span>
+              <span v-else>
+                {{ showEditModal ? 'Update Supplier' : 'Create Supplier' }}
+              </span>
             </button>
           </div>
         </form>
@@ -219,7 +333,7 @@ const contact = ref('');
 const description = ref('');
 const status = ref(true);
 const enabled = ref(true);
-const items = ref([1, 10, 50, 100, 500, 1000]);
+const items = ref([10, 25, 50, 100]);
 const selectedItem = ref(10);
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -235,24 +349,20 @@ const handleListenToPagination = async (items) => {
 };
 
 const handleListenIsLoading = (status) => {
-
   isLoading.value = status;
 };
-
 
 const handleListenIsLastRecordOnPage = (page) => {
   currentPageIsLastRecord.value = page;
   if (currentPage.value > 1) {
-    currentPage.value -= 1; // Move to previous page
+    currentPage.value -= 1;
   }
 };
 
 watch(searchQuery, (newValue) => {
   searchText.value = newValue;
-  // Reset to page 1 when searching
   currentPage.value = 1;
-}, { immediate: true }); // Add immediate option to trigger on component mount
-
+}, { immediate: true });
 
 // Dropdown handlers
 const toggleDropdownRow = () => {
@@ -480,43 +590,50 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.supplier-container {
-  padding: 20px;
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 10px;
 }
 
-.v-data-table {
-  margin-top: 20px;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+  border: 2px solid #f8fafc;
 }
 
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: #f9f9f6;
-  border-radius: 20px;
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-/* Footer scroll animation */
-@keyframes scroll {
-  0% {
-    left: -22%;
-  }
-
-  100% {
-    left: 100%;
-  }
+/* Enhanced focus states */
+button:focus,
+select:focus,
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
+/* Better table row hover effect */
+tbody tr:hover {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Improved modal backdrop */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
 </style>
-
