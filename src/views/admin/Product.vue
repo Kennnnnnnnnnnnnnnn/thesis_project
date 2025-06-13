@@ -914,23 +914,49 @@ const handleImageUpload = async (e) => {
   };
 };
 
+
+
+
+// Add these socket listeners in your onMounted function:
+
 onMounted(() => {
   if (socket && socket.disconnected) {
     socket.connect();
   }
-
-  socket.on('dataUpdated', (update) => {
+  
+  // Listen for socket updates
+  socket.on('dataUpdate', (update) => {
+    console.log('📡 Product.vue received socket update:', update);
+    
     if (update.collection === 'Product') {
-      fetchProducts();
+      // Handle different types of product updates
+      if (update.action === 'batch-update' && update.data.restockId) {
+        console.log('🔄 Batch product update from restock:', update.data.restockId);
+        fetchProducts(); // Refresh all product data
+      } else if (update.action === 'bulk-update' && update.data === 'refresh-all') {
+        console.log('🔄 Bulk refresh of all product data');
+        fetchProducts(); // Refresh all product data
+      } else if (update.action === 'update' && update.data) {
+        console.log('🔄 Individual product update for:', update.data);
+        fetchProducts(); // Refresh all product data
+      } else {
+        // General product updates
+        fetchProducts();
+      }
     }
-    if (update.collection === 'Category') {
-      fetchCategories();
+    
+    // Also listen for Stock updates that might affect product display
+    if (update.collection === 'Stock') {
+      console.log('🔄 Stock update affecting product display');
+      // Optionally refresh if stock data affects product display
     }
   });
-
-  fetchProducts();
-  fetchCategories();
+  
+  fetchProducts(); // Initial fetch
+  fetchCategories(); // Fetch categories for dropdown
 });
+
+
 </script>
 
 <style lang="scss" scoped>

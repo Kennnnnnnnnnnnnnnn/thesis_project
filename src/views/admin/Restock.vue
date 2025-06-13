@@ -105,9 +105,9 @@
             <td class="px-4 py-2 text-center text-gray-600">{{ restock.description || 'N/A' }}</td>
             <td class="px-4 py-2 text-center">
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
-                :class="restock.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
-                <i :class="restock.status ? 'fa-solid fa-circle-check' : 'fa-solid fa-clock'"></i>
-                {{ restock.status ? 'Active' : 'Completed' }}
+                :class="restock.status ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'">
+                <i :class="restock.status ? 'fa-solid fa-clock' : 'fa-solid fa-circle-check'"></i>
+                {{ restock.status ? 'Pending' : 'Completed' }}
               </span>
             </td>
             <td class="px-4 py-2 text-center text-gray-600">{{ formatDate(restock.createdAt) }}</td>
@@ -519,6 +519,9 @@ const closeModal = () => {
   resetForm();
 };
 
+
+// Replace the entire handleSubmit function (around line 520) with this enhanced version:
+
 const handleSubmit = async () => {
   if (!supplierId.value || selectedProducts.value.some(p => !p.id || !p.quantity)) {
     error.value = 'Required fields cannot be empty';
@@ -607,12 +610,22 @@ const handleSubmit = async () => {
         throw new Error(response.data.message || 'Failed to create restock order');
       }
     } else {
-      // Update existing restock order
+      // 🔥 ENHANCED: Update existing restock order with stock adjustments
       if (!id.value) {
         error.value = 'Error: Missing restock order ID for update operation';
         return;
       }
 
+      // 🔥 GET ORIGINAL RESTOCK ORDER DATA FOR COMPARISON
+      const originalRestockOrder = restockData.value.find(order => order._id === id.value);
+      
+      if (!originalRestockOrder) {
+        error.value = 'Original restock order not found';
+        return;
+      }
+
+      console.log('🔄 Updating restock order with stock adjustments');
+      
       requestBody.fields.updatedAt = timestamp;
       requestBody.fields.updatedBy = userId;
 
@@ -628,6 +641,13 @@ const handleSubmit = async () => {
       );
 
       if (response.data.success || response.data.message === 'PurchaseProduct updated') {
+        console.log('✅ Restock order updated successfully');
+        
+        // 🔥 IF RESTOCK ORDER IS COMPLETED, UPDATE STOCK AND PRODUCT QUANTITIES
+        if (!status.value) { // status.value = false means completed
+          await handleStockUpdatesForEdit(originalRestockOrder, productsData, token, userId, timestamp);
+        }
+        
         socket.emit('dataUpdate', {
           action: 'update',
           collection: 'PurchaseProduct',
@@ -648,6 +668,135 @@ const handleSubmit = async () => {
     isLoading.value = false;
   }
 };
+
+
+
+const handleStockUpdatesForEdit = async (originalRestockOrder, newProductsData, token, userId, timestamp) => {
+  console.log('🔄 Processing stock updates for restock order edit');
+  
+  try {
+    // Create maps for easy comparison
+    const originalProducts = new Map();
+    const newProducts = new Map();
+    
+    // Map original products by productId
+    originalRestockOrder.products.forEach(product => {
+      const productId = product.productId || (product instanceof Map ? product.get('productId') : null);
+      const quantity = parseInt(product.quantity || (product instanceof Map ? product.get('quantity') : 0));
+      
+      if (productId) {
+        originalProducts.set(productId, quantity);
+      }
+    });
+    
+    // Map new products by productId
+    newProductsData.forEach(product => {
+      const productId = product.productId;
+      const quantity = parseInt(product.quantity);
+      
+      if (productId) {
+        newProducts.set(productId, quantity);
+      }
+    });
+    
+    console.log('📊 Original products:', originalProducts);
+    console.log('📊 New products:', newProducts);
+    
+    // Find all unique product IDs from both original and new
+    const allProductIds = new Set([...originalProducts.keys(), ...newProducts.keys()]);
+    
+    const updatedStockIds = [];
+    const updatedProductIds = [];
+    
+    for (const productId of allProductIds) {
+      const originalQty = originalProducts.get(productId) || 0;
+      const newQty = newProducts.get(productId) || 0;
+      const quantityDifference = newQty - originalQty;
+      
+      if (originalQty !== newQty) {
+        console.log(`📝 Product ${productId}: ${originalQty} → ${newQty} (Difference: ${quantityDifference})`);
+        
+        // 🔥 FIX: Use the difference-based update functions
+        const stockUpdateSuccess = await updateStockRecordWithDifference(productId, quantityDifference, token, userId, timestamp);
+        if (stockUpdateSuccess) {
+          updatedStockIds.push(stockUpdateSuccess.stockId);
+        }
+        
+        // 🔥 FIX: Use the difference-based update functions
+        const productUpdateSuccess = await updateProductStockWithDifference(productId, quantityDifference, token, userId, timestamp);
+        if (productUpdateSuccess) {
+          updatedProductIds.push(productId);
+        }
+      } else {
+        console.log(`➡️ Product ${productId}: No change (${originalQty})`);
+      }
+    }
+    
+    // Emit socket events for updated records
+    if (updatedStockIds.length > 0) {
+      console.log(`✅ Stock updates completed for edit. Updated ${updatedStockIds.length} stock records`);
+      
+      updatedStockIds.forEach(stockId => {
+        socket.emit('dataUpdate', {
+          action: 'update',
+          collection: 'Stock',
+          data: stockId
+        });
+      });
+      
+      // Emit batch update
+      socket.emit('dataUpdate', {
+        action: 'batch-update',
+        collection: 'Stock',
+        data: { 
+          restockId: id.value, 
+          timestamp, 
+          updatedStockIds,
+          updateCount: updatedStockIds.length,
+          updateType: 'edit'
+        }
+      });
+    }
+
+    if (updatedProductIds.length > 0) {
+      console.log(`✅ Product updates completed for edit. Updated ${updatedProductIds.length} products`);
+      
+      updatedProductIds.forEach(productId => {
+        socket.emit('dataUpdate', {
+          action: 'update',
+          collection: 'Product',
+          data: productId
+        });
+      });
+      
+      // Emit batch update
+      socket.emit('dataUpdate', {
+        action: 'batch-update',
+        collection: 'Product',
+        data: { 
+          restockId: id.value, 
+          timestamp, 
+          updatedProductIds,
+          updateCount: updatedProductIds.length,
+          updateType: 'edit'
+        }
+      });
+    }
+    
+    console.log('✅ Stock update process completed for restock order edit');
+    
+    // 🔥 FORCE REFRESH OF DATA
+    setTimeout(async () => {
+      await fetchStock();
+      await fetchProducts();
+      console.log('🔄 Stock and Product data refreshed after edit');
+    }, 500);
+    
+  } catch (err) {
+    console.error('❌ Error updating stock for restock order edit:', err);
+  }
+};
+
 
 const editRestock = (restock) => {
   id.value = restock._id;
@@ -735,8 +884,31 @@ const handleCancelConfirmation = () => {
   pendingRestockId.value = null;
 };
 
+
+
+
+
+// Add at the start of markAsComplete function:
+
 const markAsComplete = async (restockId) => {
   try {
+    console.log('🚀 DEBUG: Starting restock completion for ID:', restockId);
+    
+    // Find the restock order to debug
+    const restockOrder = restockData.value.find(order => order._id === restockId);
+    console.log('🔍 DEBUG: Found restock order:', restockOrder);
+    
+    if (restockOrder && restockOrder.products) {
+      console.log('📦 DEBUG: Products in restock order:', restockOrder.products);
+      restockOrder.products.forEach((product, index) => {
+        console.log(`🔍 DEBUG: Product ${index}:`, {
+          productId: product.productId,
+          quantity: product.quantity,
+          productName: product.productName
+        });
+      });
+    }
+    
     isLoading.value = true;
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
@@ -747,7 +919,9 @@ const markAsComplete = async (restockId) => {
       return;
     }
 
-    // 🔃 Update status to "Completed"
+    console.log('🔄 Starting restock completion process for:', restockId);
+
+    // First update the restock order status to "Completed"
     const updateRes = await axios.patch(
       `${apiURL}/api/updateDoc/PurchaseProduct/${restockId}`,
       {
@@ -766,62 +940,525 @@ const markAsComplete = async (restockId) => {
     );
 
     if (updateRes.data.success) {
-      await updateStockForRestock(restockId, token, userId, timestamp);
+      console.log('✅ Restock order status updated successfully');
+      
+      // 🔥 REFRESH THE RESTOCK DATA BEFORE UPDATING STOCK
+      await fetchRestock();
+      
+      // Update stock quantities for all products in the order
+      const stockUpdateSuccess = await updateStockForRestock(restockId, token, userId, timestamp);
 
+      if (stockUpdateSuccess) {
+        console.log('✅ All stock updates completed successfully');
+      } else {
+        console.warn('⚠️ Some stock updates may have failed');
+      }
+
+      // Emit restock update event
       socket.emit('dataUpdate', {
         action: 'update',
         collection: 'PurchaseProduct',
         data: restockId
       });
+      
+      // Force refresh of all data after completion
+      setTimeout(async () => {
+        await fetchRestock();
+        console.log('🔄 Final refresh completed');
+      }, 1000);
+      
+      console.log('✅ Restock completion process finished successfully');
+      
+    } else {
+      throw new Error('Failed to update restock status');
     }
   } catch (err) {
-    console.error('Error marking restock as complete:', err);
+    console.error('❌ Error marking restock as complete:', err);
     error.value = err.response?.data?.message || err.message || 'Failed to complete restock';
   } finally {
     isLoading.value = false;
   }
 };
 
-const updateStockForRestock = async (restockId) => {
-  // Get the restock order details
-  const restockOrder = restockData.value.find(order => order._id === restockId);
-  if (!restockOrder) return;
+
+// Replace your updateStockForRestock function with this fixed version:
+
+const updateStockForRestock = async (restockId, token, userId, timestamp) => {
+  console.log('🔄 Starting stock update for restock order:', restockId);
   
-  // Update stock quantities for each product in the order
+  // 🔥 FETCH FRESH DATA instead of using cached data
+  let restockOrder;
+  try {
+    const restockResponse = await axios.get(`${apiURL}/api/getAllDocs/PurchaseProduct`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (restockResponse.data?.data) {
+      restockOrder = restockResponse.data.data.find(order => order._id === restockId);
+    }
+  } catch (err) {
+    console.error('❌ Failed to fetch fresh restock data:', err);
+    return false;
+  }
+  
+  if (!restockOrder) {
+    console.error('❌ Restock order not found:', restockId);
+    return false;
+  }
+  
+  console.log('📦 Processing restock order with FRESH data:', {
+    id: restockOrder._id,
+    productsCount: restockOrder.products.length,
+    products: restockOrder.products
+  });
+  
+  let allUpdatesSuccessful = true;
+  const updatedStockIds = [];
+  const updatedProductIds = [];
+  
   for (const product of restockOrder.products) {
     try {
-      // Get current stock status
-      const stockResponse = await axios.get(
-        `${apiURL}/api/getDocsByField/Stock/productId/${product.id}`,
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
+      let productId, productQuantity;
       
-      if (stockResponse.data?.data?.[0]) {
-        const stock = stockResponse.data.data[0];
-        
-        // Calculate new quantity
-        const newQuantity = stock.quantity + product.quantity;
-        
-        // Update stock record
-        await axios.patch(
-          `${apiURL}/api/updateDoc/Stock/${stock._id}`,
-          {
-            fields: {
-              quantity: newQuantity,
-              isOutOfStock: newQuantity <= 0,
-              lastRestockedAt: new Date().toISOString(),
-              updatedBy: userId,
-              updatedAt: timestamp
-            }
-          },
-          { headers: { 'Authorization': `Bearer ${token}` } }
-        );
+      console.log('🔍 Raw product data:', product);
+      
+      // Handle object format (your current format)
+      if (typeof product === 'object' && !Array.isArray(product)) {
+        productId = product.productId;
+        productQuantity = parseInt(product.quantity);
       }
+      // Handle Map format (fallback)
+      else if (product instanceof Map) {
+        productId = product.get('productId');
+        productQuantity = parseInt(product.get('quantity') || 0);
+      }
+      else {
+        console.error('❌ Unknown product format:', product);
+        continue;
+      }
+      
+      if (!productId) {
+        console.error('❌ Product ID not found in product:', product);
+        continue;
+      }
+      
+      if (!productQuantity || productQuantity <= 0) {
+        console.error('❌ Invalid quantity for product:', productId, productQuantity);
+        continue;
+      }
+      
+      console.log(`🔍 Processing product ${productId} with quantity ${productQuantity}`);
+      
+      // 🔥 UPDATE 1: Update Stock Collection
+      const stockUpdateSuccess = await updateStockRecord(productId, productQuantity, token, userId, timestamp);
+      if (stockUpdateSuccess) {
+        updatedStockIds.push(stockUpdateSuccess.stockId);
+      }
+      
+      // 🔥 UPDATE 2: Update Product Collection
+      const productUpdateSuccess = await updateProductStock(productId, productQuantity, token, userId, timestamp);
+      if (productUpdateSuccess) {
+        updatedProductIds.push(productId);
+      }
+      
+      if (!stockUpdateSuccess || !productUpdateSuccess) {
+        allUpdatesSuccessful = false;
+        console.error(`❌ Failed to update stock or product for ${productId}`);
+      } else {
+        console.log(`✅ Successfully updated both stock and product for ${productId}`);
+      }
+      
     } catch (err) {
-      console.error(`Error updating stock for product ${product.id}:`, err);
+      console.error(`❌ Error updating stock for product ${productId}:`, err);
+      allUpdatesSuccessful = false;
     }
   }
+  
+  // Emit socket events for both collections
+  if (updatedStockIds.length > 0) {
+    console.log(`✅ Stock updates completed. Updated ${updatedStockIds.length} stock records`);
+    
+    // Emit batch update for Stock collection
+    socket.emit('dataUpdate', {
+      action: 'batch-update',
+      collection: 'Stock',
+      data: { 
+        restockId, 
+        timestamp, 
+        updatedStockIds,
+        updateCount: updatedStockIds.length
+      }
+    });
+    
+    // Also emit individual updates for each stock record
+    updatedStockIds.forEach(stockId => {
+      socket.emit('dataUpdate', {
+        action: 'update',
+        collection: 'Stock',
+        data: stockId
+      });
+    });
+  }
+
+  if (updatedProductIds.length > 0) {
+    console.log(`✅ Product updates completed. Updated ${updatedProductIds.length} products`);
+    
+    // Emit batch update for Product collection
+    socket.emit('dataUpdate', {
+      action: 'batch-update',
+      collection: 'Product',
+      data: { 
+        restockId, 
+        timestamp, 
+        updatedProductIds,
+        updateCount: updatedProductIds.length
+      }
+    });
+    
+    // Also emit individual updates for each product
+    updatedProductIds.forEach(productId => {
+      socket.emit('dataUpdate', {
+        action: 'update',
+        collection: 'Product',
+        data: productId
+      });
+    });
+  }
+
+  // Force general refresh for both collections
+  setTimeout(() => {
+    socket.emit('dataUpdate', {
+      action: 'bulk-update',
+      collection: 'Stock',
+      data: 'refresh-all'
+    });
+    
+    socket.emit('dataUpdate', {
+      action: 'bulk-update',
+      collection: 'Product',  
+      data: 'refresh-all'
+    });
+  }, 500);
+  
+  console.log('🏁 Stock and Product update process completed for restock order:', restockId);
+  console.log(`📊 Final result: ${allUpdatesSuccessful ? 'SUCCESS' : 'PARTIAL FAILURE'}`);
+  
+  return allUpdatesSuccessful;
 };
+
+
+
+// Replace your existing updateStockRecord function (around line 1000) with this enhanced version:
+
+const updateStockRecord = async (productId, quantity, token, userId, timestamp) => {
+  try {
+    console.log(`🏪 Setting stock record for product ${productId} to quantity ${quantity}`);
+    
+    // Get current stock data
+    const stockResponse = await axios.get(
+      `${apiURL}/api/getAllDocs/Stock`,
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (!stockResponse.data?.data) {
+      throw new Error('Failed to fetch stock data');
+    }
+    
+    const stock = stockResponse.data.data.find(stockItem => stockItem.productId === productId);
+    
+    if (!stock) {
+      console.error(`❌ No stock record found for product: ${productId}`);
+      return null;
+    }
+    
+    const currentQuantity = parseInt(stock.quantity) || 0;
+    const newQuantity = parseInt(quantity);
+    
+    console.log(`🧮 Stock record update for product ${productId}:
+      - Current quantity: ${currentQuantity}
+      - Setting to quantity: ${newQuantity}  
+      - Change: ${newQuantity - currentQuantity}`);
+    
+    // Only update if there's actually a change
+    if (currentQuantity === newQuantity) {
+      console.log(`➡️ No change needed for stock record ${stock._id}`);
+      return { success: true, stockId: stock._id, newQuantity, unchanged: true };
+    }
+    
+    // Update stock record
+    const updateResponse = await axios.patch(
+      `${apiURL}/api/updateDoc/Stock/${stock._id}`,
+      {
+        fields: {
+          quantity: newQuantity,
+          lastRestockedAt: newQuantity > currentQuantity ? timestamp : stock.lastRestockedAt, // Only update if increased
+          updatedBy: userId,
+          updatedAt: timestamp,
+          isOutOfStock: newQuantity <= 0 // Update out of stock status
+        }
+      },
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (updateResponse.data.success) {
+      console.log(`✅ Stock record updated: ${currentQuantity} → ${newQuantity}`);
+      
+      return { success: true, stockId: stock._id, newQuantity };
+    } else {
+      throw new Error(`Failed to update stock: ${updateResponse.data.message}`);
+    }
+    
+  } catch (err) {
+    console.error(`❌ Error updating stock record for product ${productId}:`, err);
+    return null;
+  }
+};
+
+
+
+// Replace your existing updateProductStock function (around line 1070) with this enhanced version:
+
+const updateProductStock = async (productId, quantity, token, userId, timestamp) => {
+  try {
+    console.log(`📦 Setting product stock for product ${productId} to quantity ${quantity}`);
+    
+    // Get current product data
+    const productResponse = await axios.get(
+      `${apiURL}/api/getAllDocs/Product`,
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (!productResponse.data?.data) {
+      throw new Error('Failed to fetch product data');
+    }
+    
+    const product = productResponse.data.data.find(productItem => productItem._id === productId);
+    
+    if (!product) {
+      console.error(`❌ No product record found for product: ${productId}`);
+      return null;
+    }
+    
+    const currentTotalStock = parseInt(product.totalStock) || 0;
+    const newTotalStock = parseInt(quantity);
+    
+    console.log(`🧮 Product stock update for product ${productId}:
+      - Current totalStock: ${currentTotalStock}
+      - Setting to quantity: ${newTotalStock}
+      - Change: ${newTotalStock - currentTotalStock}`);
+    
+    // Only update if there's actually a change
+    if (currentTotalStock === newTotalStock) {
+      console.log(`➡️ No change needed for product ${productId}`);
+      return { success: true, productId, newTotalStock, unchanged: true };
+    }
+    
+    // Update product record
+    const updateResponse = await axios.patch(
+      `${apiURL}/api/updateDoc/Product/${productId}`,
+      {
+        fields: {
+          totalStock: newTotalStock,
+          updatedBy: userId,
+          updatedAt: timestamp,
+          status: newTotalStock > 0 // Update status based on stock availability
+        }
+      },
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (updateResponse.data.success) {
+      console.log(`✅ Product stock updated: ${currentTotalStock} → ${newTotalStock}`);
+      
+      return { success: true, productId, newTotalStock };
+    } else {
+      throw new Error(`Failed to update product: ${updateResponse.data.message}`);
+    }
+    
+  } catch (err) {
+    console.error(`❌ Error updating product stock for product ${productId}:`, err);
+    return null;
+  }
+};
+
+
+
+// Add these NEW functions after your existing updateProductStock function:
+
+const updateStockRecordWithDifference = async (productId, quantityDifference, token, userId, timestamp) => {
+  try {
+    console.log(`🔄 Applying quantity difference ${quantityDifference} to stock for product ${productId}`);
+    
+    // Get current stock data
+    const stockResponse = await axios.get(
+      `${apiURL}/api/getAllDocs/Stock`,
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (!stockResponse.data?.data) {
+      throw new Error('Failed to fetch stock data');
+    }
+    
+    const stock = stockResponse.data.data.find(stockItem => stockItem.productId === productId);
+    
+    if (!stock) {
+      console.error(`❌ No stock record found for product: ${productId}`);
+      return null;
+    }
+    
+    const currentQuantity = parseInt(stock.quantity) || 0;
+    const newQuantity = currentQuantity + quantityDifference; // 🔥 ADD/SUBTRACT difference
+    
+    console.log(`🧮 Stock record difference update for product ${productId}:
+      - Current quantity: ${currentQuantity}
+      - Quantity difference: ${quantityDifference}
+      - New quantity: ${newQuantity}`);
+    
+    // Only update if there's actually a change
+    if (quantityDifference === 0) {
+      console.log(`➡️ No change needed for stock record ${stock._id}`);
+      return { success: true, stockId: stock._id, newQuantity: currentQuantity, unchanged: true };
+    }
+    
+    // Update stock record with non-negative value
+    const finalQuantity = Math.max(0, newQuantity);
+    
+    const updateResponse = await axios.patch(
+      `${apiURL}/api/updateDoc/Stock/${stock._id}`,
+      {
+        fields: {
+          quantity: finalQuantity,
+          lastRestockedAt: quantityDifference > 0 ? timestamp : stock.lastRestockedAt, // Only update if increased
+          updatedBy: userId,
+          updatedAt: timestamp,
+          isOutOfStock: finalQuantity <= 0 // Update out of stock status
+        }
+      },
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (updateResponse.data.success) {
+      console.log(`✅ Stock record updated: ${currentQuantity} → ${finalQuantity} (difference: ${quantityDifference})`);
+      
+      return { success: true, stockId: stock._id, newQuantity: finalQuantity };
+    } else {
+      throw new Error(`Failed to update stock: ${updateResponse.data.message}`);
+    }
+    
+  } catch (err) {
+    console.error(`❌ Error updating stock record for product ${productId}:`, err);
+    return null;
+  }
+};
+
+const updateProductStockWithDifference = async (productId, quantityDifference, token, userId, timestamp) => {
+  try {
+    console.log(`🔄 Applying quantity difference ${quantityDifference} to product stock for product ${productId}`);
+    
+    // Get current product data
+    const productResponse = await axios.get(
+      `${apiURL}/api/getAllDocs/Product`,
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (!productResponse.data?.data) {
+      throw new Error('Failed to fetch product data');
+    }
+    
+    const product = productResponse.data.data.find(productItem => productItem._id === productId);
+    
+    if (!product) {
+      console.error(`❌ No product record found for product: ${productId}`);
+      return null;
+    }
+    
+    const currentTotalStock = parseInt(product.totalStock) || 0;
+    const newTotalStock = currentTotalStock + quantityDifference; // 🔥 ADD/SUBTRACT difference
+    
+    console.log(`🧮 Product stock difference update for product ${productId}:
+      - Current totalStock: ${currentTotalStock}
+      - Quantity difference: ${quantityDifference}
+      - New totalStock: ${newTotalStock}`);
+    
+    // Only update if there's actually a change
+    if (quantityDifference === 0) {
+      console.log(`➡️ No change needed for product ${productId}`);
+      return { success: true, productId, newTotalStock: currentTotalStock, unchanged: true };
+    }
+    
+    // Update product record with non-negative value
+    const finalTotalStock = Math.max(0, newTotalStock);
+    
+    const updateResponse = await axios.patch(
+      `${apiURL}/api/updateDoc/Product/${productId}`,
+      {
+        fields: {
+          totalStock: finalTotalStock,
+          updatedBy: userId,
+          updatedAt: timestamp,
+          status: finalTotalStock > 0 // Update status based on stock availability
+        }
+      },
+      { 
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        } 
+      }
+    );
+    
+    if (updateResponse.data.success) {
+      console.log(`✅ Product stock updated: ${currentTotalStock} → ${finalTotalStock} (difference: ${quantityDifference})`);
+      
+      return { success: true, productId, newTotalStock: finalTotalStock };
+    } else {
+      throw new Error(`Failed to update product: ${updateResponse.data.message}`);
+    }
+    
+  } catch (err) {
+    console.error(`❌ Error updating product stock for product ${productId}:`, err);
+    return null;
+  }
+};
+
 
 watch(enabled, (newValue) => {
   status.value = newValue;
@@ -952,7 +1589,7 @@ onMounted(() => {
   }
   
   // Listen for socket updates
-  socket.on('dataUpdated', (update) => {
+  socket.on('dataUpdate', (update) => {
     if (update.collection === 'PurchaseProduct') {
       fetchRestock();
     }
