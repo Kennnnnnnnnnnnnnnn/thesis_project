@@ -6,34 +6,30 @@
         <p>Your selected items, ready for checkout</p>
       </div>
     </section>
+    <div v-if="loading" class="loading">Loading your cart...</div>
 
     <section class="cart-list">
       <div class="container">
         <div v-if="cart.length > 0">
-          <div class="cart-item" v-for="(product, index) in cart" :key="product.id + '-' + index">
+          <div class="cart-item" v-for="(item, index) in cart" :key="item._id">
             <div class="item-image">
-              <img :src="getProductImage(product)" :alt="product.name + ' image'">
+              <img :src="getProductImage(item)" :alt="item.productName">
             </div>
             <div class="item-content">
               <div class="item-details">
-                <h3 class="item-name">{{ product.name }}</h3>
+                <h3 class="item-name">{{ item.productName }}</h3>
                 <div class="item-meta">
-                  <span class="item-price">${{ (product.price * product.quantity).toFixed(2) }}</span>
-                  <span class="item-divider">•</span>
-                  <span class="item-weight">{{ product.weight }} kg</span>
+                  <span class="item-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
                 </div>
               </div>
               <div class="item-controls">
                 <div class="quantity-control">
-                  <button class="qty-btn" @click="decreaseQuantity(index)" :disabled="product.quantity <= 1">−</button>
-                  <span class="quantity">{{ product.quantity || 1 }}</span>
-                  <button class="qty-btn" @click="increaseQuantity(index)">+</button>
+                  <button class="qty-btn" @click="updateQuantity(item, item.quantity - 1)" :disabled="item.quantity <= 1">−</button>
+                  <span class="quantity">{{ item.quantity }}</span>
+                  <button class="qty-btn" @click="updateQuantity(item, item.quantity + 1)">+</button>
                 </div>
                 <div class="item-actions">
-                  <button class="customize-btn" @click="openCustomizeModal(product)">
-                    <i class="fas fa-cog"></i> Customize
-                  </button>
-                  <button class="remove-btn" @click="removeFromCart(index)">
+                  <button class="remove-btn" @click="removeFromCart(item._id)">
                     <i class="fas fa-trash"></i> Remove
                   </button>
                 </div>
@@ -42,167 +38,126 @@
           </div>
           <div class="cart-footer">
             <button class="clear-btn" @click="clearCart">Clear Cart</button>
-            <button class="checkout-btn" @click="startCheckout">Checkout</button>
+            <button class="checkout-btn" @click="checkout">Checkout</button>
           </div>
         </div>
         <div v-else class="empty-cart">
-          <img src="https://via.placeholder.com/200x150?text=Empty+Cart" alt="Empty Cart">
+          <img :src="require('@/assets/image.png')" alt="Empty Cart">
           <p>Your cart is empty. Start shopping now!</p>
         </div>
       </div>
     </section>
-
-    <!-- User Info Confirmation Modal -->
-    <UserInfoModal 
-      v-if="showUserInfoModal"
-      :show="showUserInfoModal"
-      :user="user"
-      @close="showUserInfoModal = false"
-      @confirm="handleUserConfirmation"
-    />
-
-    <!-- Customize Modal -->
-    <CustomizeView 
-      v-if="showCustomizeModal"
-      :product="selectedProduct"
-      :show="showCustomizeModal"
-      @close="closeCustomizeModal"
-      @confirm="handleCustomization"
-    />
   </div>
 </template>
 
-<script>
-import UserInfoModal from '@/views/user/UserInfoModal.vue';
-import CustomizeView from './Customize.vue';
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import apiURL from '@/api/config.js';
 
-export default {
-  name: 'CartView',
-  components: {
-    UserInfoModal,
-    CustomizeView
-  },
-  data() {
-    return {
-      cart: this.getCartWithQuantities(),
-      showUserInfoModal: false,
-      showCustomizeModal: false,
-      selectedProduct: null,
-      user: JSON.parse(localStorage.getItem("user")) || {}
-    };
-  },
-  methods: {
-    getProductImage(product) {
-      if (!product?.image) {
-        return require('@/assets/image.png'); // Fallback image
-      }
-      
-      try {
-        return require(`@/assets/${product.image}`);
-      } catch {
-        return require('@/assets/image.png'); // Fallback if image missing
-      }
-    },
-    getCartWithQuantities() {
-      const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-      const itemCounts = {};
-      
-      cartItems.forEach(item => {
-        itemCounts[item.id] = (itemCounts[item.id] || 0) + 1;
-      });
-      
-      const uniqueItems = [];
-      const seenIds = new Set();
-      
-      cartItems.forEach(item => {
-        if (!seenIds.has(item.id)) {
-          seenIds.add(item.id);
-          uniqueItems.push({
-            ...item,
-            quantity: itemCounts[item.id],
-            weight: item.weight || 1
-          });
-        }
-      });
-      
-      return uniqueItems;
-    },
-    startCheckout() {
-      this.user = JSON.parse(localStorage.getItem("user")) || {};
-      this.showUserInfoModal = true;
-    },
-    handleUserConfirmation(updatedUser) {
-      this.user = updatedUser;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      this.showUserInfoModal = false;
-      this.showPaymentMethodModal = true;
-    },
-    increaseQuantity(index) {
-      this.cart[index].quantity = (this.cart[index].quantity || 1) + 1;
-      this.updateLocalStorage();
-    },
-    decreaseQuantity(index) {
-      if (this.cart[index].quantity > 1) {
-        this.cart[index].quantity -= 1;
-        this.updateLocalStorage();
-      }
-    },
-    openCustomizeModal(product) {
-      this.selectedProduct = {...product};
-      this.showCustomizeModal = true;
-    },
-    closeCustomizeModal() {
-      this.showCustomizeModal = false;
-    },
-    handleCustomization(customizedItem) {
-      const index = this.cart.findIndex(item => item.id === customizedItem.product.id);
-      if (index !== -1) {
-        this.cart[index] = customizedItem.product;
-        this.updateLocalStorage();
-      }
-      this.closeCustomizeModal();
-    },
-    updateLocalStorage() {
-      let fullCart = [];
-      this.cart.forEach(item => {
-        for (let i = 0; i < item.quantity; i++) {
-          fullCart.push({ ...item, quantity: undefined });
-        }
-      });
 
-      localStorage.setItem('cart', JSON.stringify(fullCart));
-      localStorage.setItem('cartCount', fullCart.length);
-      window.dispatchEvent(new Event("storage"));
-    },
-    removeFromCart(index) {
-      const allItems = JSON.parse(localStorage.getItem('cart')) || [];
-      const productId = this.cart[index].id;
-      const itemIndex = allItems.map(item => item.id).lastIndexOf(productId);
+const cart = ref([]);
+const user = ref({});
+const token = localStorage.getItem("token");
+const API = `${apiURL}/api`;
+const loading = ref(false);
 
-      if (itemIndex > -1) {
-        allItems.splice(itemIndex, 1);
-      }
 
-      localStorage.setItem('cart', JSON.stringify(allItems));
-      localStorage.setItem('cartCount', allItems.length);
-      this.cart = this.getCartWithQuantities();
-      window.dispatchEvent(new Event("storage"));
-    },
-    clearCart() {
-      localStorage.removeItem('cart');
-      localStorage.setItem('cartCount', 0);
-      this.cart = [];
-      window.dispatchEvent(new Event("storage"));
-    },
-    completePayment() {
-      this.clearCart();
-      alert("Payment successful! Your cart has been reset.");
-    }
+const fetchCart = async () => {
+  try {
+    loading.value = true;
+
+    const res = await axios.get(`${API}/getAllDocs/Cart?filter[userId]=${user.value._id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // Enrich each cart item with product details
+    const enrichedItems = await Promise.all(
+      res.data.data.map(async (item) => {
+        const product = await fetchProduct(item.productId);
+        return {
+          ...item,
+          productName: product?.name || 'Unknown Product',
+          price: product?.salePrice || 0,
+          imageURL: product?.imageURL
+        };
+      })
+    );
+
+    cart.value = enrichedItems;
+  } catch (err) {
+    alert("⚠️ Failed to fetch cart. Please try again.");
+    console.error("Error fetching cart:", err);
+  } finally {
+    loading.value = false;
   }
 };
+
+const fetchProduct = async (productId) => {
+  try {
+    const res = await axios.get(`${API}/getAllDocs/Product?filter[_id]=${productId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.data.data[0];
+  } catch (err) {
+    return null;
+  }
+};
+
+const getProductImage = (item) => {
+  return item.imageURL || require('@/assets/image.png');
+};
+
+const updateQuantity = async (item, quantity) => {
+  if (quantity < 1) return;
+  try {
+    await axios.patch(`${API}/updateDoc/Cart/${item._id}`, {
+      quantity,
+      updatedAt: new Date(),
+      updatedBy: user.value.name
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    fetchCart();
+  } catch (err) {
+    console.error('Failed to update quantity:', err);
+  }
+};
+
+const removeFromCart = async (id) => {
+  try {
+    await axios.delete(`${API}/deleteDoc/Cart/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    fetchCart();
+  } catch (err) {
+    console.error('Failed to remove item:', err);
+  }
+};
+
+const clearCart = async () => {
+  const promises = cart.value.map(item => axios.delete(`${API}/deleteDoc/Cart/${item._id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  }));
+  await Promise.all(promises);
+  fetchCart();
+};
+
+const checkout = () => {
+  alert("Checkout not implemented yet!");
+};
+
+onMounted(() => {
+  const storedUserId = localStorage.getItem("userId");
+if (storedUserId) {
+  user.value = { _id: storedUserId, name: "Customer" };
+  fetchCart();
+} else {
+  console.error("User ID not found in localStorage.");
+}
+
+});
 </script>
-
-
 
 <style scoped>
 .cart-page {

@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
-import apiURL from "@/api/config";
+import { wsURL } from "@/api/config";
 
-const socket = io(apiURL, {
+const socket = io(wsURL, {
   reconnection: true,
   reconnectionAttempts: 5,
   reconnectionDelay: 1000,
