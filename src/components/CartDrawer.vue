@@ -95,12 +95,12 @@ const proceedToCheckout = async () => {
     });
 
     const { data } = res.data;
-    qrTransaction.value = data; // Save transaction
+    qrTransaction.value = data; 
     qrImageUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qrCodeUrl)}`;
     showQRModal.value = true;
 
   } catch (err) {
-    console.error('❌ Failed to initiate payment:', err);
+    console.error(' Failed to initiate payment:', err);
     alert('Failed to initiate payment. Please try again.');
   }
 };
@@ -108,16 +108,21 @@ const proceedToCheckout = async () => {
 const confirmPayment = async () => {
   try {
     const txId = qrTransaction.value._id;
-    const res = await axios.get(`${API}/transaction/${txId}`);
+    const res = await axios.get(`${API}/transaction/${txId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    });
 
     if (res.data.paymentStatus === 'paid') {
-      alert('✅ Payment confirmed!');
+      alert(' Payment confirmed!');
       await createOrders();
     } else {
-      alert('⏳ Payment still pending. Please wait...');
+      alert(' Payment still pending. Please wait...');
     }
   } catch (err) {
-    console.error('❌ Confirm failed:', err);
+    console.error(' Confirm failed:', err);
     alert('Failed to confirm payment');
   }
 };
@@ -145,10 +150,10 @@ const createOrders = async () => {
       });
     }
 
-    alert('✅ Orders submitted successfully!');
+    alert(' Orders submitted successfully!');
     showQRModal.value = false;
   } catch (err) {
-    console.error('❌ Failed to submit orders:', err);
+    console.error(' Failed to submit orders:', err);
     alert('Order creation failed. Please contact support.');
   }
 };
