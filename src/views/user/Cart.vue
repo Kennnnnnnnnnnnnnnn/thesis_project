@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="cart-page">
     <section class="header">
       <div class="container">
@@ -82,7 +82,7 @@ const fetchCart = async () => {
 
     cart.value = enrichedItems;
   } catch (err) {
-    alert("⚠️ Failed to fetch cart. Please try again.");
+    alert(" Failed to fetch cart. Please try again.");
     console.error("Error fetching cart:", err);
   } finally {
     loading.value = false;
@@ -96,7 +96,7 @@ const fetchProduct = async (productId) => {
     });
     return res.data.data[0];
   } catch (err) {
-    console.error("❌ fetchProduct error:", err);
+    console.error(" fetchProduct error:", err);
     return null;
   }
 };
@@ -149,5 +149,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* include your existing scoped style here */
-</style>
+
+</style> -->

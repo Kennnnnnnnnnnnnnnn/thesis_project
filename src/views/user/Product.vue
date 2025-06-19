@@ -1,243 +1,310 @@
 <template>
-  <div style="padding: 20px; background: #fff">
-    <h1 style="text-align: center; margin-bottom: 20px">Our Products</h1>
+  <div class="product-page">
+    <h1 class="title">🍚 Our Products</h1>
 
-    <!-- Search -->
-    <div style="max-width: 500px; margin: 0 auto 20px; display: flex; gap: 10px">
-      <input
-        v-model="searchQuery"
-        placeholder="Search product..."
-        style="flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid #ccc"
-      />
+    <!-- 🔍 Search -->
+    <div class="search-bar">
+      <input v-model="searchQuery" type="text" placeholder="Search product..." />
     </div>
 
-    <!-- Category Tabs -->
-    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px">
+    <!-- 🏷️ Category Tabs -->
+    <div class="tabs">
       <button
         v-for="cat in categories"
         :key="cat.value"
+        :class="{ active: activeCategory === cat.value }"
         @click="activeCategory = cat.value"
-        :style="{
-          padding: '8px 16px',
-          borderRadius: '20px',
-          border: 'none',
-          background: activeCategory === cat.value ? '#FFD700' : '#eee',
-          fontWeight: activeCategory === cat.value ? 'bold' : 'normal'
-        }"
       >
         {{ cat.label }}
       </button>
     </div>
 
-    <!-- Product Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; max-width: 1200px; margin: auto">
-      <div
-        v-for="product in filteredProducts"
-        :key="product._id"
-        style="border: 1px solid #eee; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column"
-      >
-        <img :src="product.image || require('@/assets/image.png')" alt="Product" style="height: 160px; object-fit: contain; padding: 10px" />
-        <div style="padding: 12px; flex: 1">
-          <div style="font-size: 14px; color: #999">★★★★★</div>
-          <h3 style="font-size: 16px; font-weight: bold; margin: 5px 0">{{ product.name }}</h3>
-          <p style="font-size: 14px; color: #333; margin-bottom: 8px">
-            {{ typeof product.price === 'number' ? '$' + product.price.toFixed(2) : 'Price N/A' }}
-          </p>
-          <div style="display: flex; justify-content: space-between; align-items: center">
-            <button @click="toggleFavorite(product)" style="background: none; border: none; cursor: pointer">
-              <span :class="{ favorited: product.isFavorite }" class="heart-icon">❤</span>
+    <!-- 🛍️ Product Grid -->
+    <div class="product-grid">
+      <div class="card" v-for="product in filteredProducts" :key="product._id">
+        <img :src="product.imageURL || defaultImage" class="product-img" />
+        <div class="card-body">
+          <h2 class="product-name">{{ product.name }}</h2>
+          <p class="product-description">{{ product.description || 'No description available.' }}</p>
+
+          <p class="product-category">🗂️ Category: {{ product.categoryName || 'N/A' }}</p>
+
+          <div class="price-block">
+            <span v-if="product.discount > 0" class="original-price">${{ product.salePrice.toFixed(2) }}</span>
+            <span class="discounted-price">
+              ${{ discountedPrice(product).toFixed(2) }}
+            </span>
+            <span v-if="product.discount > 0" class="discount-tag">-{{ product.discount }}%</span>
+          </div>
+
+          <div class="actions">
+            <button @click="toggleFavorite(product)">
+              <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
             </button>
-            <button
-              @click="addToCart(product)"
-              style="background: #FFD700; padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer"
-            >
-              Add to Cart
-            </button>
+            <button class="add-cart" @click="addToCart(product)">Add to Cart</button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 🧺 Cart Drawer -->
+    <CartDrawer
+      :visible="showCartDrawer"
+      :cartItems="cartItems"
+      @close="showCartDrawer = false"
+      @updateQty="updateQty"
+      @removeItem="removeItem"
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import apiURL from '@/api/config.js';
+import CartDrawer from '@/components/CartDrawer.vue';
 
-export default {
-  name: 'ProductView',
-  data() {
-    const token = localStorage.getItem('token');
+const showCartDrawer = ref(false);
+const cartItems = ref([]);
 
-    // Attempt to load full user object
-    let user = null;
-    const storedUser = localStorage.getItem('user');
+const token = localStorage.getItem('token');
+const storedUser = localStorage.getItem('user');
+const user = storedUser ? JSON.parse(storedUser) : null;
+const defaultImage = require('@/assets/image.png');
+const API = `${apiURL}/api`;
 
-    if (storedUser) {
-      try {
-        user = JSON.parse(storedUser);
-      } catch (e) {
-        console.warn('⚠️ Failed to parse stored user:', e.message);
-      }
-    } else {
-      const userId = localStorage.getItem('userId');
-      const role = localStorage.getItem('userRole');
-      const permissions = localStorage.getItem('userPermissions');
+const products = ref([]);
+const favorites = ref([]);
+const searchQuery = ref('');
+const activeCategory = ref('all');
 
-      if (userId && role) {
-        user = {
-          _id: userId,
-          role,
-          permissions: permissions ? JSON.parse(permissions) : []
-        };
-        localStorage.setItem('user', JSON.stringify(user));
-        console.log('🧠 Reconstructed and saved user from keys');
-      }
-    }
+const categories = ref([
+  { label: 'All', value: 'all' },
+  { label: 'Best Sellers', value: 'best' },
+  { label: 'New Arrivals', value: 'new' }
+]);
 
-    console.log('📦 Loaded token:', token);
-    console.log('👤 Final user:', user);
+const addToCart = async (product) => {
+  const exists = cartItems.value.find(i => i._id === product._id);
+  if (exists) exists.quantity += 1;
+  else cartItems.value.push({ ...product, quantity: 1 });
+  showCartDrawer.value = true;
+};
 
-    return {
-      token,
-      user,
-      searchQuery: '',
-      activeCategory: 'all',
-      categories: [
-        { label: 'All', value: 'all' },
-        { label: 'Best Selling', value: 'best' },
-        { label: 'New Arrivals', value: 'new' }
-      ],
-      products: [],
-      favorites: []
-    };
-  },
-  computed: {
-    filteredProducts() {
-      let filtered = this.products.filter(p =>
-        p.name?.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+const updateQty = (item, qty) => {
+  if (qty < 1) return;
+  item.quantity = qty;
+};
 
-      if (this.activeCategory === 'best') {
-        filtered = filtered.filter(p => p.isBestSeller);
-      } else if (this.activeCategory === 'new') {
-        filtered = filtered.filter(p => p.isNew);
-      }
+const removeItem = (item) => {
+  cartItems.value = cartItems.value.filter(i => i._id !== item._id);
+};
 
-      filtered.forEach(p => {
-        p.isFavorite = this.favorites.some(fav => fav.productId?._id === p._id);
-      });
-
-      return filtered;
-    }
-  },
-  methods: {
-    async fetchProducts() {
-      try {
-        console.log('📡 Fetching public products...');
-        const res = await axios.get('http://localhost:4000/api/public/products');
-        this.products = res.data.data.map(p => ({
-          ...p,
-          isBestSeller: p.isBestSeller || false,
-          isNew: p.isNew || false,
-          isFavorite: false
-        }));
-      } catch (err) {
-        console.error('❌ Failed to fetch products:', err);
-      }
-    },
-    async fetchFavorites() {
-      if (!this.token || !this.user) {
-        console.warn('⛔ Skipping fetchFavorites: Not logged in');
-        return;
-      }
-      try {
-        const res = await axios.get('http://localhost:4000/api/getAllDocs/Favorite', {
-          headers: { Authorization: `Bearer ${this.token}` }
-        });
-        this.favorites = res.data.data;
-        console.log('❤️ Favorites loaded:', this.favorites.length);
-      } catch (err) {
-        console.error('❌ Failed to fetch favorites:', err);
-      }
-    },
-    async toggleFavorite(product) {
-      if (!this.token || !this.user) {
-        alert('Please log in first.');
-        return;
-      }
-
-      const existing = this.favorites.find(fav => fav.productId?._id === product._id);
-
-      try {
-        if (existing) {
-          await axios.delete(`http://localhost:4000/api/deleteDoc/Favorite/${existing._id}`, {
-            headers: { Authorization: `Bearer ${this.token}` }
-          });
-          this.favorites = this.favorites.filter(fav => fav._id !== existing._id);
-          product.isFavorite = false;
-        } else {
-          const res = await axios.post(
-            'http://localhost:4000/api/insertDoc/Favorite',
-            { fields: { productId: product._id } },
-            { headers: { Authorization: `Bearer ${this.token}` } }
-          );
-          this.favorites.push(res.data.data);
-          product.isFavorite = true;
-        }
-      } catch (err) {
-        console.error('❌ Favorite toggle failed:', err);
-      }
-    },
-    async addToCart(product) {
-      if (!this.token || !this.user) {
-        alert('Please log in first.');
-        return;
-      }
-
-      try {
-        const res = await axios.post(
-          'http://localhost:4000/api/insertDoc/Cart',
-          {
-            fields: {
-              productId: product._id,
-              quantity: 1 // initial quantity
-            }
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${this.token}`
-            }
-          }
-        );
-        console.log('🛒 Added to cart:', res.data);
-        alert(`🛒 "${product.name}" added to your cart!`);
-      } catch (err) {
-        console.error('❌ Failed to add to cart:', err);
-        alert('⚠️ Failed to add to cart');
-      }
-    }
-
-  },
-  async mounted() {
-    await this.fetchProducts();
-    await this.fetchFavorites();
+const fetchProducts = async () => {
+  try {
+    const res = await axios.get(`${API}/public/products`);
+    products.value = res.data.data.map(p => ({
+      ...p,
+      isFavorite: false,
+      isBestSeller: p.isBestSeller || false,
+      isNew: p.isNew || false
+    }));
+  } catch (err) {
+    console.error('❌ Failed to load products:', err);
   }
 };
+
+const fetchFavorites = async () => {
+  if (!token || !user) return;
+  try {
+    const res = await axios.get(`${API}/getAllDocs/Favorite`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    favorites.value = res.data.data;
+    products.value.forEach(p => {
+      p.isFavorite = favorites.value.some(fav => fav.productId?._id === p._id);
+    });
+  } catch (err) {
+    console.error('❌ Failed to fetch favorites:', err);
+  }
+};
+
+const toggleFavorite = async (product) => {
+  if (!token || !user) return alert('Login required.');
+  const existing = favorites.value.find(fav => fav.productId?._id === product._id);
+  try {
+    if (existing) {
+      await axios.delete(`${API}/deleteDoc/Favorite/${existing._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      favorites.value = favorites.value.filter(f => f._id !== existing._id);
+      product.isFavorite = false;
+    } else {
+      const res = await axios.post(
+        `${API}/insertDoc/Favorite`,
+        { fields: { productId: product._id } },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      favorites.value.push(res.data.data);
+      product.isFavorite = true;
+    }
+  } catch (err) {
+    console.error('❌ Favorite toggle failed:', err);
+  }
+};
+
+const discountedPrice = (product) => {
+  if (!product.discount) return product.salePrice;
+  return product.salePrice * (1 - product.discount / 100);
+};
+
+const filteredProducts = computed(() => {
+  let list = products.value.filter(p =>
+    p.name?.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+  if (activeCategory.value === 'best') {
+    list = list.filter(p => p.isBestSeller);
+  } else if (activeCategory.value === 'new') {
+    list = list.filter(p => p.isNew);
+  }
+  return list;
+});
+
+onMounted(async () => {
+  await fetchProducts();
+  await fetchFavorites();
+});
 </script>
 
 <style scoped>
-.heart-icon {
-  font-size: 24px;
+.product-page {
+  padding: 20px;
+  background: #fff;
+}
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: bold;
+}
+.search-bar {
+  max-width: 500px;
+  margin: 0 auto 20px;
+}
+.search-bar input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.tabs button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background: #eee;
+  font-weight: normal;
+  cursor: pointer;
+}
+.tabs button.active {
+  background: #FFD700;
+  font-weight: bold;
+}
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+.card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.product-img {
+  height: 160px;
+  object-fit: contain;
+  padding: 10px;
+  background: #fafafa;
+}
+.card-body {
+  padding: 12px;
+  flex: 1;
+}
+.product-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+.product-description {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 6px;
+}
+.product-category {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 8px;
+}
+.price-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.original-price {
+  text-decoration: line-through;
+  color: #aaa;
+}
+.discounted-price {
+  color: #ff5722;
+  font-weight: bold;
+  font-size: 18px;
+}
+.discount-tag {
+  background: #ffeb3b;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #333;
+}
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.heart {
+  font-size: 20px;
   color: #ccc;
   transition: all 0.2s ease;
-  user-select: none;
 }
-.heart-icon.favorited {
+.heart.favorited {
   color: red;
-  transform: scale(1.3);
+  transform: scale(1.2);
 }
-.heart-icon:hover {
+.add-cart {
+  background: #FFD700;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
   cursor: pointer;
-  transform: scale(1.15);
+}
+.add-cart:hover {
+  background: #ffc107;
 }
 </style>

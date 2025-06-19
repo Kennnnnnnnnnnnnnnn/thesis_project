@@ -42,6 +42,7 @@
 
 <script>
 import axios from 'axios';
+import apiURL from '../../api/config.js';
 
 export default {
   name: 'FavoriteView',
@@ -53,40 +54,41 @@ export default {
       const storedUser = localStorage.getItem('user');
       if (storedUser) user = JSON.parse(storedUser);
     } catch (e) {
-      console.warn('⚠️ Invalid user data:', e);
+      console.warn(' Invalid user data:', e);
     }
 
     return {
       token,
       user,
+      API: `${apiURL}/api`,
       favorites: []
     };
   },
   methods: {
     async fetchFavorites() {
       if (!this.token || !this.user) {
-        console.warn('⛔ Not authenticated');
+        console.warn(' Not authenticated');
         return;
       }
       try {
-        const res = await axios.get('http://localhost:4000/api/getAllDocs/Favorite', {
+        const res = await axios.get(`${this.API}/getAllDocs/Favorite`, {
           headers: { Authorization: `Bearer ${this.token}` }
         });
         this.favorites = res.data.data;
-        console.log('✅ Favorites loaded:', this.favorites.length);
+        console.log(' Favorites loaded:', this.favorites.length);
       } catch (err) {
-        console.error('❌ Failed to load favorites:', err);
+        console.error(' Failed to load favorites:', err);
       }
     },
     async removeFavorite(favoriteId) {
       try {
-        await axios.delete(`http://localhost:4000/api/deleteDoc/Favorite/${favoriteId}`, {
+        await axios.delete(`${this.API}/deleteDoc/Favorite/${favoriteId}`, {
           headers: { Authorization: `Bearer ${this.token}` }
         });
         this.favorites = this.favorites.filter(f => f._id !== favoriteId);
-        console.log('🗑️ Favorite removed');
+        console.log(' Favorite removed');
       } catch (err) {
-        console.error('❌ Failed to remove favorite:', err);
+        console.error(' Failed to remove favorite:', err);
       }
     }
   },
