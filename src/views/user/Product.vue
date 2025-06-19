@@ -188,9 +188,35 @@ export default {
         console.error('❌ Favorite toggle failed:', err);
       }
     },
-    addToCart(product) {
-      alert(`🛒 "${product.name}" added to cart! (you can implement cart later)`);
+    async addToCart(product) {
+      if (!this.token || !this.user) {
+        alert('Please log in first.');
+        return;
+      }
+
+      try {
+        const res = await axios.post(
+          'http://localhost:4000/api/insertDoc/Cart',
+          {
+            fields: {
+              productId: product._id,
+              quantity: 1 // initial quantity
+            }
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`
+            }
+          }
+        );
+        console.log('🛒 Added to cart:', res.data);
+        alert(`🛒 "${product.name}" added to your cart!`);
+      } catch (err) {
+        console.error('❌ Failed to add to cart:', err);
+        alert('⚠️ Failed to add to cart');
+      }
     }
+
   },
   async mounted() {
     await this.fetchProducts();

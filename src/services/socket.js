@@ -1,19 +1,11 @@
-import { io } from "socket.io-client";
-import { wsURL } from "@/api/config";
-
-const socket = io(wsURL, {
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:4000', {
+  transports: ['websocket'], // Optional
   reconnection: true,
-  reconnectionAttempts: 5,
-  reconnectionDelay: 1000,
-  timeout: 10000
-});
-
-socket.on('connect_error', (error) => {
-  console.error('WebSocket connection error:', error);
 });
 
 socket.on('connect', () => {
-  console.log('WebSocket connected successfully');
+  console.log('✅ WebSocket connected!');
 });
 
 export default socket;
