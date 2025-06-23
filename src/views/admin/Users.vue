@@ -259,7 +259,7 @@
     </div>
 
     <!-- Create/Edit User Modal -->
-    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000]">
       <div class="font-inter w-full max-w-lg sm:w-[95%] sm:max-w-lg bg-white rounded-2xl shadow-xl p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
         <!-- Close Button -->
         <button @click="closeModal" class="absolute top-4 right-4 p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all">

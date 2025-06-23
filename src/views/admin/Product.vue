@@ -6,7 +6,8 @@
         <!-- Title -->
         <div class="flex items-center gap-4">
           <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
               <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
             </svg>
           </div>
@@ -15,7 +16,7 @@
             <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your product catalog and inventory</p> -->
           </div>
         </div>
-        
+
         <!-- Controls -->
         <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           <!-- Items per page -->
@@ -23,7 +24,8 @@
             <button @click="toggleDropdownRow"
               class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
               <span>{{ selectedItem }} items</span>
-              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
+                :class="{ 'rotate-180': isOpen }"></i>
             </button>
             <div v-show="isOpen"
               class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
@@ -42,7 +44,8 @@
           </div>
 
           <!-- Category Filter -->
-          <select v-model="categoryFilter" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
+          <select v-model="categoryFilter"
+            class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Categories</option>
             <option v-for="category in categories" :key="category._id" :value="category._id">
               {{ category.name }}
@@ -71,13 +74,14 @@
       <!-- Table Container -->
       <div class="relative overflow-hidden">
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
+        <div v-if="isLoading"
+          class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
           <div class="flex items-center gap-3">
             <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
             <span class="text-gray-700 font-medium">Loading...</span>
           </div>
         </div>
-        
+
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/50">
@@ -85,7 +89,8 @@
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description
+                </th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Price</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Discount</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock</th>
@@ -99,17 +104,16 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                   {{ index + 1 }}
                 </td>
-                
+
                 <!-- Product Column -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-4">
                     <div class="flex-shrink-0">
-                      <div v-if="product.imageURL" 
+                      <div v-if="product.imageURL"
                         class="h-12 w-12 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
-                        <img :src="product.imageURL" :alt="product.name" 
-                          class="h-full w-full object-cover" />
+                        <img :src="product.imageURL" :alt="product.name" class="h-full w-full object-cover" />
                       </div>
-                      <div v-else 
+                      <div v-else
                         class="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
                         <i class="fas fa-image text-gray-400"></i>
                       </div>
@@ -124,44 +128,45 @@
                     </div>
                   </div>
                 </td>
-                
+
                 <!-- Category Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center font-khmer">
-                  <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                  <span
+                    class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
                     {{ getCategoryName(product.categoryId) }}
                   </span>
                 </td>
-                
+
                 <!-- Description Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="max-w-32 text-sm text-gray-600 truncate">
                     {{ product.description || '-' }}
                   </div>
                 </td>
-                
+
                 <!-- Price Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="text-sm font-bold text-gray-900">
                     {{ formatPrice(product.salePrice) }}
                   </div>
                 </td>
-                
+
                 <!-- Discount Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <span v-if="product.discount > 0" 
+                  <span v-if="product.discount > 0"
                     class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
                     {{ product.discount }}%
                   </span>
                   <span v-else class="text-gray-400 font-medium">-</span>
                 </td>
-                
+
                 <!-- Stock Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="text-sm font-bold text-gray-900">
                     {{ product.totalStock || 0 }}
                   </div>
                 </td>
-                
+
                 <!-- Status Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
@@ -170,29 +175,27 @@
                     {{ product.status ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
-                
+
                 <!-- Actions Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="flex items-center justify-center gap-2">
                     <!-- Edit Button -->
-                    <button 
-                      class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200" 
-                      @click="editProduct(product)" 
-                      title="Edit product">
+                    <button
+                      class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200"
+                      @click="editProduct(product)" title="Edit product">
                       <i class="fas fa-edit text-sm"></i>
                     </button>
-                    
+
                     <!-- Delete Button -->
-                    <button 
-                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200" 
-                      @click="deleteProduct(product._id)" 
-                      title="Delete product">
+                    <button
+                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200"
+                      @click="deleteProduct(product._id)" title="Delete product">
                       <i class="fas fa-trash text-sm"></i>
                     </button>
                   </div>
                 </td>
               </tr>
-              
+
               <!-- Empty State -->
               <tr v-if="filteredProducts.length === 0 && !isLoading">
                 <td colspan="9" class="px-6 py-20 text-center">
@@ -204,8 +207,7 @@
                       <h3 class="text-lg font-bold text-gray-900">No products found</h3>
                       <p class="text-sm text-gray-600 mt-1 font-medium">Add your first product to get started</p>
                     </div>
-                    <button 
-                      @click="openModal"
+                    <button @click="openModal"
                       class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
                       <i class="fas fa-plus text-xs"></i>
                       Add First Product
@@ -220,19 +222,15 @@
 
       <!-- Pagination -->
       <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
-        <Pagination 
-          :currentPage="currentPage" 
-          @onEmitDataFromPagination="handleListenToPagination"
-          @onEmitIsLoading="handleListenIsLoading" 
-          @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
-          :limitedPerPage="pageSize" 
-          :searchQuery="searchText" 
-        />
+        <Pagination :currentPage="currentPage" @onEmitDataFromPagination="handleListenToPagination"
+          @onEmitIsLoading="handleListenIsLoading" @onEmitCurrentPageIsLastRecord="handleListenIsLastRecordOnPage"
+          :limitedPerPage="pageSize" :searchQuery="searchText" />
       </div>
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+    <div v-if="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
       <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-200">
         <!-- Modal Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-100">
@@ -244,13 +242,12 @@
               {{ showEditModal ? 'Modify existing product details' : 'Add a new product to your catalog' }}
             </p>
           </div>
-          <button 
-            class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+          <button class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
             @click="closeModal">
             <i class="fas fa-times text-lg"></i>
           </button>
         </div>
-        
+
         <!-- Modal Body -->
         <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
           <!-- Product Name and Category -->
@@ -282,7 +279,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                Price <span class="text-red-500">*</span>
+                Sale Price <span class="text-red-500">*</span>
               </label>
               <div class="relative">
                 <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">៛</span>
@@ -303,6 +300,32 @@
                 <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">%</span>
               </div>
             </div>
+          </div>
+
+          <!-- New fields for Purchase Price and Unit -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Purchase Price
+              </label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">៛</span>
+                <input v-model="purchasePrice" type="number" step="100" min="0"
+                  class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                  placeholder="0" />
+              </div>
+            </div> -->
+
+
+
+            <!-- <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Unit
+              </label>
+              <input v-model="unit" type="text"
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Enter unit (e.g. pcs, kg)" />
+            </div> -->
           </div>
 
           <!-- Description -->
@@ -366,13 +389,12 @@
 
           <!-- Action Buttons -->
           <div class="flex gap-4 pt-4">
-            <button type="button" 
+            <button type="button"
               class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
               @click="resetForm">
               Reset
             </button>
-            <button type="submit" 
-              :disabled="isSubmitting"
+            <button type="submit" :disabled="isSubmitting"
               class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
               <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
                 <i class="fas fa-spinner fa-spin"></i>
@@ -388,11 +410,8 @@
     </div>
 
     <!-- Confirmation Dialog -->
-    <DeleteConfirmation 
-      :show="showConfirmDialog" 
-      @cancel="handleCancelConfirmation" 
-      @confirm="handleDeleteConfirmation" 
-    />
+    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
+      @confirm="handleDeleteConfirmation" />
   </div>
 </template>
 
@@ -401,11 +420,11 @@ import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import Pagination from '@/components/Pagination.vue';
 import { fetchTimestamp } from '@/composables/timestamp';
+import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
-import { computed, onMounted, ref, watch, onBeforeUnmount } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import socket from '@/services/socket';
 
 // State
 const items = ref([10, 25, 50, 100]);
@@ -421,7 +440,7 @@ const productData = ref([]);
 const categories = ref([]);
 const error = ref('');
 const isSubmitting = ref(false);
-const enabled = ref(true);
+const enabled = ref(false);
 const showModal = ref(false);
 const showEditModal = ref(false);
 const isOpen = ref(false);
@@ -441,7 +460,10 @@ const salePrice = ref('');
 const discount = ref(0);
 const totalStock = ref(0);
 const imageURL = ref('');
-const status = ref(true);
+const status = ref(false);
+const purchasePrice = ref(0);
+const unit = ref('');  // Default to empty string, matching your schema
+const totalPrice = ref(0);
 
 // New refs for image upload
 const imagePreview = ref('');
@@ -495,7 +517,7 @@ const formatDate = (dateString) => {
 const generateCustomId = async () => {
   try {
     const token = localStorage.getItem('token');
-    
+
     // Get ALL products instead of just the most recent one
     const response = await axios.get(
       `${apiURL}/api/getAllDocs/Product`,
@@ -508,7 +530,7 @@ const generateCustomId = async () => {
     );
 
     let highestNumber = 0;
-    
+
     if (response.data?.data?.length > 0) {
       // Loop through all products to find the highest ID number
       response.data.data.forEach(product => {
@@ -523,11 +545,11 @@ const generateCustomId = async () => {
         }
       });
     }
-    
+
     // Increment the highest number by 1 and format with leading zeros
     const nextNumber = (highestNumber + 1).toString().padStart(6, '0');
     console.log(`Generated next ID: Pro-${nextNumber} (from highest existing ID: ${highestNumber})`);
-    
+
     return `Pro-${nextNumber}`;
   } catch (error) {
     console.error("Error in generateCustomId:", error);
@@ -633,8 +655,10 @@ const handleSubmit = async () => {
         description: description.value || '',
         categoryId: categoryId.value,
         salePrice: parseFloat(salePrice.value),
+        purchasePrice: parseFloat(purchasePrice.value) || 0,
         discount: parseFloat(discount.value) || 0,
         totalStock: parseInt(totalStock.value) || 0,
+        unit: unit.value || '',
         status: status.value,
         imageURL: imageURL.value || '',
       }
@@ -716,11 +740,13 @@ const editProduct = (product) => {
   description.value = product.description || '';
   categoryId.value = product.categoryId;
   salePrice.value = product.salePrice;
+  purchasePrice.value = product.purchasePrice || 0;
   discount.value = product.discount || 0;
   totalStock.value = product.totalStock || 0;
-  status.value = product.status;
-  enabled.value = product.status;
+  unit.value = product.unit || '';
   imageURL.value = product.imageURL || '';
+  status.value = product.status || false;
+  enabled.value = product.status || false;  // Make sure this line sets enabled based on product.status
 
   if (product.imageURL) {
     imagePreview.value = product.imageURL;
@@ -794,11 +820,14 @@ const resetForm = () => {
   description.value = '';
   categoryId.value = '';
   salePrice.value = 0;
+  purchasePrice.value = 0;
   discount.value = 0;
   totalStock.value = 0;
+  unit.value = '';
+  totalPrice.value = 0;
   imageURL.value = '';
-  status.value = true;
-  enabled.value = true;
+  status.value = false;
+  enabled.value = false;
   error.value = null;
   imagePreview.value = '';
   uploadStatus.value = null;
@@ -873,6 +902,10 @@ watch(categoryFilter, (newValue) => {
   }
 });
 
+watch(enabled, (newValue) => {
+  status.value = newValue;
+});
+
 watch(selectedItem, (newValue) => {
   pageSize.value = newValue;
   limitedPerPage.value = newValue;
@@ -944,7 +977,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-/* Enhanced scrollbar styling - Extra small jg dak pin na kor ban*/ 
+/* Enhanced scrollbar styling - Extra small jg dak pin na kor ban*/
 .overflow-x-auto::-webkit-scrollbar {
   width: 6px;
   height: 6px;

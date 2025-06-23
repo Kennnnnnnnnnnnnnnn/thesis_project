@@ -14,7 +14,7 @@
         <div class="flex transition-transform duration-500 ease-in-out"
           :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
           <div v-for="(slide, index) in slides" :key="index" class="min-w-full">
-            <img :src="slide.image" :alt="slide.alt" class="w-full h-96 md:h-80 lg:h-96 object-fill">
+            <img :src="slide.image" :alt="slide.alt" class="w-full h-80 md:h-80 lg:h-96 ">
           </div>
         </div>
 
@@ -35,13 +35,13 @@
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-800">New Products</h2>
-          <router-link to="/products"
+          <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
             View All
           </router-link>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           <div v-for="product in newProducts" :key="product.id"
             class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
             <!-- Product Image -->
@@ -105,7 +105,7 @@
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-800">All Products</h2>
-          <router-link to="/products"
+          <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
             View All
           </router-link>

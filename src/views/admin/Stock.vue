@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter overflow-y-auto ">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter overflow-y-auto">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -17,7 +17,6 @@
           </div>
           <div>
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Inventory Management</h1>
-            <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your stock levels and inventory</p> -->
           </div>
         </div>
 
@@ -44,9 +43,6 @@
           <select v-model="categoryFilter"
             class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Categories</option>
-            <option v-for="category in categories" :key="category._id" :value="category._id">
-              {{ category.name }}
-            </option>
           </select>
 
           <!-- Enhanced Filters -->
@@ -60,81 +56,81 @@
           </select>
 
           <!-- Add Button -->
-          <button
+          <!-- <button
             class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
             @click="openModal">
             <i class="fas fa-plus text-xs"></i>
             Add Item
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <!-- Total Products -->
-      <div
+    <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"> -->
+    <!-- Total Products -->
+    <!-- <div
         class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Total Products</p>
-            <p class="text-3xl font-bold text-gray-900 tracking-tight">{{ totalItems }}</p>
+            <p class="text-3xl font-bold text-gray-900 tracking-tight">0</p>
           </div>
           <div class="p-4 rounded-2xl bg-amber-50 border border-amber-100">
             <i class="fas fa-box text-amber-600 text-xl"></i>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <!-- In Stock -->
-      <div
+    <!-- In Stock -->
+    <!-- <div
         class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">In Stock</p>
-            <p class="text-3xl font-bold text-green-600 tracking-tight">{{ inStockItems }}</p>
+            <p class="text-3xl font-bold text-green-600 tracking-tight">0</p>
           </div>
           <div class="p-4 rounded-2xl bg-green-50 border border-green-100">
             <i class="fas fa-circle-check text-green-600 text-xl"></i>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <!-- Low Stock (includes critical) -->
-      <div
+    <!-- Low Stock (includes critical) -->
+    <!-- <div
         class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Low Stock</p>
-            <p class="text-3xl font-bold text-orange-600 tracking-tight">{{ lowStockItems }}</p>
+            <p class="text-3xl font-bold text-orange-600 tracking-tight">0</p>
           </div>
           <div class="p-4 rounded-2xl bg-orange-50 border border-orange-100">
             <i class="fas fa-triangle-exclamation text-orange-600 text-xl"></i>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <!-- Out of Stock -->
-      <div
+    <!-- Out of Stock -->
+    <!-- <div
         class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Out of Stock</p>
-            <p class="text-3xl font-bold text-red-600 tracking-tight">{{ outOfStockItems }}</p>
+            <p class="text-3xl font-bold text-red-600 tracking-tight">0</p>
           </div>
           <div class="p-4 rounded-2xl bg-red-50 border border-red-100">
             <i class="fas fa-circle-xmark text-red-600 text-xl"></i>
           </div>
         </div>
-      </div>
-    </div>
+      </div> -->
+    <!-- </div> -->
 
     <!-- Main Table Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
       <!-- Table Header -->
       <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
         <h3 class="text-lg font-bold text-gray-900 tracking-tight">Inventory Items</h3>
-        <p class="text-sm text-gray-600 mt-1 font-medium">{{ filteredStockData.length }} items total</p>
+        <p class="text-sm text-gray-600 mt-1 font-medium">{{ stockData.length }} items total</p>
       </div>
 
       <!-- Table Container -->
@@ -155,158 +151,115 @@
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Level
+                <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Level</th> -->
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description
                 </th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Unit</th>
-                <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Thresholds</th> -->
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
-              <tr v-for="(stock, index) in filteredStockData" :key="stock._id"
-                class="hover:bg-amber-50/50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                  {{ index + 1 }}
-                </td>
+              <tr v-for="(stock, index) in stockData" :key="stock._id" class="hover:bg-amber-50/50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ index + 1 }}</td>
 
                 <!-- Product Column -->
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center gap-4">
                     <div class="flex-shrink-0">
-                      <div v-if="getProductImage(stock.productId)"
-                        class="h-12 w-12 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
-                        <img :src="getProductImage(stock.productId)" alt="Product" class="h-full w-full object-cover" />
-                      </div>
-                      <div v-else
-                        class="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                        <i class="fas fa-box text-gray-400"></i>
+                      <div class="h-12 w-12 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
+                        <img v-if="stock.imageURL" :src="stock.imageURL" class="h-full w-full object-cover" />
+                        <div v-else class="h-full w-full flex items-center justify-center text-gray-400">
+                          <i class="fas fa-box text-xl"></i>
+                        </div>
                       </div>
                     </div>
                     <div>
-                      <div class="text-sm font-bold text-gray-900">
-                        {{ getProductName(stock.productId) }}
-                      </div>
-                      <div class="text-xs text-gray-500 font-medium mt-0.5">
-                        ID: {{ getProductIdCustom(stock.productId) }}
-                      </div>
+                      <div class="text-sm font-medium text-gray-900">{{ stock.productName }}</div>
+
                     </div>
                   </div>
                 </td>
 
                 <!-- Category Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center font-khmer">
-                  <span
-                    class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                    {{ getCategoryName(stock.categoryId) }}
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span v-if="stock.categoryId" class="inline-flex items-center px-2.5 py-1 rounded-full text-sm">
+                    {{categories.find(c => c._id === stock.categoryId)?.name || 'Unknown'}}
                   </span>
+                  <span v-else>-</span>
                 </td>
 
                 <!-- Stock Level Column -->
+                <!-- <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="text-lg font-bold text-gray-900">{{ stock.quantity || 0 }}</span>
+                  <div class="text-xs text-gray-500 mt-0.5">Min: {{ stock.minThreshold || 5 }}</div>
+                </td> -->
+
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="flex flex-col items-center gap-2.5">
-                    <span class="text-lg font-bold text-gray-900">{{ stock.quantity }}</span>
-                    <div class="w-16 bg-gray-200 rounded-full h-2.5">
-                      <div class="h-2.5 rounded-full transition-all duration-300" :class="getStockBarColor(stock)"
-                        :style="{ width: getStockPercentage(stock) + '%' }"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 font-medium">
-                      {{ Math.round(getStockPercentage(stock)) }}%
-                    </span>
-                  </div>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm">
+                    {{ stock.description || '-' }}
+                  </span>
+
                 </td>
 
                 <!-- Unit Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-700 font-medium">
-                  {{ stock.unit }}
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                  {{ stock.purchaseProducts.unit || '-'}}
                 </td>
-
-                <!-- Thresholds Column -->
-                <!-- <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="text-xs space-y-1.5">
-                    <div class="flex items-center justify-center gap-1.5">
-                      <span class="text-gray-500 font-medium">Min:</span>
-                      <span class="font-bold text-orange-600">{{ stock.minThreshold }}</span>
-                    </div>
-                    <div class="flex items-center justify-center gap-1.5">
-                      <span class="text-gray-500 font-medium">Max:</span>
-                      <span class="font-bold text-amber-600">{{ stock.maxCapacity }}</span>
-                    </div>
-                  </div>
-                </td> -->
 
                 <!-- Status Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
-                    :class="getStockStatusClass(stock)">
-                    <i :class="getStockStatusIcon(stock)" class="text-xs"></i>
-                    {{ getStockStatusText(stock) }}
+                    :class="getStockStatusClass(stock.quantity, stock.minThreshold || 5)">
+                    <i :class="`fas ${getStockStatusIcon(stock.quantity, stock.minThreshold || 5)}`"
+                      class="text-xs"></i>
+                    {{ getStockStatusText(stock.quantity, stock.minThreshold || 5) }}
                   </span>
-                  <!-- Optional: Add stock level indicator -->
-                  <div class="text-xs text-gray-500 mt-1 font-medium">
-                    {{ getStockLevel(stock) }}
-                  </div>
                 </td>
 
                 <!-- Actions Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="flex items-center justify-center gap-2">
-                    <!-- Edit Button -->
-                    <button
+                    <!-- Update Button -->
+                    <!-- <button
                       class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200"
-                      @click="editStock(stock)" title="Edit stock details">
+                      title="Edit stock">
                       <i class="fas fa-edit text-sm"></i>
-                    </button>
-
-                    <!-- History Button -->
-                    <!-- <button 
-                      class="p-2.5 rounded-xl hover:bg-orange-50 text-orange-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-orange-200" 
-                      @click="viewStockHistory(stock._id)" 
-                      title="View stock history">
-                      <i class="fas fa-clock-rotate-left text-sm"></i>
                     </button> -->
 
-                    <!-- Delete Button -->
-                    <button
-                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200"
-                      @click="deleteStock(stock._id)" title="Delete stock record">
-                      <i class="fas fa-trash text-sm"></i>
+
+
+
+                    <!-- button view -->
+                    <button @click="viewStockDetails(stock._id)"
+                      class="p-1.5 rounded-lg hover:bg-orange-100 text-orange-600 transition-all ">
+                      <i class="fa-solid fa-eye"></i>
                     </button>
+
+                    
+
+                    <!-- Delete Button -->
+                    <!-- <button @click="pendingStockId = stock._id; showConfirmDialog = true;"
+                      class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200"
+                      title="Delete stock">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button> -->
                   </div>
                 </td>
               </tr>
-
-
-
-
-
-              <tr v-if="filteredStockData.length === 0 && !isLoading">
-                <td colspan="7" class="px-4 py-8 text-center text-gray-400 italic">
-                  No stock found
-                </td>
-              </tr>
-
-
-              <!-- Empty State -->
-              <!-- <tr v-if="filteredStockData.length === 0 && !isLoading">
-                <td colspan="8" class="px-6 py-20 text-center">
+              <tr v-if="stockData.length === 0 && !isLoading">
+                <td colspan="7" class="px-6 py-20 text-center">
                   <div class="flex flex-col items-center gap-4">
                     <div class="p-6 rounded-2xl bg-amber-50 border border-amber-200">
-                      <i class="fas fa-box-open text-5xl text-amber-400"></i>
+                      <i class="fas fa-boxes text-5xl text-amber-400"></i>
                     </div>
                     <div>
-                      <h3 class="text-lg font-bold text-gray-900">No inventory items found</h3>
-                      <p class="text-sm text-gray-600 mt-1 font-medium">Add your first inventory item to get started</p>
+                      <h3 class="text-lg font-bold text-gray-900">No stock items found</h3>
+                      <p class="text-sm text-gray-600 mt-1 font-medium">Stock items will appear here when available</p>
                     </div>
-                    <button 
-                      @click="openModal"
-                      class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-                      <i class="fas fa-plus text-xs"></i>
-                      Add First Item
-                    </button>
                   </div>
                 </td>
-              </tr> -->
+              </tr>
             </tbody>
           </table>
         </div>
@@ -319,132 +272,9 @@
           :limitedPerPage="pageSize" :searchQuery="searchText" />
       </div>
     </div>
+    
 
-    <!-- Create/Edit Modal -->
-    <div v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
-      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b border-gray-100">
-          <div>
-            <h2 class="text-xl font-bold text-gray-900 tracking-tight">
-              {{ showEditModal ? 'Update Inventory' : 'Add New Inventory Item' }}
-            </h2>
-            <p class="text-sm text-gray-600 mt-1 font-medium">
-              {{ showEditModal ? '' : '' }}
-            </p>
-          </div>
-          <button class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
-            @click="closeModal">
-            <i class="fas fa-times text-lg"></i>
-          </button>
-        </div>
-
-        <!-- Modal Body -->
-        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-          <!-- Product and Category Selection -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Product <span class="text-red-500">*</span>
-              </label>
-              <select v-model="productId" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
-                <option value="" disabled>Select a product</option>
-                <option v-for="product in products" :key="product._id" :value="product._id">
-                  {{ product.name }} ({{ product.idCustom }})
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Category <span class="text-red-500">*</span>
-              </label>
-              <select v-model="categoryId" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
-                <option value="" disabled>Select a category</option>
-                <option v-for="category in categories" :key="category._id" :value="category._id">
-                  {{ category.name }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Quantity and Unit -->
-          <div class="grid  md:grid-cols-2 gap-6">
-            <!-- <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Initial Quantity <span class="text-red-500">*</span>
-              </label>
-              <input v-model.number="quantity" type="number" min="0" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                placeholder="Enter quantity" />
-            </div> -->
-
-            
-          </div>
-
-          <!-- Thresholds -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Low Stock Alert <span class="text-red-500">*</span>
-              </label>
-              <input v-model.number="minThreshold" type="number" min="0" required 
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition-all font-medium"
-                placeholder="Minimum threshold" />
-            </div>
-
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Max Capacity <span class="text-red-500">*</span>
-              </label>
-              <input v-model.number="maxCapacity" type="number" min="0" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                placeholder="Maximum capacity" />
-            </div>
-
-            <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3 w-full">
-                Unit <span class="text-red-500">*</span>
-              </label>
-              <input v-model="unit" type="text" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                placeholder="e.g., kg, pcs, liters" />
-            </div>
-          </div>
-
-          <!-- Error Message -->
-          <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-4">
-            <div class="flex items-center gap-3">
-              <i class="fas fa-exclamation-circle text-red-500"></i>
-              <p class="text-red-700 text-sm font-semibold">{{ error }}</p>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-4 pt-4">
-            <button type="button"
-              class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
-              @click="resetForm">
-              Reset
-            </button>
-            <button type="submit" :disabled="isSubmitting"
-              class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
-              <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
-                <i class="fas fa-spinner fa-spin"></i>
-                {{ showEditModal ? 'Updating...' : 'Adding...' }}
-              </span>
-              <span v-else>
-                {{ showEditModal ? 'Update Stock' : 'Add Stock' }}
-              </span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
+    <StockDetailModal :show="showStockDetail" :stockId="selectedStockId" @close="closeStockDetail" />
     <!-- Confirmation Dialog -->
     <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
       @confirm="handleDeleteConfirmation" />
@@ -455,10 +285,10 @@
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import Pagination from '@/components/Pagination.vue';
-import { fetchTimestamp } from '@/composables/timestamp';
+import StockDetailModal from '@/components/StockDetail.vue';
 import socket from '@/services/socket';
 import axios from 'axios';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 // Reactive variables
 const showModal = ref(false);
@@ -495,191 +325,38 @@ const isOpen = ref(false);
 const showConfirmDialog = ref(false);
 const pendingStockId = ref(null);
 
-// Polling interval
-let refreshInterval = null;
 
-// 🎯 Enhanced Stock Status Logic (Frontend Only)
-const getStockStatus = (stock) => {
-  // Validate input
-  if (!stock || typeof stock.quantity !== 'number' || typeof stock.minThreshold !== 'number') {
-    return {
-      text: 'Unknown',
-      class: 'bg-gray-100 text-gray-700 border-gray-200',
-      icon: 'fas fa-question-circle',
-      barColor: 'bg-gray-400',
-      priority: 0
-    };
-  }
+const showStockDetail = ref(false);
+const selectedStockId = ref(null);
 
-  const { quantity, minThreshold } = stock;
-
-  // Out of Stock - Priority check for zero or negative quantities
-  if (quantity <= 0) {
-    return {
-      text: 'Out of Stock',
-      class: 'bg-red-100 text-red-700 border-red-200',
-      icon: 'fas fa-circle-xmark',
-      barColor: 'bg-red-500',
-      priority: 3 // Highest priority for sorting
-    };
-  }
-
-  // Critical Stock - Very low (less than half of minimum threshold)
-  if (quantity <= Math.floor(minThreshold / 2) && minThreshold > 0) {
-    return {
-      text: 'Critical Stock',
-      class: 'bg-red-100 text-red-700 border-red-200',
-      icon: 'fas fa-triangle-exclamation',
-      barColor: 'bg-red-500',
-      priority: 2
-    };
-  }
-
-  // Low Stock - At or below minimum threshold
-  if (quantity <= minThreshold) {
-    return {
-      text: 'Low Stock',
-      class: 'bg-orange-100 text-orange-700 border-orange-200',
-      icon: 'fas fa-triangle-exclamation',
-      barColor: 'bg-orange-500',
-      priority: 1
-    };
-  }
-
-  // In Stock - Above minimum threshold
-  return {
-    text: 'In Stock',
-    class: 'bg-green-100 text-green-700 border-green-200',
-    icon: 'fas fa-circle-check',
-    barColor: 'bg-green-500',
-    priority: 0 // Lowest priority
-  };
+const viewStockDetails = (stockId) => {
+  selectedStockId.value = stockId;
+  showStockDetail.value = true;
 };
 
-// Individual status helper functions using the main logic
-const getStockStatusText = (stock) => getStockStatus(stock).text;
-const getStockStatusClass = (stock) => getStockStatus(stock).class;
-const getStockStatusIcon = (stock) => getStockStatus(stock).icon;
-const getStockBarColor = (stock) => getStockStatus(stock).barColor;
-
-// Enhanced percentage calculation
-const getStockPercentage = (stock) => {
-  if (!stock || !stock.maxCapacity || stock.maxCapacity <= 0) return 0;
-  return Math.min((stock.quantity / stock.maxCapacity) * 100, 100);
+const closeStockDetail = () => {
+  showStockDetail.value = false;
 };
 
-// Stock level indicator for additional context
-const getStockLevel = (stock) => {
-  const percentage = getStockPercentage(stock);
-  if (percentage <= 0) return 'Empty';
-  if (percentage <= 25) return 'Very Low';
-  if (percentage <= 50) return 'Low';
-  if (percentage <= 75) return 'Medium';
-  return 'High';
+// Format price for display
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('km-KH').format(price || 0) + '៛';
 };
 
-// Enhanced computed properties using frontend logic
-const totalItems = computed(() => stockData.value.length);
-
-const lowStockItems = computed(() =>
-  stockData.value.filter(item => {
-    const status = getStockStatus(item);
-    return status.text === 'Low Stock' || status.text === 'Critical Stock';
-  }).length
-);
-
-const outOfStockItems = computed(() =>
-  stockData.value.filter(item =>
-    getStockStatus(item).text === 'Out of Stock'
-  ).length
-);
-
-const criticalStockItems = computed(() =>
-  stockData.value.filter(item =>
-    getStockStatus(item).text === 'Critical Stock'
-  ).length
-);
-
-const inStockItems = computed(() =>
-  stockData.value.filter(item =>
-    getStockStatus(item).text === 'In Stock'
-  ).length
-);
-
-// Enhanced filtering with frontend status logic
-const filteredStockData = computed(() => {
-  let filtered = stockData.value;
-
-  // Filter by category
-  if (categoryFilter.value !== 'all') {
-    filtered = filtered.filter(item => item.categoryId === categoryFilter.value);
-  }
-
-  // Filter by stock status using frontend logic
-  if (stockStatusFilter.value !== 'all') {
-    switch (stockStatusFilter.value) {
-      case 'in-stock':
-        filtered = filtered.filter(item =>
-          getStockStatus(item).text === 'In Stock'
-        );
-        break;
-      case 'low-stock':
-        filtered = filtered.filter(item => {
-          const status = getStockStatus(item).text;
-          return status === 'Low Stock' || status === 'Critical Stock';
-        });
-        break;
-      case 'out-of-stock':
-        filtered = filtered.filter(item =>
-          getStockStatus(item).text === 'Out of Stock'
-        );
-        break;
-      case 'critical-stock':
-        filtered = filtered.filter(item =>
-          getStockStatus(item).text === 'Critical Stock'
-        );
-        break;
-    }
-  }
-
-  return filtered;
-});
-
-// Sort by stock priority (optional - you can use this instead of filteredStockData)
-const sortedStockData = computed(() => {
-  return [...filteredStockData.value].sort((a, b) => {
-    const priorityA = getStockStatus(a).priority;
-    const priorityB = getStockStatus(b).priority;
-    return priorityB - priorityA; // Higher priority (more urgent) first
-  });
-});
-
-// Helper functions for product and category data
-const getProductData = (productId) => {
-  return products.value.find(p => p._id === productId) || null;
+// Toggle dropdown
+const toggleDropdownRow = () => {
+  isOpen.value = !isOpen.value;
 };
 
-const getProductName = (productId) => {
-  const product = getProductData(productId);
-  return product ? product.name : 'Unknown Product';
+// Select item from dropdown
+const selectItem = (item) => {
+  selectedItem.value = item;
+  pageSize.value = item;
+  isOpen.value = false;
+  fetchStockData();
 };
 
-const getProductIdCustom = (productId) => {
-  const product = getProductData(productId);
-  return product ? product.idCustom : 'N/A';
-};
-
-const getProductImage = (productId) => {
-  const product = getProductData(productId);
-  return product ? product.imageURL : null;
-};
-
-const getCategoryName = (categoryId) => {
-  const category = categories.value.find(c => c._id === categoryId);
-  return category ? category.name : 'Unknown Category';
-};
-
-// Event handlers
+// Pagination event handlers
 const handleListenToPagination = async (items) => {
   stockData.value = items || [];
 };
@@ -695,202 +372,197 @@ const handleListenIsLastRecordOnPage = (page) => {
   }
 };
 
-// Watch for search changes
-watch(searchQuery, (newValue) => {
-  searchText.value = newValue;
-  currentPage.value = 1;
-}, { immediate: true });
-
-// Dropdown handlers
-const toggleDropdownRow = () => {
-  isOpen.value = !isOpen.value;
-};
-
-const selectItem = (item) => {
-  selectedItem.value = item;
-  pageSize.value = item;
-  isOpen.value = false;
-};
-
-// Modal handlers
-const openModal = () => {
-  resetForm();
-  showModal.value = true;
-  showEditModal.value = false;
-};
-
-const closeModal = () => {
-  showModal.value = false;
-  showEditModal.value = false;
-  resetForm();
-};
-
-const resetForm = () => {
-  currentId.value = '';
-  productId.value = '';
-  categoryId.value = '';
-  quantity.value = 0;
-  unit.value = '';
-  minThreshold.value = 5;
-  maxCapacity.value = 100;
-  error.value = '';
-};
-
-// Submit form handler (removed isOutOfStock from backend call)
-const handleSubmit = async () => {
-  if (!productId.value || !categoryId.value || !unit.value ||
-    quantity.value === null || minThreshold.value === null || maxCapacity.value === null) {
-    error.value = 'Required fields cannot be empty';
-    return;
+// Get status class based on stock level
+const getStockStatusClass = (stock, minThreshold) => {
+  if (stock <= 0) {
+    return 'bg-red-100 text-red-700 border-red-200';
+  } else if (stock <= minThreshold * 0.5) {
+    return 'bg-orange-100 text-orange-700 border-orange-200';
+  } else if (stock <= minThreshold) {
+    return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+  } else {
+    return 'bg-green-100 text-green-700 border-green-200';
   }
+};
 
-  if (minThreshold.value > maxCapacity.value) {
-    error.value = 'Min threshold cannot be greater than max capacity';
-    return;
+// Get status text based on stock level
+const getStockStatusText = (stock, minThreshold) => {
+  if (stock <= 0) {
+    return 'Out of Stock';
+  } else if (stock <= minThreshold * 0.5) {
+    return 'Critical Stock';
+  } else if (stock <= minThreshold) {
+    return 'Low Stock';
+  } else {
+    return 'In Stock';
   }
+};
 
-  isSubmitting.value = true;
-  error.value = '';
+// Get status icon based on stock level
+const getStockStatusIcon = (stock, minThreshold) => {
+  if (stock <= 0) {
+    return 'fa-circle-xmark';
+  } else if (stock <= minThreshold * 0.5) {
+    return 'fa-triangle-exclamation';
+  } else if (stock <= minThreshold) {
+    return 'fa-exclamation-circle';
+  } else {
+    return 'fa-circle-check';
+  }
+};
 
+// Fetch stock data from the API
+const fetchStockData = async () => {
   try {
     isLoading.value = true;
     const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
 
-    if (!token || !userId) {
+    if (!token) {
       error.value = 'Authentication required. Please login again.';
-      isSubmitting.value = false;
-      isLoading.value = false;
       return;
     }
 
-    const timestamp = await fetchTimestamp();
-
-    const requestBody = {
-      fields: {
-        productId: productId.value,
-        categoryId: categoryId.value,
-        unit: unit.value,
-        quantity: parseInt(quantity.value),
-        minThreshold: parseInt(minThreshold.value),
-        maxCapacity: parseInt(maxCapacity.value)
-        // Removed isOutOfStock - let frontend handle status logic
-      }
-    };
-
-    if (!showEditModal.value) {
-      // Creating a new stock entry
-      requestBody.fields.createdAt = timestamp;
-      requestBody.fields.createdBy = userId;
-      requestBody.fields.lastRestockedAt = timestamp;
-
-      const response = await axios.post(
-        `${apiURL}/api/insertDoc/Stock`,
-        requestBody,
+    // Build query parameters for filtering
+    const params = {};
+    if (categoryFilter.value !== 'all') {
+      params.dynamicConditions = JSON.stringify([
         {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-      if (response.data.success) {
-        socket.emit('dataUpdate', {
-          action: 'insert',
-          collection: 'Stock',
-          data: response.data.data._id
-        });
-        resetForm();
-        closeModal();
-        fetchStockData();
-      } else {
-        throw new Error(response.data.message || 'Failed to create inventory item');
-      }
-    } else {
-      // Updating existing stock entry
-      if (!currentId.value) {
-        error.value = 'Error: Missing stock ID for update operation';
-        isSubmitting.value = false;
-        isLoading.value = false;
-        return;
-      }
-
-      requestBody.fields.updatedAt = timestamp;
-      requestBody.fields.updatedBy = userId;
-
-      // Update lastRestockedAt if quantity increased
-      const existingStock = stockData.value.find(item => item._id === currentId.value);
-      if (existingStock && parseInt(quantity.value) > existingStock.quantity) {
-        requestBody.fields.lastRestockedAt = timestamp;
-      }
-
-      const response = await axios.patch(
-        `${apiURL}/api/updateDoc/Stock/${currentId.value}`,
-        requestBody,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-      if (response.data.success || response.data.message === 'Stock updated') {
-        socket.emit('dataUpdate', {
-          action: 'update',
-          collection: 'Stock',
-          data: response.data.data ? response.data.data._id : currentId.value
-        });
-        closeModal();
-        fetchStockData();
-      } else {
-        throw new Error(response.data.message || 'Failed to update inventory item');
-      }
+          field: 'categoryId',
+          operator: '==',
+          value: categoryFilter.value
+        }
+      ]);
     }
+
+    // Fetch stock data
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      params
+    });
+
+    if (response.data && response.data.data) {
+      stockData.value = response.data.data;
+
+      // Fetch product details for each stock item
+      await fetchProductDetails();
+    } else {
+      stockData.value = [];
+    }
+
+    error.value = '';
   } catch (err) {
-    console.error('Error saving inventory item:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to save inventory item';
+    console.error('Error fetching stock data:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to fetch stock data';
+    stockData.value = [];
   } finally {
-    isSubmitting.value = false;
     isLoading.value = false;
   }
 };
 
-// Edit stock handler
-const editStock = (stock) => {
-  currentId.value = stock._id;
-  productId.value = stock.productId;
-  categoryId.value = stock.categoryId;
-  quantity.value = stock.quantity;
-  unit.value = stock.unit;
-  minThreshold.value = stock.minThreshold;
-  maxCapacity.value = stock.maxCapacity;
-  showModal.value = true;
-  showEditModal.value = true;
+// Fetch product details for stock items
+const fetchProductDetails = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    if (!token || stockData.value.length === 0) return;
+
+    // Get all product IDs from stock data
+    const productIds = stockData.value.map(item => item.productId);
+
+    // Fetch product data for these IDs
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data && response.data.data) {
+      products.value = response.data.data;
+
+      // Enrich stock data with product details
+      stockData.value = stockData.value.map(stock => {
+        const product = products.value.find(p => p._id === stock.productId) || {};
+        return {
+          ...stock,
+          productName: product.name || 'Unknown Product',
+          categoryId: product.categoryId || '',
+          imageURL: product.imageURL || '',
+          unit: product.unit || stock.unit || 'pcs'
+        };
+      });
+
+      // Filter stock data based on stock status if needed
+      applyStockStatusFilter();
+    }
+
+    // Fetch categories
+    await fetchCategories();
+
+  } catch (err) {
+    console.error('Error fetching product details:', err);
+  }
 };
 
-// View stock history handler
-// const viewStockHistory = (stockId) => {
-//   console.log('View history for stock:', stockId);
-//   // TODO: Implement view history functionality
-// };
+// Fetch categories for dropdown
+const fetchCategories = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
-// Delete stock handler
-const deleteStock = (stockId) => {
-  pendingStockId.value = stockId;
-  showConfirmDialog.value = true;
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data && response.data.data) {
+      categories.value = response.data.data;
+    }
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+  }
+};
+
+// Apply stock status filter
+const applyStockStatusFilter = () => {
+  if (stockStatusFilter.value === 'all') return;
+
+  stockData.value = stockData.value.filter(stock => {
+    const qty = stock.quantity || 0;
+    const threshold = stock.minThreshold || 5;
+
+    switch (stockStatusFilter.value) {
+      case 'out-of-stock':
+        return qty <= 0;
+      case 'critical-stock':
+        return qty > 0 && qty <= threshold * 0.5;
+      case 'low-stock':
+        return qty > threshold * 0.5 && qty <= threshold;
+      case 'in-stock':
+        return qty > threshold;
+      default:
+        return true;
+    }
+  });
+};
+
+// Handle confirmation dialog
+const handleCancelConfirmation = () => {
+  showConfirmDialog.value = false;
+  pendingStockId.value = null;
 };
 
 const handleDeleteConfirmation = async () => {
-  showConfirmDialog.value = false;
   if (!pendingStockId.value) return;
 
   try {
     isLoading.value = true;
     const token = localStorage.getItem('token');
-    if (!token) {
-      error.value = 'Authentication required. Please login again.';
-      return;
-    }
 
     const response = await axios.delete(
       `${apiURL}/api/deleteDoc/Stock/${pendingStockId.value}`,
@@ -906,130 +578,51 @@ const handleDeleteConfirmation = async () => {
       socket.emit('dataUpdate', {
         action: 'delete',
         collection: 'Stock',
-        data: response.data.data._id
+        data: pendingStockId.value
       });
+
+      // Refresh stock data
       fetchStockData();
-      closeModal();
-    } else {
-      throw new Error(response.data.message || 'Failed to delete stock item');
     }
   } catch (err) {
+    console.error('Error deleting stock item:', err);
     error.value = err.response?.data?.message || err.message || 'Failed to delete stock item';
   } finally {
     isLoading.value = false;
+    showConfirmDialog.value = false;
     pendingStockId.value = null;
   }
 };
 
-const handleCancelConfirmation = () => {
-  showConfirmDialog.value = false;
-  pendingStockId.value = null;
-};
+// Watch for filter changes
+watch([categoryFilter, stockStatusFilter], () => {
+  fetchStockData();
+});
 
-// Fetch stock data
-const fetchStockData = async () => {
-  try {
-    isLoading.value = true;
-    const token = localStorage.getItem('token');
-    if (!token) {
-      error.value = 'Authentication required. Please login again.';
-      return;
-    }
+watch(searchQuery, (newValue) => {
+  searchText.value = newValue;
+  currentPage.value = 1;
+}, { immediate: true });
 
-    // First fetch all necessary data
-    await fetchRelatedData();
-
-    const response = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    stockData.value = response.data.data || [];
-
-  } catch (err) {
-    console.error('Error fetching data:', err);
-    error.value = err.message || 'Failed to fetch stock data';
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-// Fetch related data for dropdowns and product information
-const fetchRelatedData = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    // Fetch products first (needed for stock data display)
-    const productsResponse = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    products.value = productsResponse.data.data || [];
-
-    // Fetch categories
-    const categoriesResponse = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    categories.value = categoriesResponse.data.data || [];
-
-  } catch (err) {
-    console.error("❌ Failed to fetch dropdown data:", err);
-  }
-};
-
-
-
-// Replace the onMounted function with this corrected version:
-
+// Initialize
 onMounted(() => {
   if (socket && socket.disconnected) {
     socket.connect();
   }
-  
+
   // Listen for socket updates
   socket.on('dataUpdate', (update) => {
-    console.log('📡 Stock.vue received socket update:', update);
-    
-    if (update.collection === 'Stock') {
-      // Handle different types of stock updates
-      if (update.action === 'batch-update' && update.data.restockId) {
-        console.log('🔄 Batch stock update from restock:', update.data.restockId);
-        fetchStockData(); // 🔥 FIXED: Use fetchStockData instead of fetchStock
-      } else if (update.action === 'bulk-update' && update.data === 'refresh-all') {
-        console.log('🔄 Bulk refresh of all stock data');
-        fetchStockData(); // 🔥 FIXED: Use fetchStockData instead of fetchStock
-      } else if (update.action === 'update' && update.data) {
-        console.log('🔄 Individual stock update for:', update.data);
-        fetchStockData(); // 🔥 FIXED: Use fetchStockData instead of fetchStock
-      } else {
-        // General stock updates
-        fetchStockData(); // 🔥 FIXED: Use fetchStockData instead of fetchStock
-      }
-    }
-    
-    // Also listen for Product updates that might affect stock display
-    if (update.collection === 'Product') {
-      console.log('🔄 Product update affecting stock display');
-      fetchRelatedData(); // Refresh product data for display
+    if (update.collection === 'Stock' || update.collection === 'Product') {
+      fetchStockData();
     }
   });
-  
-  fetchStockData(); // 🔥 FIXED: Use fetchStockData instead of fetchStock
-});
 
-// Add this after the onMounted function:
+  fetchStockData();
+});
 
 onUnmounted(() => {
-  // Clean up socket listeners
-  if (socket) {
-    socket.off('dataUpdate');
-  }
+  socket.off('dataUpdate');
 });
-
-
-
 </script>
 
 <style scoped>

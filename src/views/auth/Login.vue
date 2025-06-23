@@ -250,6 +250,46 @@ const handleLogin = async () => {
     // Set token in store
     store.setToken(tokenLogin);
 
+    // Create user login log
+    try {
+      // Gather additional information for the log
+      const currentDate = new Date();
+      // const locationInfo = await fetchUserLocation();
+      
+      const logData = {
+        fields: {
+          userId: userId,
+          deviceLog: {
+            deviceInfo: deviceDetails,
+            deviceId: deviceUUID,
+            browser: deviceDetails.browser,
+            os: deviceDetails.os,
+            ip: deviceDetails.ip || 'unknown',
+            loginTime: currentDate.toISOString(),
+            userRole: userRole,
+          },
+          createdAt: currentDate
+        }
+      };
+      
+      // Send the log data to the server
+      await axios.post(
+        `${apiURL}/api/insertDoc/UserLog`,
+        logData,
+        {
+          headers: {
+            'Authorization': `Bearer ${tokenLogin}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log("User login activity logged successfully");
+    } catch (logError) {
+      // Just log the error but don't interrupt the login flow
+      console.error("Failed to log user activity:", logError);
+    }
+
     showSuccessMessage.value = true;
     setTimeout(() => {
       // Role-based routing
@@ -276,6 +316,8 @@ const handleLogin = async () => {
     isLoading.value = false;
   }
 };
+
+
 </script>
 
 <style>

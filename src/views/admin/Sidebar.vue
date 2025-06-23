@@ -74,7 +74,7 @@
             route.path === '/admin/restock' ? 'bg-yellow-500 text-white' : ''
           ]">
             <Layers class="h-4 w-4" />
-            <span class="text-sm">Restock</span>
+            <span class="text-sm">Purchase</span>
           </router-link>
           <router-link to="/admin/supplier" :class="[
             'nav-link',
