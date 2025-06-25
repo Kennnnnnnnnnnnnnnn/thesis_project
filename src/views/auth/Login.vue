@@ -61,7 +61,7 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
-import apiURL from '@/api/config';
+import api from '@/api/config'
 import { decodeJwt } from '@/composables/jwt';
 import { getDeviceDetails } from '@/utils/getDeviceDetails';
 import { v4 as uuidv4 } from 'uuid';
@@ -94,7 +94,7 @@ const handleLogin = async () => {
     const deviceUUID = uuidv4();
 
     // Login request
-    const responseLogin = await axios.post(`${apiURL}/api/auth/login`, {
+    const responseLogin = await api.post('/auth/login', {
       phoneNumber: phoneNumber.value,
       password: password.value,
       device: { ...deviceDetails, uuid: deviceUUID },
@@ -119,8 +119,7 @@ const handleLogin = async () => {
     } else {
       // For other roles, fetch user details
       try {
-        const userResponse = await axios.get(
-          `${apiURL}/api/getAllDocs/User`,
+        const userResponse = await api.get('/getAllDocs/User',
           {
             headers: {
               'Authorization': `Bearer ${tokenLogin}`,
@@ -273,8 +272,7 @@ const handleLogin = async () => {
       };
       
       // Send the log data to the server
-      await axios.post(
-        `${apiURL}/api/insertDoc/UserLog`,
+      await api.post('/insertDoc/UserLog',
         logData,
         {
           headers: {

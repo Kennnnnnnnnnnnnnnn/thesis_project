@@ -1,158 +1,145 @@
-<!-- <template>
-  <div class="cart-page">
-    <section class="header">
-      <div class="container">
-        <h1>Shopping Cart</h1>
-        <p>Your selected items, ready for checkout</p>
-      </div>
-    </section>
+<template>
+  <v-container>
+    <h2 class="text-h5 font-weight-bold mb-4">🛒 Your Cart</h2>
 
-    <div v-if="loading" class="loading">Loading your cart...</div>
+    <v-alert v-if="cartItems.length === 0" type="info" border="start" color="blue">
+      No items in cart yet.
+    </v-alert>
 
-    <section class="cart-list">
-      <div class="container">
-        <div v-if="cart.length > 0">
-          <div class="cart-item" v-for="(item, index) in cart" :key="item._id">
-            <div class="item-image">
-              <img :src="getProductImage(item)" :alt="item.productName">
-            </div>
-            <div class="item-content">
-              <div class="item-details">
-                <h3 class="item-name">{{ item.productName }}</h3>
-                <div class="item-meta">
-                  <span class="item-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
-                </div>
-              </div>
-              <div class="item-controls">
-                <div class="quantity-control">
-                  <button class="qty-btn" @click="updateQuantity(item, item.quantity - 1)" :disabled="item.quantity <= 1">−</button>
-                  <span class="quantity">{{ item.quantity }}</span>
-                  <button class="qty-btn" @click="updateQuantity(item, item.quantity + 1)">+</button>
-                </div>
-                <div class="item-actions">
-                  <button class="remove-btn" @click="removeFromCart(item._id)">
-                    <i class="fas fa-trash"></i> Remove
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="cart-footer">
-            <button class="clear-btn" @click="clearCart">Clear Cart</button>
-            <button class="checkout-btn" @click="checkout">Checkout</button>
-          </div>
-        </div>
-        <div v-else class="empty-cart">
-          <img :src="require('@/assets/image.png')" alt="Empty Cart">
-          <p>Your cart is empty. Start shopping now!</p>
-        </div>
+    <v-row v-else>
+      <v-col
+        v-for="item in cartItems"
+        :key="item._id"
+        cols="12"
+        md="6"
+        lg="4"
+      >
+        <v-card>
+          <v-img
+            :src="item.productId?.image || defaultImage"
+            height="200px"
+            cover
+          ></v-img>
+
+          <v-card-title class="text-wrap">
+            {{ item.productId?.name || 'No name' }}
+          </v-card-title>
+
+          <v-card-subtitle>
+            Quantity: {{ item.quantity }}
+          </v-card-subtitle>
+
+          <v-card-subtitle>
+            Price: {{ item.productId?.salePrice || 0 }} ៛
+          </v-card-subtitle>
+
+          <v-card-subtitle>
+            Discount: {{ item.productId?.discount || 0 }}%
+          </v-card-subtitle>
+
+          <v-card-actions>
+            <v-btn color="red" @click="removeItem(item._id)" block>
+              Remove
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-divider class="my-4"></v-divider>
+
+    <div v-if="cartItems.length > 0" class="text-end">
+      <div class="mb-2">
+        <strong>Subtotal:</strong> {{ subtotal }} ៛
       </div>
-    </section>
-  </div>
+      <div class="mb-2">
+        <strong>Discount:</strong> <span class="text-red">-{{ discountTotal }} ៛</span>
+      </div>
+      <div class="mb-2">
+        <strong>To Pay:</strong> <span class="text-green text-h6">{{ finalAmount }} ៛</span>
+      </div>
+
+      <v-btn :to="`/payment?price=${finalAmount}`" color="primary">
+        Pay Now
+      </v-btn>
+    </div>
+  </v-container>
 </template>
-
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import apiURL from '../../api/config.js';
+import { ref, onMounted, computed } from 'vue';
+import Swal from 'sweetalert2';
+import apiURL from '@/api/config.js';
 
-const cart = ref([]);
-const token = localStorage.getItem("token");
-const API = `${apiURL}/api`;
-const loading = ref(false);
+const token = localStorage.getItem('token');
+const cartItems = ref([]);
+const defaultImage = require('@/assets/image.png');
 
+// Fetch cart items
 const fetchCart = async () => {
   try {
-    loading.value = true;
-    const res = await axios.get(`${API}/getAllDocs/Cart`, {
-      headers: { Authorization: `Bearer ${token}` }
+    const res = await apiURL.get('/getAllDocs/Cart', {
+      headers: { Authorization: `Bearer ${token}` },
     });
-
-    const enrichedItems = await Promise.all(
-      res.data.data.map(async (item) => {
-        const product = await fetchProduct(item.productId);
-        return {
-          ...item,
-          productName: product?.name || 'Unknown Product',
-          price: product?.salePrice || 0,
-          imageURL: product?.imageURL
-        };
-      })
-    );
-
-    cart.value = enrichedItems;
+    cartItems.value = res.data.data;
   } catch (err) {
-    alert(" Failed to fetch cart. Please try again.");
-    console.error("Error fetching cart:", err);
-  } finally {
-    loading.value = false;
+    console.error('❌ Failed to fetch cart:', err);
   }
 };
 
-const fetchProduct = async (productId) => {
+// Remove item from cart
+const removeItem = async (id) => {
   try {
-    const res = await axios.get(`${API}/getAllDocs/Product?filter[_id]=${productId}`, {
-      headers: { Authorization: `Bearer ${token}` }
+    await apiURL.delete(`/deleteDoc/Cart/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    return res.data.data[0];
-  } catch (err) {
-    console.error(" fetchProduct error:", err);
-    return null;
-  }
-};
-
-
-const getProductImage = (item) => {
-  return item.imageURL || require('@/assets/image.png');
-};
-
-const updateQuantity = async (item, quantity) => {
-  if (quantity < 1) return;
-  try {
-    await axios.patch(`${API}/updateDoc/Cart/${item._id}`, {
-      fields: { quantity, updatedAt: new Date() }
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
+    Swal.fire({
+      icon: 'success',
+      title: 'Removed from cart',
+      timer: 1000,
+      showConfirmButton: false,
     });
     fetchCart();
   } catch (err) {
-    console.error('Failed to update quantity:', err);
-  }
-};
-
-const removeFromCart = async (id) => {
-  try {
-    await axios.delete(`${API}/deleteDoc/Cart/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
+    Swal.fire({
+      icon: 'error',
+      title: 'Failed to remove item',
+      timer: 1500,
+      showConfirmButton: false,
     });
-    fetchCart();
-  } catch (err) {
-    console.error('Failed to remove item:', err);
   }
 };
 
-const clearCart = async () => {
-  const promises = cart.value.map(item => axios.delete(`${API}/deleteDoc/Cart/${item._id}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  }));
-  await Promise.all(promises);
-  fetchCart();
-};
+// Cart calculations
+const subtotal = computed(() =>
+  cartItems.value.reduce((sum, item) => {
+    const price = item.productId?.salePrice || 0;
+    return sum + price * item.quantity;
+  }, 0)
+);
 
-const checkout = () => {
-  alert("Checkout not implemented yet!");
-};
+const discountTotal = computed(() =>
+  cartItems.value.reduce((sum, item) => {
+    const price = item.productId?.salePrice || 0;
+    const discount = item.productId?.discount || 0;
+    return sum + (price * item.quantity * discount) / 100;
+  }, 0)
+);
+
+const finalAmount = computed(() =>
+  Math.round(subtotal.value - discountTotal.value)
+);
 
 onMounted(() => {
   fetchCart();
 });
 </script>
 
+
 <style scoped>
-
-</style> -->
-
-
-<template>
-  <div></div>
-</template>
+.text-red {
+  color: red;
+}
+.text-green {
+  color: green;
+}
+</style>

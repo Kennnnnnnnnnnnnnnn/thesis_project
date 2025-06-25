@@ -16,7 +16,10 @@ const routes = [
       { path: '/cart', name: 'Cart', component: () => import('@/views/user/Cart.vue') },
       { path: '/profile', name: 'Profile', component: () => import('@/views/user/Profile.vue') },
       { path: '/history', name: 'History', component: () => import('@/views/user/History.vue') },
-      { path: '/contact', name: 'Contact', component: () => import('@/views/user/Contact.vue') }
+      { path: '/contact', name: 'Contact', component: () => import('@/views/user/Contact.vue') },
+      { path: '/payment',name: 'Payment',component: () => import('@/views/user/Payment.vue')},
+      
+
     ]
   },
 
