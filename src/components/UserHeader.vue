@@ -1,41 +1,56 @@
 <template>
-  <header class="admin-header">
+  <header class="flex justify-between items-center px-8 py-4 bg-white shadow-md sticky top-0 z-50">
     <!-- Logo/Brand -->
-    <div class="brand" @click="$router.push('/admin')">
-      <img src="@/assets/rice.png" alt="Admin Logo" class="logo">
-      <h1 class="app-name">User Panel</h1>
+    <div class="flex items-center gap-4 cursor-pointer" @click="navigateToAdmin">
+      <img src="@/assets/rice.png" alt="Admin Logo" class="h-9 w-auto">
+      <h1 class="text-xl font-semibold text-gray-800">User Panel</h1>
     </div>
 
     <!-- Right Side Controls -->
-    <div class="right-controls">
+    <div class="flex items-center gap-6">
       <!-- Translate Button -->
-      <button class="translate-btn" @click="toggleLanguage">
+      <button 
+        class="bg-transparent border-none px-3 py-2 rounded-md text-slate-500 font-medium cursor-pointer transition-all duration-200 hover:bg-slate-100 hover:text-green-600"
+        @click="toggleLanguage"
+      >
         <span>{{ currentLanguage }}</span>
       </button>
 
       <!-- Logout Button -->
-      <button class="logout-btn" @click="logout">Logout</button>
+      <button 
+        class="bg-red-800 text-white border-none px-6 py-3 rounded-md font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600 hover:-translate-y-0.5"
+        @click="logout"
+      >
+        Logout
+      </button>
     </div>
   </header>
 </template>
 
-<script>
-export default {
-  name: 'AdminHeader',
-  data() {
-    return {
-      currentLanguage: 'EN'
-    };
-  },
-  methods: {
-    toggleLanguage() {
-      this.currentLanguage = this.currentLanguage === 'EN' ? 'ES' : 'EN';
-    },
-    logout() {
-      localStorage.removeItem('user');
-      this.$router.push('/login');
-    }
-  }
+<script setup>
+import { useStore } from '@/store/useStore';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+// Setup router
+const router = useRouter();
+const store = useStore();
+
+// Reactive state
+const currentLanguage = ref('EN');
+
+// Methods
+const toggleLanguage = () => {
+  currentLanguage.value = currentLanguage.value === 'EN' ? 'ES' : 'EN';
+};
+
+const navigateToAdmin = () => {
+  router.push('/admin');
+};
+
+const logout = () => {
+  store.clearAuth();
+  router.push('/login');
 };
 </script>
 

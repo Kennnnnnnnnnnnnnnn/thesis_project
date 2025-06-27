@@ -125,13 +125,13 @@
               <UserRoundPlus class="h-4 w-4" />
               <span class="text-sm">Create User</span>
             </router-link>
-            <router-link to="/admin/permission" :class="[
+            <!-- <router-link to="/admin/permission" :class="[
               'nav-link',
               route.path === '/admin/permission' ? 'bg-yellow-500 text-white' : ''
             ]">
               <FileKey2 class="h-4 w-4" />
               <span class="text-sm">Set Permission</span>
-            </router-link>
+            </router-link> -->
           </nav>
         </transition>
       </div>

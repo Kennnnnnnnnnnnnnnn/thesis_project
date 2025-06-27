@@ -235,7 +235,7 @@
 </template>
 
 <script setup>
-import api from '@/api/config'
+import apiURL from '@/api/config'
 import cover1 from '@/assets/cover1.png'
 import cover2 from '@/assets/cover2.png'
 import cover4 from '@/assets/cover4.png'
@@ -279,7 +279,7 @@ async function fetchProducts() {
     console.log('Fetching products from public API...')
     
     // Use the public endpoint that doesn't require authentication
-    const response = await api.get('/public/products', {
+    const response = await axios.get(`${apiURL}/api/public/products`, {
       params: {
         sortField: 'createdAt',
         sortOrder: 'desc',

@@ -1,56 +1,48 @@
 <template>
-  <div class="flex justify-center items-center min-h-screen bg-yellow-50 p-8 bg-[radial-gradient(#ffe68033_1px,transparent_1px)] bg-[length:20px_20px]">
+  <div
+    class="flex justify-center items-center min-h-screen bg-yellow-50 p-8 bg-[radial-gradient(#ffe68033_1px,transparent_1px)] bg-[length:20px_20px]">
     <SplashScreen :isSplashVisible="isSplashVisible" />
     <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md border border-yellow-200 animate-fadeInUp">
       <div class="mb-8 text-center">
         <h2 class="text-yellow-800 text-2xl font-bold mb-2"> Welcome to our Website </h2>
         <p class="text-yellow-700 text-base">Sign in to your account</p>
       </div>
-      
+
       <form @submit.prevent="handleLogin">
         <div class="mb-5">
           <label class="block font-medium mb-2 text-yellow-800 text-sm">Phone Number</label>
-          <input 
-            type="text" 
-            v-model="phoneNumber" 
-            class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60" 
-            placeholder="phone number" 
-            required
-          >
+          <input type="text" v-model="phoneNumber"
+            class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60"
+            placeholder="phone number" required>
         </div>
 
         <div class="mb-5">
           <label class="block font-medium mb-2 text-yellow-800 text-sm">Password</label>
-          <input 
-            type="password" 
-            v-model="password" 
-            class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60" 
-            placeholder="password" 
-            required
-          >
+          <input type="password" v-model="password"
+            class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60"
+            placeholder="password" required>
         </div>
 
-        <button 
-          type="submit" 
+        <button type="submit"
           class="w-full bg-yellow-400 text-yellow-900 border-none py-4 font-semibold cursor-pointer rounded-xl text-base transition-all mt-2 flex items-center justify-center gap-2 hover:bg-yellow-300 active:translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-          :class="{ 'pointer-events-none': isLoading }"
-          :disabled="isLoading"
-        >
+          :class="{ 'pointer-events-none': isLoading }" :disabled="isLoading">
           <span v-if="!isLoading">Login</span>
         </button>
-        
-        <p v-if="errorMessage" class="text-red-600 mt-5 text-center text-sm py-3 bg-red-100 rounded-lg border-l-4 border-red-600">
+
+        <p v-if="errorMessage"
+          class="text-red-600 mt-5 text-center text-sm py-3 bg-red-100 rounded-lg border-l-4 border-red-600">
           ⚠️ {{ errorMessage }}
         </p>
       </form>
 
       <footer class="mt-10 text-center text-sm text-gray-500 animate-fade-in delay-300">
-          <p>Powered© by Development Team - version-0.1</p>
-        </footer>
+        <p>Powered© by Development Team - version-0.1</p>
+      </footer>
 
-      
+
       <div class="mt-6 text-center text-sm text-yellow-800">
-        <p>Don't have an account? <a href="#" class="text-yellow-700 font-medium hover:text-yellow-800 underline transition">Contact admin</a></p>
+        <p>Don't have an account? <a href="#"
+            class="text-yellow-700 font-medium hover:text-yellow-800 underline transition">Contact admin</a></p>
       </div>
     </div>
   </div>
@@ -61,7 +53,7 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
-import api from '@/api/config'
+import apiURL from '@/api/config';
 import { decodeJwt } from '@/composables/jwt';
 import { getDeviceDetails } from '@/utils/getDeviceDetails';
 import { v4 as uuidv4 } from 'uuid';
@@ -94,7 +86,7 @@ const handleLogin = async () => {
     const deviceUUID = uuidv4();
 
     // Login request
-    const responseLogin = await api.post('/auth/login', {
+    const responseLogin = await axios.post(`${apiURL}/api/auth/login`, {
       phoneNumber: phoneNumber.value,
       password: password.value,
       device: { ...deviceDetails, uuid: deviceUUID },
@@ -106,7 +98,7 @@ const handleLogin = async () => {
 
     const tokenLogin = responseLogin.data.token;
     const decodedToken = await decodeJwt(tokenLogin);
-    
+
     // Get user details using the token
     let userDoc;
     if (decodedToken.role === 'customer') {
@@ -119,7 +111,8 @@ const handleLogin = async () => {
     } else {
       // For other roles, fetch user details
       try {
-        const userResponse = await api.get('/getAllDocs/User',
+        const userResponse = await axios.get(
+          `${apiURL}/api/getAllDocs/User`,
           {
             headers: {
               'Authorization': `Bearer ${tokenLogin}`,
@@ -158,7 +151,7 @@ const handleLogin = async () => {
     // Store user information
     const userId = decodedToken._id || userDoc._id;
     const userRole = decodedToken.role || userDoc.role;
-    
+
     // Set permissions based on role
     let userPermissions = [];
     if (userRole === 'customer') {
@@ -166,9 +159,14 @@ const handleLogin = async () => {
       userPermissions = [
         'read_product',
         'read_category',
-        'create_customerOrder',
-        'read_customerOrder',
-        'update_customerOrder'
+        'create_customerorder',
+        'read_customerorder',
+        'update_customerorder',
+        'create_order',
+        'read_order',
+        'read_transaction',
+        'create_transaction',
+        'update_transaction'
       ];
     } else if (userRole === 'superadmin') {
       // Superadmin gets all permissions
@@ -254,7 +252,7 @@ const handleLogin = async () => {
       // Gather additional information for the log
       const currentDate = new Date();
       // const locationInfo = await fetchUserLocation();
-      
+
       const logData = {
         fields: {
           userId: userId,
@@ -270,9 +268,10 @@ const handleLogin = async () => {
           createdAt: currentDate
         }
       };
-      
+
       // Send the log data to the server
-      await api.post('/insertDoc/UserLog',
+      await axios.post(
+        `${apiURL}/api/insertDoc/UserLog`,
         logData,
         {
           headers: {
@@ -281,7 +280,7 @@ const handleLogin = async () => {
           }
         }
       );
-      
+
       console.log("User login activity logged successfully");
     } catch (logError) {
       // Just log the error but don't interrupt the login flow
@@ -319,12 +318,12 @@ const handleLogin = async () => {
 </script>
 
 <style>
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -335,7 +334,7 @@ const handleLogin = async () => {
   .login-page {
     padding: 1.5rem;
   }
-  
+
   .login-container {
     padding: 1.75rem;
   }

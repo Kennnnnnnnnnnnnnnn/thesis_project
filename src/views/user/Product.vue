@@ -26,11 +26,14 @@
         <div class="card-body">
           <h2 class="product-name">{{ product.name }}</h2>
           <p class="product-description">{{ product.description || 'No description available.' }}</p>
+
           <p class="product-category">🗂️ Category: {{ product.categoryName || 'N/A' }}</p>
 
           <div class="price-block">
             <span v-if="product.discount > 0" class="original-price">${{ product.salePrice.toFixed(2) }}</span>
-            <span class="discounted-price">${{ discountedPrice(product).toFixed(2) }}</span>
+            <span class="discounted-price">
+              ៛{{ discountedPrice(product).toFixed(2) }}
+            </span>
             <span v-if="product.discount > 0" class="discount-tag">-{{ product.discount }}%</span>
           </div>
 
@@ -38,35 +41,20 @@
             <button @click="toggleFavorite(product)">
               <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
             </button>
-            <button
-              class="add-cart"
-              :disabled="addedToCart.includes(product._id)"
-              @click="addToCart(product._id)"
-            >
-              Add to Cart
-            </button>
+            <button class="add-cart" @click="addToCart(product)">Add to Cart</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 🧺 Cart Drawer -->
-    <v-navigation-drawer v-model="showCartDrawer" location="right" temporary width="340">
-      <CartDrawer v-model="showCartDrawer" />
-    </v-navigation-drawer>
-
-
-    <!-- 🛒 Floating Cart Button -->
-    <v-btn
-      icon
-      color="yellow"
-      class="fab"
-      style="position: fixed; bottom: 30px; right: 30px; z-index: 9999"
-      @click="showCartDrawer = true"
-    >
-      <v-icon>mdi-cart</v-icon>
-      <span class="ml-2">Cart</span>
-    </v-btn>
+    <CartDrawer
+      :visible="showCartDrawer"
+      :cartItems="cartItems"
+      @close="showCartDrawer = false"
+      @updateQty="updateQty"
+      @removeItem="removeItem"
+    />
   </div>
 </template>
 
@@ -76,13 +64,14 @@ import axios from 'axios';
 import apiURL from '@/api/config.js';
 import CartDrawer from '@/components/CartDrawer.vue';
 
-const token = localStorage.getItem('token');
-const isLoggedIn = !!token;
-
-
 const showCartDrawer = ref(false);
-const addedToCart = ref([]);
+const cartItems = ref([]);
+
+const token = localStorage.getItem('token');
+const storedUser = localStorage.getItem('user');
+const user = storedUser ? JSON.parse(storedUser) : null;
 const defaultImage = require('@/assets/image.png');
+const API = `${apiURL}/api`;
 
 const products = ref([]);
 const favorites = ref([]);
@@ -95,35 +84,25 @@ const categories = ref([
   { label: 'New Arrivals', value: 'new' }
 ]);
 
-const addToCart = async (productId) => {
-  try {
-    await axios.post(`${API}/insertDoc/Cart`, {
-      fields: {
-        productId,
-        quantity: 1
-      }
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    addedToCart.value.push(productId);
-    window.dispatchEvent(new Event('refresh-cart'));
-
-    // 👉 Auto open cart drawer
-    showCartDrawer.value = true;
-
-    console.log("✅ Added to cart:", productId);
-  } catch (err) {
-    console.error("❌ Failed to add to cart:", err);
-  }
+const addToCart = async (product) => {
+  const exists = cartItems.value.find(i => i._id === product._id);
+  if (exists) exists.quantity += 1;
+  else cartItems.value.push({ ...product, quantity: 1 });
+  showCartDrawer.value = true;
 };
 
+const updateQty = (item, qty) => {
+  if (qty < 1) return;
+  item.quantity = qty;
+};
 
-
+const removeItem = (item) => {
+  cartItems.value = cartItems.value.filter(i => i._id !== item._id);
+};
 
 const fetchProducts = async () => {
   try {
-    const res = await apiURL.get('/public/products');
+    const res = await axios.get(`${API}/public/products`);
     products.value = res.data.data.map(p => ({
       ...p,
       isFavorite: false,
@@ -136,9 +115,11 @@ const fetchProducts = async () => {
 };
 
 const fetchFavorites = async () => {
-  if (!token) return;
+  if (!token || !user) return;
   try {
-    const res = await apiURL.get('/getAllDocs/Favorite');
+    const res = await axios.get(`${API}/getAllDocs/Favorite`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
     favorites.value = res.data.data;
     products.value.forEach(p => {
       p.isFavorite = favorites.value.some(fav => fav.productId?._id === p._id);
@@ -149,8 +130,7 @@ const fetchFavorites = async () => {
 };
 
 const toggleFavorite = async (product) => {
-  if (!token) return alert('Login required.');
-
+  if (!token || !user) return alert('Login required.');
   const existing = favorites.value.find(fav => fav.productId?._id === product._id);
   try {
     if (existing) {
@@ -237,16 +217,10 @@ onMounted(async () => {
 }
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
   max-width: 1200px;
   margin: auto;
-  padding-bottom: 80px;
-}
-@media (max-width: 600px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  }
 }
 .card {
   border: 1px solid #eee;
@@ -330,12 +304,7 @@ onMounted(async () => {
   font-weight: bold;
   cursor: pointer;
 }
-.add-cart.disabled {
-  background: #ccc !important;
-  color: #666;
-  cursor: not-allowed;
-}
-.add-cart:hover:not(.disabled) {
+.add-cart:hover {
   background: #ffc107;
 }
 </style>
