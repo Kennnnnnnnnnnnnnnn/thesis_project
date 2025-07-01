@@ -12,7 +12,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Product Management</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h1>
             <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your product catalog and inventory</p> -->
           </div>
         </div>
@@ -23,7 +23,7 @@
           <div class="relative">
             <button @click="toggleDropdownRow"
               class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-              <span>{{ selectedItem }} items</span>
+              <span>{{ selectedItem }} {{ $t('common.items') }}</span>
               <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
                 :class="{ 'rotate-180': isOpen }"></i>
             </button>
@@ -31,14 +31,14 @@
               class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
               <div v-for="item in items" :key="item" @click="selectItem(item)"
                 class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                {{ item }} items
+                {{ item }} {{ $t('common.items') }}
               </div>
             </div>
           </div>
 
           <!-- Search Input -->
           <div class="relative">
-            <input v-model="searchQuery" type="text" placeholder="Search products..."
+            <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
               class="w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
           </div>
@@ -46,7 +46,7 @@
           <!-- Category Filter -->
           <select v-model="categoryFilter"
             class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
-            <option value="all">All Categories</option>
+            <option value="all">{{ $t('products.categories.all') }}</option>
             <option v-for="category in categories" :key="category._id" :value="category._id">
               {{ category.name }}
             </option>
@@ -57,9 +57,10 @@
             class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
             @click="openModal">
             <i class="fas fa-plus text-xs"></i>
-            Add Product
+            {{ $t('products.addToCart') }}
           </button>
         </div>
+
       </div>
     </div>
 
@@ -67,8 +68,10 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
       <!-- Table Header -->
       <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Product Catalog</h3>
-        <p class="text-sm text-gray-600 mt-1 font-medium">{{ filteredProducts.length }} products total</p>
+        <h3 class="text-lg font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h3>
+        <p class="text-sm text-gray-600 mt-1 font-medium">
+          {{ filteredProducts.length }} {{ $t('products.itemsTotal') }}
+        </p>
       </div>
 
       <!-- Table Container -->
@@ -78,7 +81,7 @@
           class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
           <div class="flex items-center gap-3">
             <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium">Loading...</span>
+            <span class="text-gray-700 font-medium">{{ $t('common.loading') }}</span>
           </div>
         </div>
 
@@ -87,15 +90,14 @@
             <thead class="bg-gray-50/50">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description
-                </th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Price</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Discount</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('common.product') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.category') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.description') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.price') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.discount') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.stock') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.status') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
@@ -204,13 +206,13 @@
                       <i class="fas fa-shopping-bag text-5xl text-amber-400"></i>
                     </div>
                     <div>
-                      <h3 class="text-lg font-bold text-gray-900">No products found</h3>
-                      <p class="text-sm text-gray-600 mt-1 font-medium">Add your first product to get started</p>
+                      <h3 class="text-lg font-bold text-gray-900">{{ $t('products.emptyTitle') }}</h3>
+                      <p class="text-sm text-gray-600 mt-1 font-medium">{{ $t('products.emptyDescription') }}</p>
                     </div>
                     <button @click="openModal"
                       class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
                       <i class="fas fa-plus text-xs"></i>
-                      Add First Product
+                      {{ $t('products.addProduct') }}
                     </button>
                   </div>
                 </td>
@@ -254,20 +256,20 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                Product Name <span class="text-red-500">*</span>
+                {{ $t('products.productName') }} <span class="text-red-500">*</span>
               </label>
               <input v-model="name" type="text" required
                 class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                placeholder="Enter product name" />
+                :placeholder="$t('products.productNamePlaceholder')" />
             </div>
 
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                Category <span class="text-red-500">*</span>
+                {{ $t('products.category') }} <span class="text-red-500">*</span>
               </label>
               <select v-model="categoryId" required
                 class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
-                <option value="" disabled>Select category</option>
+                <option value="" disabled>{{ $t('products.selectCategory') }}</option>
                 <option v-for="category in categories" :key="category._id" :value="category._id">
                   {{ category.name }}
                 </option>
@@ -279,7 +281,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                Sale Price <span class="text-red-500">*</span>
+                {{ $t('products.salePrice') }} <span class="text-red-500">*</span>
               </label>
               <div class="relative">
                 <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">៛</span>
@@ -291,7 +293,7 @@
 
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                Discount %
+                {{ $t('products.discount') }} %
               </label>
               <div class="relative">
                 <input v-model="discount" type="number" min="0" max="100" step="1"
@@ -331,17 +333,17 @@
           <!-- Description -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-3">
-              Description
+              {{ $t('products.description') }}
             </label>
             <textarea v-model="description" rows="3"
               class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all resize-none font-medium"
-              placeholder="Enter product description"></textarea>
+              :placeholder="$t('products.descriptionPlaceholder')"></textarea>
           </div>
 
           <!-- Product Image -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-3">
-              Product Image
+              {{ $t('products.productImage') }}
             </label>
             <div
               class="border-2 border-dashed border-gray-200 rounded-2xl p-8 hover:bg-amber-50/30 hover:border-amber-300 transition-all cursor-pointer"
@@ -353,8 +355,8 @@
                 <div class="bg-amber-100 rounded-full p-4 mb-3 border border-amber-200">
                   <i class="fas fa-cloud-upload-alt text-amber-600 text-2xl"></i>
                 </div>
-                <p class="text-sm text-gray-700 font-bold">Click to upload image</p>
-                <p class="text-xs text-gray-500 mt-1 font-medium">PNG, JPG or JPEG (Max 2MB)</p>
+                <p class="text-sm text-gray-700 font-bold">{{ $t('products.clickUpload') }}</p>
+                <p class="text-xs text-gray-500 mt-1 font-medium">{{ $t('products.uploadHint') }}</p>
                 <input ref="fileInput" type="file" class="hidden" @change="handleImageUpload" accept="image/*" />
               </div>
               <p v-if="uploadStatus" class="mt-4 text-xs text-center font-semibold" :class="uploadStatus.color">
@@ -366,17 +368,16 @@
           <!-- Status Toggle -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-3">
-              Status
+              {{ $t('products.status') }}
             </label>
             <div class="flex items-center space-x-3">
               <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
                 :class="enabled ? 'bg-amber-500' : 'bg-gray-300'">
-                <span class="sr-only">Enable status</span>
+                <span class="sr-only">{{ $t('products.toggleStatus') }}</span>
                 <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
                   :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
               </Switch>
-              <span class="text-sm text-gray-700 font-medium">{{ enabled ? 'Active' : 'Inactive' }}</span>
-            </div>
+<span class="text-sm text-gray-700 font-medium">{{ enabled ? $t('common.active') : $t('common.inactive') }}</span>            </div>
           </div>
 
           <!-- Error Message -->
@@ -392,16 +393,16 @@
             <button type="button"
               class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
               @click="resetForm">
-              Reset
+              {{ $t('common.reset') }}
             </button>
             <button type="submit" :disabled="isSubmitting"
               class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
               <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
                 <i class="fas fa-spinner fa-spin"></i>
-                {{ showEditModal ? 'Updating...' : 'Creating...' }}
+                {{ showEditModal ? $t('products.updating') : $t('products.creating') }}
               </span>
               <span v-else>
-                {{ showEditModal ? 'Update Product' : 'Create Product' }}
+                {{ showEditModal ? $t('products.updateProduct') : $t('products.createProduct') }}
               </span>
             </button>
           </div>

@@ -204,8 +204,10 @@
 
                 <!-- Unit Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
-                  {{ stock.purchaseProducts.unit || '-'}}
+                  {{ stock.purchaseProducts?.unit || '-' }}
                 </td>
+
+
 
                 <!-- Status Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">

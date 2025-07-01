@@ -115,7 +115,7 @@
                                                     d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z"
                                                     clip-rule="evenodd" />
                                             </svg>
-                                            <span>Logout</span>
+                                            <span>{{ $t('logout') }}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -127,21 +127,50 @@
         </div>
     </div>
 </template>
-
 <script setup>
 import axios from 'axios';
 import apiURL from '@/api/config';
 import { ref, onMounted, onUnmounted } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { useRouter } from 'vue-router';
-import { useStore } from '@/store/useStore'
+import { useStore } from '@/store/useStore';
+import { useI18n } from 'vue-i18n'; // ✅ Fix: import useI18n!
 
-const store = useStore()
-const currentLanguage = ref('EN')
+// Initialize i18n
+const { t, locale } = useI18n();
+const currentLanguage = ref(locale.value.toUpperCase());
+
+// Language toggle: cycles en → kh → zh → en
+const toggleLanguage = () => {
+    if (locale.value === 'en') {
+        locale.value = 'kh';
+    } else if (locale.value === 'kh') {
+        locale.value = 'zh';
+    } else {
+        locale.value = 'en';
+    }
+    currentLanguage.value = locale.value.toUpperCase();
+};
+
+// Store & router
+const store = useStore();
+const router = useRouter();
+
+// Sidebar and profile dropdown states
 const windowWidth = ref(window.innerWidth || 1024);
 const isProfileOpen = ref(false);
 const profileDropdown = ref(null);
-const router = useRouter();
+
+// Props and emit from parent
+const emit = defineEmits(['toggle']);
+const props = defineProps({
+    isSidebarOpen: {
+        type: Boolean,
+        required: true,
+    },
+});
+
+// User data object
 const userData = ref({
     name: '',
     email: '',
@@ -151,40 +180,7 @@ const userData = ref({
     status: true
 });
 
-const emit = defineEmits(['toggle']);
-
-const props = defineProps({
-    isSidebarOpen: {
-        type: Boolean,
-        required: true,
-    },
-});
-
-
-const toggleLanguage = () => {
-    currentLanguage.value = currentLanguage.value === 'EN' ? 'ES' : 'EN'
-}
-
-const logout = () => {
-    store.clearAuth();
-    localStorage.clear();
-    localStorage.removeItem('auth');
-    window.location.href = '/login';
-};
-
-
-const handleResize = () => {
-    windowWidth.value = window.innerWidth;
-};
-
-const toggleSidebar = () => {
-    emit('toggle');
-};
-
-const toggleProfile = () => {
-    isProfileOpen.value = !isProfileOpen.value;
-};
-
+// Fetch user info from API
 const fetchUserData = async () => {
     try {
         const token = localStorage.getItem('token');
@@ -201,36 +197,60 @@ const fetchUserData = async () => {
                 'Content-Type': 'application/json'
             },
             params: {
-                dynamicConditions: JSON.stringify([{
-                    field: '_id',
-                    operator: '==',
-                    value: userId
-                }])
+                dynamicConditions: JSON.stringify([
+                    { field: '_id', operator: '==', value: userId }
+                ])
             }
         });
 
-        userData.value = response.data.data[0]
-
-        
+        userData.value = response.data.data[0];
     } catch (err) {
         console.error('Error fetching user data:', err);
     }
 };
 
+// Handle window resize
+const handleResize = () => {
+    windowWidth.value = window.innerWidth;
+};
+
+// Sidebar toggle
+const toggleSidebar = () => {
+    emit('toggle');
+};
+
+// Profile dropdown toggle
+const toggleProfile = () => {
+    isProfileOpen.value = !isProfileOpen.value;
+};
+
+// Logout logic
+const logout = () => {
+    store.clearAuth();
+    localStorage.clear();
+    localStorage.removeItem('auth');
+    window.location.href = '/login';
+};
+
+// On mount: add resize listener & fetch user data
 onMounted(() => {
     const token = localStorage.getItem('token');
     if (!token) {
         router.push('/login');
         return;
     }
+
     window.addEventListener('resize', handleResize);
     handleResize();
+
     onClickOutside(profileDropdown, () => {
         isProfileOpen.value = false;
     });
-    fetchUserData()
+
+    fetchUserData();
 });
 
+// On unmount: remove resize listener
 onUnmounted(() => {
     window.removeEventListener('resize', handleResize);
 });

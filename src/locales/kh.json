@@ -22,7 +22,25 @@
       "all": "ទាំងអស់",
       "bestSellers": "លក់ដាច់",
       "newArrivals": "មកដល់ថ្មី"
-    }
+    },
+    "productName": "ឈ្មោះផលិតផល",
+    "productNamePlaceholder": "បញ្ចូលឈ្មោះផលិតផល",
+    "selectCategory": "ជ្រើសប្រភេទ",
+    "salePrice": "តម្លៃលក់",
+    "discount": "បញ្ចុះតម្លៃ",
+    "description": "ពិពណ៌នា",
+    "descriptionPlaceholder": "បញ្ចូលពិពណ៌នាផលិតផល",
+    "productImage": "រូបភាពផលិតផល",
+    "clickUpload": "ចុចដើម្បីផ្ទុករូបភាព",
+    "uploadHint": "PNG, JPG ឬ JPEG (ធំជាង 2MB មិនបាន)",
+    "status": "ស្ថានភាព",
+    "toggleStatus": "បើក/បិទស្ថានភាព",
+    "creating": "កំពុងបង្កើត...",
+    "updating": "កំពុងអាប់ដេត...",
+    "createProduct": "បង្កើតផលិតផល",
+    "updateProduct": "អាប់ដេតផលិតផល",
+    "stock": "ស្តុក",
+    "itemsTotal": "ចំនួនផលិតផលសរុប {count} មុខ"
   },
   
 
@@ -45,7 +63,14 @@
     "submit": "បញ្ជូន",
     "cancel": "បោះបង់",
     "save": "ចំណេញ",
-    "product": "ផលិតផល"
+    "product": "ផលិតផល",
+    "yes": "បាទ/ចាស",
+    "no": "ទេ",
+    "confirm": "បញ្ជាក់",
+    "active": "សកម្ម",
+    "inactive": "អសកម្ម",
+    "reset": "កំណត់ឡើងវិញ",
+    "actions": "សកម្មភាព"
   },
   "alerts": {
     "addedToCart": "បានបន្ថែមទៅក្នុងរទេះ!",
@@ -192,7 +217,57 @@
       "subject": "ត្រូវការប្រធានបទ",
       "message": "ត្រូវការសារ"
     }
+  },
+
+
+  "dashboard": {
+    "title": "ទិដ្ឋភាពសរុប",
+    "subtitle": "ត្រួតពិនិត្យការសម្របសម្រួលហាងរបស់អ្នក",
+    "totalOrders": "ការបញ្ជាទិញសរុប",
+    "fromLastPeriod": "ពីរយៈពេលមុន",
+    "totalUsers": "អ្នកប្រើសរុប",
+    "pendingOrders": "ការបញ្ជាទិញកំពុងរង់ចាំ",
+    "salesAnalytics": "វិភាគការលក់",
+    "last7Days": "៧ថ្ងៃចុងក្រោយ",
+    "last30Days": "៣០ថ្ងៃចុងក្រោយ",
+    "last90Days": "៩០ថ្ងៃចុងក្រោយ"
+  },
+  "header": {
+    "profile": "ប្រវត្តិរូបខ្ញុំ",
+    "settings": "ការកំណត់"
+  },
+
+
+  "order": {
+    "title": "ការគ្រប់គ្រងការបញ្ជាទិញ",
+    "searchPlaceholder": "ស្វែងរកការបញ្ជាទិញ...",
+    "allOrders": "ការបញ្ជាទិញទាំងអស់",
+    "processing": "កំពុងដំណើរការ",
+    "shipped": "បានដឹកជញ្ជូន",
+    "inTransit": "កំពុងដឹក",
+    "outForDelivery": "កំពុងដឹកជូន",
+    "delivered": "បានដឹកជញ្ជូនរួច",
+    "cancelled": "បានលុបចោល",
+    "paid": "បានបង់ប្រាក់",
+    "pending": "រង់ចាំ",
+    "dateRangeTo": "ដល់",
+    "noOrdersFound": "រកមិនឃើញការបញ្ជាទិញដែលត្រូវនឹងលក្ខខណ្ឌរបស់អ្នកទេ",
+    "customer": "អតិថិជន",
+    "date": "កាលបរិច្ឆេទ",
+    "items": "ទំនិញ",
+    "total": "សរុប",
+    "status": "ស្ថានភាព",
+    "actions": "សកម្មភាព",
+    "orderDetails": "ព័ត៌មានលម្អិតអំពីការបញ្ជាទិញ",
+    "trackingNumber": "លេខតាមដាន",
+    "payment": "ការទូទាត់",
+    "shipping": "ការដឹកជញ្ជូន",
+    "subtotal": "សរុបចុងក្រោយ",
+    "close": "បិទ",
+    "updateOrder": "អាប់ដែតការបញ្ជាទិញ"
   }
+
+  
 
 
 }

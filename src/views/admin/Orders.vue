@@ -1,6 +1,7 @@
 <template>
   <div class="p-5 font-sans bg-white rounded-md h-[100vh] overflow-y-auto mt-10 font-khmer">
-    <p class="text-left font-semibold text-lg">Order Management</p>
+    <p class="text-left font-semibold text-lg">{{ $t('order.title') }}</p>
+
 
     <div class="flex flex-col md:flex-row md:items-center md:space-x-4 mt-4 w-full">
       <!-- Dropdown (Items per page) -->
@@ -23,25 +24,30 @@
 
       <!-- Search Input -->
       <div class="relative w-full md:w-64 lg:w-72 xl:w-80">
-        <input v-model="searchQuery" type="text" placeholder="Search Orders..."
-          class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" />
+        <input 
+          v-model="searchQuery" 
+          type="text"  
+          :placeholder="$t('order.searchPlaceholder')"
+          class="pl-3 pr-10 py-2 border border-gray-300 rounded-md outline-none w-full transition" 
+        />
         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
           <i class="fa-solid fa-magnifying-glass"></i>
         </span>
       </div>
 
+
       <!-- Status Filter -->
       <div class="relative w-full sm:w-40">
         <select v-model="statusFilter" class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none w-full transition">
-          <option value="all">All Orders</option>
-          <option value="processing">Processing</option>
-          <option value="shipped">Shipped</option>
-          <option value="intransit">In Transit</option>
-          <option value="outfordelivery">Out for Delivery</option>
-          <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
+          <option value="all">{{ $t('order.allOrders') }}</option>
+          <option value="processing">{{ $t('order.processing') }}</option>
+          <option value="shipped">{{ $t('order.shipped') }}</option>
+          <option value="intransit">{{ $t('order.inTransit') }}</option>
+          <option value="outfordelivery">{{ $t('order.outForDelivery') }}</option>
+          <option value="delivered">{{ $t('order.delivered') }}</option>
+          <option value="cancelled">{{ $t('order.cancelled') }}</option>
+          <option value="paid">{{ $t('order.paid') }}</option>
+          <option value="pending">{{ $t('order.pending') }}</option>
         </select>
       </div>
 
@@ -49,7 +55,7 @@
       <div class="flex items-center space-x-2 w-full md:w-auto">
         <input type="date" v-model="startDate" 
           class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none transition text-sm w-full md:w-auto" />
-        <span class="text-gray-500">to</span>
+        <span class="text-gray-500">{{ $t('order.dateRangeTo') }}</span>
         <input type="date" v-model="endDate" 
           class="pl-3 pr-8 py-2 border border-gray-300 rounded-md outline-none transition text-sm w-full md:w-auto" />
       </div>
@@ -75,12 +81,12 @@
         <thead class="bg-gray-50">
           <tr>
             <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">No</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">Customer</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Date</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Items</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Total</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Status</th>
-            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">Actions</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-left uppercase tracking-wide border-b border-gray-200">{{ $t('order.customer') }}</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">{{ $t('order.date') }}</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">{{ $t('order.items') }}</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">{{ $t('order.total') }}</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">{{ $t('order.status') }}</th>
+            <th class="px-4 py-2 font-semibold text-gray-500 text-center uppercase tracking-wide border-b border-gray-200">{{ $t('order.actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -94,7 +100,7 @@
             <td class="px-4 py-2 text-center">
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
                 :class="getStatusClass(item.status)">
-                {{ item.status }}
+                {{ $t(`order.${item.status.toLowerCase()}`) || item.status }}
               </span>
             </td>
             <td class="px-4 py-2 flex justify-center gap-2">
@@ -109,7 +115,7 @@
           </tr>
           <tr v-if="filteredOrders.length === 0 && !isLoading">
             <td colspan="7" class="px-4 py-8 text-center text-gray-400 italic">
-              No orders found matching your criteria
+              {{ $t('order.noOrdersFound') }}
             </td>
           </tr>
         </tbody>
@@ -130,66 +136,67 @@
           @click="selectedOrder = null"></i>
 
         <h2 class="text-lg font-semibold mb-4 text-gray-700 text-center mt-[-15px]">
-          Order Details #{{}}
+          {{ $t('order.orderDetails') }} #{{ selectedOrder.orderNumber || selectedOrder._id }}
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div class="space-y-2">
             <div class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">Customer:</span>
-              <span class="text-sm text-gray-700">{{ }}</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.customer') }}:</span>
+              <span class="text-sm text-gray-700">{{ selectedOrder.userId?.name || 'Guest' }}</span>
             </div>
             <div class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">Date:</span>
-              <span class="text-sm text-gray-700">{{  }}</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.date') }}:</span>
+              <span class="text-sm text-gray-700">{{ formatDate(selectedOrder.createdAt) }}</span>
             </div>
             <div v-if="selectedOrder.trackingNumber" class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">Tracking #:</span>
-              <span class="text-sm text-gray-700">{{ }}</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.tracking') }}:</span>
+              <span class="text-sm text-gray-700">{{ selectedOrder.trackingNumber }}</span>
             </div>
             <div class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">Payment:</span>
-              <span class="text-sm text-gray-700">{{ }}</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.paymentMethod') }}:</span>
+              <span class="text-sm text-gray-700">{{ selectedOrder.paymentMethod || '-' }}</span>
             </div>
           </div>
+
           <div class="space-y-2">
             <div class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">Status:</span>
-              <select 
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.status') }}:</span>
+              <select v-model="selectedOrder.status" 
                 class="border border-gray-300 focus:border-green-500 focus:ring-green-100 rounded-md px-3 py-1 text-sm outline-none transition">
-                <option >
-                  {{ }}
+                <option v-for="status in statusOptions" :key="status" :value="status">
+                  {{ $t(`order.${status.toLowerCase()}`) }}
                 </option>
               </select>
             </div>
             <div class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">Payment:</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.paymentStatus') }}:</span>
               <span class="text-sm text-gray-700" :class="selectedOrder.paymentStatus === 'paid' ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
-                {{  }}
+                {{ selectedOrder.paymentStatus ? $t(`order.${selectedOrder.paymentStatus.toLowerCase()}`) : '-' }}
               </span>
             </div>
             <div v-if="selectedOrder.deliveryAddress" class="flex items-start">
-              <span class="text-sm font-medium text-gray-500 w-24">Shipping:</span>
-              <span class="text-sm text-gray-700">{{  }}</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.shippingAddress') }}:</span>
+              <span class="text-sm text-gray-700">{{ selectedOrder.deliveryAddress }}</span>
             </div>
           </div>
         </div>
 
         <div class="border-t border-gray-200 pt-4">
-          <h3 class="font-medium text-gray-700 mb-3">Order Items</h3>
+          <h3 class="font-medium text-gray-700 mb-3">{{ $t('order.orderItems') }}</h3>
           <div class="space-y-3">
             <div v-for="item in selectedOrder.items" :key="item.id || item.productId" 
               class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition">
               <div class="w-16 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center mr-4">
-                <img  class="w-full h-full object-cover">
-                <i  class="fas fa-box text-gray-400"></i>
+                <img :src="item.image || ''" alt="" class="w-full h-full object-cover" v-if="item.image">
+                <i v-else class="fas fa-box text-gray-400"></i>
               </div>
               <div class="flex-1">
-                <h4 class="font-medium text-gray-800">{{  }}</h4>
-                <p class="text-sm text-gray-500">{{  }}</p>
+                <h4 class="font-medium text-gray-800">{{ item.productName || item.name }}</h4>
+                <p class="text-sm text-gray-500">{{ item.sku || item.productId }}</p>
               </div>
               <div class="font-medium text-gray-700">
-                {{  }}
+                {{ item.quantity }} x ${{ item.price.toFixed(2) }}
               </div>
             </div>
           </div>
@@ -197,28 +204,27 @@
 
         <div class="border-t border-gray-200 mt-6 pt-4">
           <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-500">Subtotal:</span>
-            <span class="text-sm text-gray-700">{{  }}</span>
+            <span class="text-sm text-gray-500">{{ $t('order.subtotal') }}:</span>
+            <span class="text-sm text-gray-700">${{ selectedOrder.subtotal?.toFixed(2) || '0.00' }}</span>
           </div>
           <div class="flex justify-between items-center mt-2">
-            <span class="text-sm text-gray-500">Shipping:</span>
-            <span class="text-sm text-gray-700">$0.00</span>
+            <span class="text-sm text-gray-500">{{ $t('order.shipping') }}:</span>
+            <span class="text-sm text-gray-700">${{ selectedOrder.shippingCost?.toFixed(2) || '0.00' }}</span>
           </div>
           <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
-            <span class="font-medium text-gray-700">Total:</span>
-            <span class="font-medium text-gray-900">{{  }}</span>
+            <span class="font-medium text-gray-700">{{ $t('order.total') }}:</span>
+            <span class="font-medium text-gray-900">${{ selectedOrder.totalCost?.toFixed(2) || '0.00' }}</span>
           </div>
         </div>
 
         <div class="flex justify-end mt-6 space-x-3">
-          <button 
+          <button @click="selectedOrder = null"
             class="px-5 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-            Close
+            {{ $t('order.close') }}
           </button>
-          <button 
-           
+          <button @click="updateOrder"
             class="px-5 py-2 rounded-full text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition">
-            Update Order
+            {{ $t('order.updateOrder') }}
           </button>
         </div>
       </div>

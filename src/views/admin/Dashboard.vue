@@ -2,8 +2,8 @@
   <div class="p-6 max-w-screen-xl mx-auto bg-white h-screen overflow-y-auto">
     <!-- Dashboard Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-amber-800 mb-1">Dashboard Overview</h1>
-      <p class="text-amber-600 mb-6">Monitor your store's performance</p>
+      <h1 class="text-2xl font-bold text-amber-800 mb-1">{{ $t('dashboard.title') }}</h1>
+      <p class="text-amber-600 mb-6">{{ $t('dashboard.subtitle') }}</p>
     </div>
 
     <!-- Metrics Grid -->
@@ -12,12 +12,12 @@
       <div class="bg-white-100 shadow-md rounded-xl hover:shadow-md transition-all duration-300 p-4 border-t-2 border-amber-600">
         <div class="flex justify-between">
           <div>
-            <h3 class="text-gray-500 text-xs mb-2">Total Orders</h3>
+            <h3 class="text-gray-500 text-xs mb-2">{{ $t('dashboard.totalOrders') }}</h3>
             <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.totalOrders) }}</p>
             <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.ordersChange >= 0 ? 'text-green-600' : 'text-red-600'">
               <span v-if="metrics.ordersChange >= 0">↑</span>
               <span v-else>↓</span>
-              {{ Math.abs(metrics.ordersChange) }}% from last period
+              <span>{{ Math.abs(metrics.ordersChange) }}% {{ $t('dashboard.fromLastPeriod') }}</span>
             </div>
           </div>
           <div>
@@ -30,12 +30,12 @@
       <div class="bg-white-100 shadow-md rounded-xl hover:shadow-md transition-all duration-300 p-4 border-t-2 border-amber-600">
         <div class="flex justify-between">
           <div>
-            <h3 class="text-gray-500 text-xs mb-2">Total Users</h3>
+            <h3 class="text-gray-500 text-xs mb-2">{{ $t('dashboard.totalUsers') }}</h3>
             <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.totalUsers) }}</p>
             <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.usersChange >= 0 ? 'text-green-600' : 'text-red-600'">
               <span v-if="metrics.usersChange >= 0">↑</span>
               <span v-else>↓</span>
-              {{ Math.abs(metrics.usersChange) }}% from last period
+              <span>{{ Math.abs(metrics.usersChange) }}% {{ $t('dashboard.fromLastPeriod') }}</span>
             </div>
           </div>
           <div>
@@ -44,16 +44,17 @@
         </div>
       </div>
 
+
       <!-- Pending Orders Card -->
       <div class="bg-white-100 shadow-md rounded-xl hover:shadow-md transition-all duration-300 p-4 border-t-2 border-amber-600">
         <div class="flex justify-between">
           <div>
-            <h3 class="text-gray-500 text-xs mb-2">Pending Orders</h3>
+            <h3 class="text-gray-500 text-xs mb-2">{{ $t('dashboard.pendingOrders') }}</h3>
             <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.pendingOrders) }}</p>
             <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.pendingChange >= 0 ? 'text-green-600' : 'text-red-600'">
               <span v-if="metrics.pendingChange >= 0">↑</span>
               <span v-else>↓</span>
-              {{ Math.abs(metrics.pendingChange) }}% from last period
+              <span>{{ Math.abs(metrics.pendingChange) }}% {{ $t('dashboard.fromLastPeriod') }}</span>
             </div>
           </div>
           <div>
@@ -66,16 +67,16 @@
     <!-- Chart Section -->
     <div class="bg-white rounded-xl p-6 shadow border border-yellow-200 mb-8">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-semibold text-amber-800">Sales Analytics</h3>
+        <h3 class="text-xl font-semibold text-amber-800">{{ $t('dashboard.salesAnalytics') }}</h3>
         <div class="flex items-center gap-3">
           <select 
             class="py-2 px-4 rounded-lg border border-yellow-200 bg-amber-50 text-amber-800 text-sm cursor-pointer" 
             v-model="selectedTimeRange" 
             @change="fetchChartData"
           >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
+            <option value="7">{{ $t('dashboard.last7Days') }}</option>
+            <option value="30">{{ $t('dashboard.last30Days') }}</option>
+            <option value="90">{{ $t('dashboard.last90Days') }}</option>
           </select>
           <button 
             class="p-2 rounded-lg border border-yellow-200 bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white transition-colors duration-200"
@@ -97,6 +98,7 @@
 <script>
 import Chart from 'chart.js/auto';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'AdminDashboard',
@@ -104,6 +106,7 @@ export default {
     const chartCanvas = ref(null);
     const selectedTimeRange = ref('30');
     let chartInstance = null;
+    const { t, locale } = useI18n();
 
     // Sample metrics data
     const metrics = ref({
@@ -238,6 +241,8 @@ export default {
     });
 
     return {
+      t,
+      locale,
       chartCanvas,
       selectedTimeRange,
       metrics,

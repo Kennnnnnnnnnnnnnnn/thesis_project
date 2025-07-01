@@ -25,7 +25,25 @@
       "all": "全部",
       "bestSellers": "畅销品",
       "newArrivals": "新品"
-    }
+    },
+    "productName": "产品名称",
+    "productNamePlaceholder": "输入产品名称",
+    "selectCategory": "选择类别",
+    "salePrice": "销售价格",
+    "discount": "折扣",
+    "description": "描述",
+    "descriptionPlaceholder": "输入产品描述",
+    "productImage": "产品图片",
+    "clickUpload": "点击上传图片",
+    "uploadHint": "PNG、JPG 或 JPEG（最大 2MB）",
+    "status": "状态",
+    "toggleStatus": "启用状态",
+    "creating": "正在创建...",
+    "updating": "正在更新...",
+    "createProduct": "创建产品",
+    "updateProduct": "更新产品",
+    "stock": "库存",
+    "itemsTotal": "共 {count} 个产品"
   },
 
 
@@ -47,7 +65,14 @@
     "submit": "提交",
     "cancel": "取消",
     "save": "省",
-    "product": "商品"
+    "product": "商品",
+    "yes": "是",
+    "no": "否",
+    "confirm": "确认",
+    "active": "启用",
+    "inactive": "停用",
+    "reset": "重置",
+    "actions": "操作"
   },
   "alerts": {
     "addedToCart": "已加入购物车！",
@@ -198,9 +223,53 @@
       "subject": "主题为必填项",
       "message": "留言为必填项"
     }
+  },
+
+  "dashboard": {
+    "title": "仪表盘概览",
+    "subtitle": "监控您的商店业绩",
+    "totalOrders": "总订单数",
+    "fromLastPeriod": "与上期相比",
+    "totalUsers": "总用户数",
+    "pendingOrders": "待处理订单",
+    "salesAnalytics": "销售分析",
+    "last7Days": "最近7天",
+    "last30Days": "最近30天",
+    "last90Days": "最近90天"
+  },
+  "header": {
+    "profile": "我的资料",
+    "settings": "设置"
+  },
+
+  "order": {
+    "title": "订单管理",
+    "searchPlaceholder": "搜索订单...",
+    "allOrders": "所有订单",
+    "processing": "处理中",
+    "shipped": "已发货",
+    "inTransit": "运输中",
+    "outForDelivery": "配送中",
+    "delivered": "已送达",
+    "cancelled": "已取消",
+    "paid": "已付款",
+    "pending": "待处理",
+    "dateRangeTo": "到",
+    "noOrdersFound": "未找到符合条件的订单",
+    "customer": "客户",
+    "date": "日期",
+    "items": "商品",
+    "total": "总计",
+    "status": "状态",
+    "actions": "操作",
+    "orderDetails": "订单详情",
+    "trackingNumber": "追踪号",
+    "payment": "付款",
+    "shipping": "配送",
+    "subtotal": "小计",
+    "close": "关闭",
+    "updateOrder": "更新订单"
   }
 
-
-
-
 }
+

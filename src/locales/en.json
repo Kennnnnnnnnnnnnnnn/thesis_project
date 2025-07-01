@@ -21,7 +21,25 @@
       "all": "All",
       "bestSellers": "Best Sellers",
       "newArrivals": "New Arrivals"
-    }
+    },
+    "productName": "Product Name",
+    "productNamePlaceholder": "Enter product name",
+    "selectCategory": "Select category",
+    "salePrice": "Sale Price",
+    "discount": "Discount",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter product description",
+    "productImage": "Product Image",
+    "clickUpload": "Click to upload image",
+    "uploadHint": "PNG, JPG or JPEG (Max 2MB)",
+    "status": "Status",
+    "toggleStatus": "Enable status",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "createProduct": "Create Product",
+    "updateProduct": "Update Product",
+    "stock": "Stock",
+    "itemsTotal": "{count} products total"
   },
 
 
@@ -43,7 +61,14 @@
     "cancel": "Cancel",
     "save": "Save",
     "na": "N/A",
-    "product": "Product"
+    "product": "Product",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "active": "Active",
+    "inactive": "Inactive",
+    "reset": "Reset",
+    "actions": "Actions"
   },
   "alerts": {
     "addedToCart": "Added to cart!",
@@ -190,6 +215,58 @@
       "subject": "Subject is required",
       "message": "Message is required"
     }
+  },
+
+
+
+  "dashboard": {
+    "title": "Dashboard Overview",
+    "subtitle": "Monitor your store performance",
+    "totalOrders": "Total Orders",
+    "fromLastPeriod": "from last period",
+    "totalUsers": "Total Users",
+    "pendingOrders": "Pending Orders",
+    "salesAnalytics": "Sales Analytics",
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "last90Days": "Last 90 Days"
+  },
+  "header": {
+    "profile": "My Profile",
+    "settings": "Settings"
+  },
+
+
+   "order": {
+    "title": "Order Management",
+    "searchPlaceholder": "Search Orders...",
+    "allOrders": "All Orders",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "inTransit": "In Transit",
+    "outForDelivery": "Out for Delivery",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "paid": "Paid",
+    "pending": "Pending",
+    "dateRangeTo": "to",
+    "noOrdersFound": "No orders found matching your criteria",
+    "customer": "Customer",
+    "date": "Date",
+    "items": "Items",
+    "total": "Total",
+    "status": "Status",
+    "actions": "Actions",
+    "orderDetails": "Order Details",
+    "trackingNumber": "Tracking #",
+    "payment": "Payment",
+    "shipping": "Shipping",
+    "subtotal": "Subtotal",
+    "close": "Close",
+    "updateOrder": "Update Order"
   }
+
+
+
 
 }
