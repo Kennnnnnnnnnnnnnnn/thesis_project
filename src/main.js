@@ -19,6 +19,12 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import 'vuetify/styles';
 import './registerServiceWorker';
 
+// 🌐 Vue I18n
+import { createI18n } from 'vue-i18n';
+import en from './locales/en.json';
+import kh from './locales/kh.json';
+import zh from './locales/zh.json';
+
 // 🔧 Create instances
 const app = createApp(App);
 const pinia = createPinia();
@@ -36,11 +42,24 @@ const vuetify = createVuetify({
   },
 });
 
+// 🔌 Create Vue I18n instance
+const i18n = createI18n({
+  legacy: false,
+  locale: 'en',
+  fallbackLocale: 'en',
+  messages: {
+    en,
+    kh,
+    zh
+  },
+});
+
 // 🔗 Use plugins
 app.component('KhqrGenerator', KhqrGenerator);
 app.use(pinia);
 app.use(router);
 app.use(vuetify);
+app.use(i18n);
 app.use(VueGoogleMaps, {
   load: {
     key: 'AIzaSyDApUy7BfllnejZYnnUWEK3OOPR4gcj1tU',

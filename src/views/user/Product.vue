@@ -1,10 +1,10 @@
 <template>
   <div class="product-page">
-    <h1 class="title">🍚 Our Products</h1>
+    <h1 class="title">🍚 {{ $t('products.title') }}</h1>
 
     <!-- 🔍 Search -->
     <div class="search-bar">
-      <input v-model="searchQuery" type="text" placeholder="Search product..." />
+      <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')" />
     </div>
 
     <!-- 🏷️ Category Tabs -->
@@ -15,7 +15,7 @@
         :class="{ active: activeCategory === cat.value }"
         @click="activeCategory = cat.value"
       >
-        {{ cat.label }}
+        {{ $t(cat.label) }}
       </button>
     </div>
 
@@ -27,7 +27,7 @@
           <h2 class="product-name">{{ product.name }}</h2>
           <p class="product-description">{{ product.description || 'No description available.' }}</p>
 
-          <p class="product-category">🗂️ Category: {{ product.categoryName || 'N/A' }}</p>
+          <p class="product-category">🗂️ {{ $t('products.category') }}: {{ product.categoryName || 'N/A' }}</p>
 
           <div class="price-block">
             <span v-if="product.discount > 0" class="original-price">${{ product.salePrice.toFixed(2) }}</span>
@@ -41,7 +41,7 @@
             <button @click="toggleFavorite(product)">
               <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
             </button>
-            <button class="add-cart" @click="addToCart(product)">Add to Cart</button>
+            <button class="add-cart" @click="addToCart(product)">{{ $t('products.addToCart') }}</button>
           </div>
         </div>
       </div>
@@ -79,10 +79,11 @@ const searchQuery = ref('');
 const activeCategory = ref('all');
 
 const categories = ref([
-  { label: 'All', value: 'all' },
-  { label: 'Best Sellers', value: 'best' },
-  { label: 'New Arrivals', value: 'new' }
+  { label: 'products.categories.all', value: 'all' },
+  { label: 'products.categories.bestSellers', value: 'best' },
+  { label: 'products.categories.newArrivals', value: 'new' }
 ]);
+
 
 // Check if user is properly authenticated
 function checkAuthStatus() {

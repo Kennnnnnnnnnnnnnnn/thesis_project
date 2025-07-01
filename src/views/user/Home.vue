@@ -3,7 +3,7 @@
     <!-- Search Section -->
     <section class="py-8 mt-8">
       <div class="max-w-6xl mx-auto px-5">
-        <input type="text" v-model="searchQuery" placeholder="Search products..."
+          <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
           class="w-full max-w-2xl px-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white mx-auto block focus:border-orange-400">
       </div>
     </section>
@@ -34,10 +34,10 @@
     <section class="py-10">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800">New Products</h2>
+          <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.newProductsTitle') }}</h2>
           <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
-            View All
+            {{ $t('common.viewAll') }}
           </router-link>
         </div>
 
@@ -60,7 +60,7 @@
                 </span>
                 <span class="ml-2 text-sm text-gray-500">({{ product.ratingCount || 0 }})</span>
               </div>
-              <button @click="openRatingModal(product)" class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">Rate this product</button>
+              <button @click="openRatingModal(product)" class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{ $t('home.rateProduct') }}</button>
 
               <!-- Product Name -->
               <h3 class="text-base font-bold text-center mb-2 text-gray-800">
@@ -93,7 +93,7 @@
 
                 <button @click="addToCart(product)"
                   class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow ml-2 hover:bg-orange-400 hover:text-white">
-                  Add to Cart
+                  {{ $t('common.addToCart') }}
                 </button>
               </div>
             </div>
@@ -106,10 +106,10 @@
     <section class="py-10">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800">All Products</h2>
+          <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.allProductsTitle') }}</h2>
           <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
-            View All
+            {{ $t('common.viewAll') }}
           </router-link>
         </div>
 
@@ -234,11 +234,11 @@
     <!-- Cart Drawer -->
     <div v-if="showCartDrawer" class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5">
       <div class="flex justify-between items-center mb-3 text-lg">
-        <h3 class="font-medium">Your Cart</h3>
+        <h3 class="font-medium">{{ $t('cart.title') }}</h3>
         <button @click="showCartDrawer = false" class="text-xl hover:text-red-500">✕</button>
       </div>
 
-      <div v-if="cartItems.length === 0" class="text-center text-gray-500 mt-12">Your cart is empty</div>
+      <div v-if="cartItems.length === 0" class="text-center text-gray-500 mt-12">{{ $t('cart.empty') }}</div>
 
       <div v-else class="flex-1 overflow-y-auto">
         <div v-for="item in cartItems" :key="item._id" class="flex items-center mb-4">
@@ -265,11 +265,11 @@
 
       <div v-if="cartItems.length > 0" class="mt-4 pt-4 border-t border-gray-200">
         <div class="flex justify-between mb-2">
-          <span>Subtotal:</span>
+          <span>{{ $t('cart.subtotal') }}:</span>
           <span class="font-bold">៛{{ calculateCartTotal() }}</span>
         </div>
         <router-link to="/cart" class="block w-full bg-yellow-400 text-center py-2 rounded font-bold hover:bg-orange-400 transition-colors">
-          View Cart
+          {{ $t('cart.viewCart') }}
         </router-link>
       </div>
     </div>
@@ -287,7 +287,7 @@
     <transition name="fade">
       <div v-if="showRatingModal" class="fixed inset-0 bg-gray-500 bg-opacity-40 flex items-center justify-center z-[999]">
         <div class="bg-white rounded-lg p-6 w-full max-w-xs shadow-lg">
-          <h3 class="text-lg font-bold mb-4">Rate For {{ selectedProduct?.name }}</h3>
+          <h3 class="text-lg font-bold mb-4">{{ $t('home.rateFor') }} {{ selectedProduct?.name }}</h3>
           <div class="flex justify-center mb-4">
             <span v-for="i in 5" :key="i"
                   @click="setRating(i)"
@@ -296,10 +296,10 @@
               ★
             </span>
           </div>
-          <textarea v-model="review" class="w-full border rounded p-2 mb-4" rows="2" placeholder="Write a review (optional)"></textarea>
+          <textarea v-model="review" class="w-full border rounded p-2 mb-4" rows="2" :placeholder="$t('home.reviewPlaceholder')"></textarea>
           <div class="flex justify-end gap-2">
-            <button @click="showRatingModal = false" class="px-3 py-1 rounded bg-gray-200">Cancel</button>
-            <button @click="submitRating" class="px-3 py-1 rounded bg-yellow-400 text-white font-bold">Submit</button>
+            <button @click="showRatingModal = false" class="px-3 py-1 rounded bg-gray-200">{{ $t('common.cancel') }}</button>
+            <button @click="submitRating" class="px-3 py-1 rounded bg-yellow-400 text-white font-bold">{{ $t('common.submit') }}</button>
           </div>
         </div>
       </div>
@@ -555,7 +555,7 @@ async function addToCart(product) {
       if (response.data.success) {
         Swal.fire({
           icon: 'success',
-          title: 'Added to cart!',
+          title: $t('alerts.addedToCart'),
           timer: 1000,
           showConfirmButton: false
         })
@@ -568,8 +568,8 @@ async function addToCart(product) {
       console.error('Error adding to cart:', err)
       Swal.fire({
         icon: 'error',
-        title: 'Failed to add to cart',
-        text: err.response?.data?.message || 'Unknown error',
+        title: $t('alerts.selectRating'),
+        text: err.response?.data?.message || $t('alerts.unknownError'),
         timer: 1500,
         showConfirmButton: false
       })
@@ -602,7 +602,7 @@ async function addToCart(product) {
     
     Swal.fire({
       icon: 'success',
-      title: 'Added to cart!',
+      title: $t('alerts.addedToCart'),
       timer: 1000,
       showConfirmButton: false
     })
@@ -640,7 +640,7 @@ async function updateCartQuantity(item, newQuantity) {
       console.error('Error updating cart quantity:', err)
       Swal.fire({
         icon: 'error',
-        title: 'Failed to update quantity',
+        title: $t('alerts.updateQuantityFailed'),
         timer: 1500,
         showConfirmButton: false
       })
@@ -677,7 +677,7 @@ async function removeFromCart(itemId) {
       
       Swal.fire({
         icon: 'success',
-        title: 'Removed from cart',
+        title: $t('alerts.removedFromCart'),
         timer: 1000,
         showConfirmButton: false
       })
@@ -685,7 +685,7 @@ async function removeFromCart(itemId) {
       console.error('Error removing from cart:', err)
       Swal.fire({
         icon: 'error',
-        title: 'Failed to remove item',
+        title: $t('alerts.failedToRemoveItem'),
         timer: 1500,
         showConfirmButton: false
       })
@@ -759,7 +759,7 @@ async function toggleFavorite(product) {
           console.log('🔍 Favorite removed successfully');
           Swal.fire({ 
             icon: 'success', 
-            title: 'Removed from favorites!', 
+            title: $t('alerts.removedFromFavorites'), 
             timer: 1000, 
             showConfirmButton: false 
           });
@@ -783,7 +783,7 @@ async function toggleFavorite(product) {
         console.log('🔍 Favorite added successfully');
         Swal.fire({ 
           icon: 'success', 
-          title: 'Added to favorites!', 
+          title: $t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -800,7 +800,7 @@ async function toggleFavorite(product) {
         console.log('🔍 Favorite removed from localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: 'Removed from favorites!', 
+          title: $t('alerts.removedFromFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -815,7 +815,7 @@ async function toggleFavorite(product) {
         console.log('🔍 Favorite added to localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: 'Added to favorites!', 
+          title: $t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -827,8 +827,8 @@ async function toggleFavorite(product) {
     console.error('❌ Error response:', err.response?.data);
     Swal.fire({ 
       icon: 'error', 
-      title: 'Failed to update favorite', 
-      text: err.response?.data?.message || 'Please try again', 
+      title: $t('alerts.failedToUpdateFavorite'), 
+      text: err.response?.data?.message || $t('alerts.pleaseTryAgain'),
       timer: 2000, 
       showConfirmButton: false 
     });
@@ -902,7 +902,7 @@ function setRating(val) {
 
 async function submitRating() {
   if (!rating.value) {
-    Swal.fire({ icon: 'warning', title: 'Please select a rating!' });
+    Swal.fire({ icon: 'warning', title: $t('alerts.pleaseSelectRating') });
     return;
   }
   try {
@@ -918,11 +918,15 @@ async function submitRating() {
     }, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    Swal.fire({ icon: 'success', title: 'Thank you for your rating!' });
+    Swal.fire({ icon: 'success', title: $t('alerts.thankYouForRating') });
     showRatingModal.value = false;
     // Optionally: refresh product ratings here
   } catch (err) {
-    Swal.fire({ icon: 'error', title: 'Failed to submit rating', text: err.response?.data?.message || 'Try again' });
+    Swal.fire({ 
+      icon: 'error', 
+      title: $t('alerts.failedToSubmitRating'), 
+      text: err.response?.data?.message || $t('alerts.tryAgain') 
+    });
   }
 }
 

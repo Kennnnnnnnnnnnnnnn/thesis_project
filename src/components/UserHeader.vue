@@ -3,7 +3,7 @@
     <!-- Logo/Brand -->
     <div class="flex items-center gap-4 cursor-pointer" @click="navigateToAdmin">
       <img src="@/assets/rice.png" alt="Admin Logo" class="h-9 w-auto">
-      <h1 class="text-xl font-semibold text-gray-800">User Panel</h1>
+      <h1 class="text-xl font-semibold text-gray-800">{{ $t ('companyName') }}</h1>
     </div>
 
     <!-- Right Side Controls -->
@@ -16,42 +16,51 @@
         <span>{{ currentLanguage }}</span>
       </button>
 
+
       <!-- Logout Button -->
       <button 
         class="bg-red-800 text-white border-none px-6 py-3 rounded-md font-semibold cursor-pointer transition-all duration-200 hover:bg-red-600 hover:-translate-y-0.5"
         @click="logout"
       >
-        Logout
+        {{ $t('logout') }}
       </button>
+
     </div>
   </header>
 </template>
 
 <script setup>
-import { useStore } from '@/store/useStore';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from '@/store/useStore';
+import { useI18n } from 'vue-i18n'; 
 
-// Setup router
 const router = useRouter();
 const store = useStore();
 
-// Reactive state
-const currentLanguage = ref('EN');
+const { locale } = useI18n();  
 
-// Methods
+const currentLanguage = ref('EN');  
+
 const toggleLanguage = () => {
-  currentLanguage.value = currentLanguage.value === 'EN' ? 'ES' : 'EN';
-};
-
-const navigateToAdmin = () => {
-  router.push('/admin');
+  if (currentLanguage.value === 'EN') {
+    currentLanguage.value = 'KH';
+    locale.value = 'kh'; 
+  } else if (currentLanguage.value === 'KH') {
+    currentLanguage.value = 'ZH';
+    locale.value = 'zh'; 
+  } else {
+    currentLanguage.value = 'EN';
+    locale.value = 'en';
+  }
 };
 
 const logout = () => {
   store.clearAuth();
   router.push('/login');
 };
+
+
 </script>
 
 <style scoped>

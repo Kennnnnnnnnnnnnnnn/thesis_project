@@ -1,0 +1,70 @@
+{
+  "companyName": "唐英活稻米厂",
+  "logout": "退出登录",
+
+
+
+
+  "nav": {
+    "home": "主页",
+    "products": "产品",
+    "favorites": "收藏",
+    "cart": "购物车",
+    "profile": "个人资料",
+    "history": "历史记录",
+    "contact": "联系"
+  },
+
+  "products": {
+    "title": "我们的产品",
+    "searchPlaceholder": "搜索产品...",
+    "noDescription": "暂无描述。",
+    "category": "类别",
+    "addToCart": "加入购物车",
+    "categories": {
+      "all": "全部",
+      "bestSellers": "畅销品",
+      "newArrivals": "新品"
+    }
+  },
+
+
+
+
+  
+  "home": {
+    "searchPlaceholder": "搜索产品...",
+    "newProductsTitle": "新品推荐",
+    "allProductsTitle": "所有产品",
+    "rateProduct": "评价此产品",
+    "rateFor": "评分：",
+    "reviewPlaceholder": "写下评价（可选）"
+  },
+  "common": {
+    "viewAll": "查看全部",
+    "addToCart": "加入购物车",
+    "submit": "提交",
+    "cancel": "取消"
+  },
+  "cart": {
+    "title": "您的购物车",
+    "empty": "您的购物车是空的",
+    "subtotal": "小计",
+    "viewCart": "查看购物车"
+  },
+  "alerts": {
+    "addedToCart": "已加入购物车！",
+    "failedToAddToCart": "加入购物车失败",
+    "addedToFavorites": "已添加到收藏！",
+    "removedFromFavorites": "已从收藏移除！",
+    "failedToUpdateFavorite": "更新收藏失败",
+    "failedToUpdateQuantity": "更新数量失败",
+    "removedFromCart": "已从购物车移除",
+    "failedToRemoveItem": "移除商品失败",
+    "pleaseSelectRating": "请选择评分！",
+    "thankYouForRating": "感谢您的评分！",
+    "failedToSubmitRating": "提交评分失败",
+    "tryAgain": "请再试一次",
+    "unknownError": "未知错误"
+  }
+}

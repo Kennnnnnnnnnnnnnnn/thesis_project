@@ -1,0 +1,71 @@
+{
+  "companyName" : "តាំង អៀងហួត",
+
+
+
+
+  "nav": {
+    "home": "ទំព័រដើម",
+    "products": "ផលិតផល",
+    "favorites": "ចំណូលចិត្ត",
+    "cart": "កន្ត្រក",
+    "profile": "ប្រវត្តិរូប",
+    "history": "ប្រវត្តិ",
+    "contact": "ទំនាក់ទំនង"
+  },
+  "products": {
+    "title": "ផលិតផលរបស់យើង",
+    "searchPlaceholder": "ស្វែងរកផលិតផល...",
+    "noDescription": "មិនមានការពិពណ៌នាទេ។",
+    "category": "ប្រភេទ",
+    "addToCart": "បន្ថែមទៅកន្ត្រក",
+    "categories": {
+      "all": "ទាំងអស់",
+      "bestSellers": "លក់ដាច់",
+      "newArrivals": "មកដល់ថ្មី"
+    }
+  },
+  
+
+
+
+  
+
+  "home": {
+    "searchPlaceholder": "ស្វែងរកផលិតផល...",
+    "newProductsTitle": "ផលិតផលថ្មីៗ",
+    "allProductsTitle": "ផលិតផលទាំងអស់",
+    "rateProduct": "វាយតម្លៃផលិតផលនេះ",
+    "rateFor": "វាយតម្លៃសម្រាប់",
+    "reviewPlaceholder": "សរសេរការពិពណ៌នា (ជាជម្រើស)"
+  },
+  "common": {
+    "viewAll": "មើលទាំងអស់",
+    "addToCart": "បន្ថែមទៅក្នុងរទេះ",
+    "submit": "បញ្ជូន",
+    "cancel": "បោះបង់"
+  },
+  "cart": {
+    "title": "រទេះរបស់អ្នក",
+    "empty": "រទេះរបស់អ្នកទទេ",
+    "subtotal": "សរុបរង",
+    "viewCart": "មើលរទេះ"
+  },
+  "alerts": {
+    "addedToCart": "បានបន្ថែមទៅក្នុងរទេះ!",
+    "failedToAddToCart": "បរាជ័យក្នុងការបន្ថែមទៅក្នុងរទេះ",
+    "addedToFavorites": "បានបន្ថែមទៅចំណូលចិត្ត!",
+    "removedFromFavorites": "បានដកចេញពីចំណូលចិត្ត!",
+    "failedToUpdateFavorite": "បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពចំណូលចិត្ត",
+    "failedToUpdateQuantity": "បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពបរិមាណ",
+    "removedFromCart": "បានដកចេញពីរទេះ",
+    "failedToRemoveItem": "បរាជ័យក្នុងការដកធាតុចេញ",
+    "pleaseSelectRating": "សូមជ្រើសការវាយតម្លៃ!",
+    "thankYouForRating": "អរគុណសម្រាប់ការវាយតម្លៃរបស់អ្នក!",
+    "failedToSubmitRating": "បរាជ័យក្នុងការដាក់ស្នើការវាយតម្លៃ",
+    "tryAgain": "សូមសាកល្បងម្ដងទៀត",
+    "unknownError": "កំហុសមិនស្គាល់"
+  }
+
+
+}

@@ -1,0 +1,69 @@
+{
+ "companyName" : "Tang Eang Hout",
+
+
+
+ 
+ "nav": {
+    "home": "Home",
+    "products": "Products",
+    "favorites": "Favorites",
+    "cart": "Cart",
+    "profile": "Profile",
+    "history": "History",
+    "contact": "Contact"
+  },
+  "products": {
+    "title": "Our Products",
+    "searchPlaceholder": "Search products...",
+    "noDescription": "No description available.",
+    "category": "Category",
+    "addToCart": "Add to Cart",
+    "categories": {
+      "all": "All",
+      "bestSellers": "Best Sellers",
+      "newArrivals": "New Arrivals"
+    }
+  },
+
+
+
+  
+
+  "home": {
+    "searchPlaceholder": "Search products...",
+    "newProductsTitle": "New Products",
+    "allProductsTitle": "All Products",
+    "rateProduct": "Rate this product",
+    "rateFor": "Rate For",
+    "reviewPlaceholder": "Write a review (optional)"
+  },
+  "common": {
+    "viewAll": "View All",
+    "addToCart": "Add to Cart",
+    "submit": "Submit",
+    "cancel": "Cancel"
+  },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "subtotal": "Subtotal",
+    "viewCart": "View Cart"
+  },
+  "alerts": {
+    "addedToCart": "Added to cart!",
+    "failedToAddToCart": "Failed to add to cart",
+    "addedToFavorites": "Added to favorites!",
+    "removedFromFavorites": "Removed from favorites!",
+    "failedToUpdateFavorite": "Failed to update favorite",
+    "failedToUpdateQuantity": "Failed to update quantity",
+    "removedFromCart": "Removed from cart",
+    "failedToRemoveItem": "Failed to remove item",
+    "pleaseSelectRating": "Please select a rating!",
+    "thankYouForRating": "Thank you for your rating!",
+    "failedToSubmitRating": "Failed to submit rating",
+    "tryAgain": "Please try again",
+    "unknownError": "Unknown error"
+  }
+
+}

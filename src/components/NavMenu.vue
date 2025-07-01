@@ -9,12 +9,13 @@
             <ul class="nav-list" :class="{ 'show': isMobileMenuOpen }">
                 <li v-for="item in dynamicNavItems" :key="item.name">
                     <router-link :to="item.route" class="nav-link" @click="closeMobileMenu">
-                        <span class="nav-icon" v-if="item.icon" :class="item.icon"></span>
-                        <span class="nav-text">{{ item.name }}</span>
-                        <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
+                    <span class="nav-icon" v-if="item.icon" :class="item.icon"></span>
+                    <span class="nav-text">{{ $t(item.name) }}</span>
+                    <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
                     </router-link>
                 </li>
             </ul>
+
         </div>
     </nav>
 </template>
@@ -46,14 +47,15 @@ watch(() => localStorage.getItem("cart"), () => {
 });
 
 const navItems = ref([
-    { name: 'Home', route: '/home', icon: 'icon-home' },
-    { name: 'Products', route: '/product', icon: 'icon-products' },
-    { name: 'Favorites', route: '/favorite', icon: 'icon-heart' },
-    { name: 'Cart', route: '/cart', icon: 'icon-cart' },
-    { name: 'Profile', route: '/profile', icon: 'icon-user' },
-    { name: 'History', route: '/history', icon: 'icon-history' },
-    { name: 'Contact', route: '/contact', icon: 'icon-envelope' }
+  { name: 'nav.home', route: '/home', icon: 'icon-home' },
+  { name: 'nav.products', route: '/product', icon: 'icon-products' },
+  { name: 'nav.favorites', route: '/favorite', icon: 'icon-heart' },
+  { name: 'nav.cart', route: '/cart', icon: 'icon-cart' },
+  { name: 'nav.profile', route: '/profile', icon: 'icon-user' },
+  { name: 'nav.history', route: '/history', icon: 'icon-history' },
+  { name: 'nav.contact', route: '/contact', icon: 'icon-envelope' }
 ]);
+
 
 const dynamicNavItems = computed(() => {
     return navItems.value.map(item => {
