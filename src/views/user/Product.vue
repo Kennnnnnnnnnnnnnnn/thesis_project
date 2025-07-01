@@ -59,17 +59,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
 import apiURL from '@/api/config.js';
 import CartDrawer from '@/components/CartDrawer.vue';
+import { useStore } from '@/store/useStore';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 
 const showCartDrawer = ref(false);
 const cartItems = ref([]);
+const store = useStore();
 
-const token = localStorage.getItem('token');
-const storedUser = localStorage.getItem('user');
-const user = storedUser ? JSON.parse(storedUser) : null;
 const defaultImage = require('@/assets/image.png');
 const API = `${apiURL}/api`;
 
@@ -83,6 +83,29 @@ const categories = ref([
   { label: 'Best Sellers', value: 'best' },
   { label: 'New Arrivals', value: 'new' }
 ]);
+
+// Check if user is properly authenticated
+function checkAuthStatus() {
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
+  const storeToken = store.getToken;
+  const storeUserId = store.getUserId;
+  
+  console.log('🔐 Auth Status Check:');
+  console.log('  - localStorage token:', !!token);
+  console.log('  - localStorage user:', !!user);
+  console.log('  - store token:', !!storeToken);
+  console.log('  - store userId:', storeUserId);
+  
+  // User is authenticated if they have a token AND a userId (either from store or localStorage)
+  const hasToken = !!(token || storeToken);
+  const hasUserId = !!(storeUserId || user);
+  
+  console.log('  - Has token:', hasToken);
+  console.log('  - Has userId:', hasUserId);
+  
+  return hasToken && hasUserId;
+}
 
 const addToCart = async (product) => {
   const exists = cartItems.value.find(i => i._id === product._id);
@@ -109,47 +132,139 @@ const fetchProducts = async () => {
       isBestSeller: p.isBestSeller || false,
       isNew: p.isNew || false
     }));
+    console.log('Products loaded:', products.value.length);
   } catch (err) {
     console.error('❌ Failed to load products:', err);
   }
 };
 
 const fetchFavorites = async () => {
-  if (!token || !user) return;
+  const isAuthenticated = checkAuthStatus();
+  
+  if (!isAuthenticated) {
+    console.log('🔍 User not authenticated, skipping favorites fetch');
+    return;
+  }
+  
   try {
+    console.log('🔍 Fetching favorites for authenticated user');
     const res = await axios.get(`${API}/getAllDocs/Favorite`, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${store.getToken}` }
     });
-    favorites.value = res.data.data;
+    
+    favorites.value = res.data.data || [];
+    console.log('🔍 Favorites loaded:', favorites.value.length);
+    
+    // Mark products as favorite
     products.value.forEach(p => {
       p.isFavorite = favorites.value.some(fav => fav.productId?._id === p._id);
     });
+    console.log('🔍 Applied favorites to products');
   } catch (err) {
     console.error('❌ Failed to fetch favorites:', err);
   }
 };
 
 const toggleFavorite = async (product) => {
-  if (!token || !user) return alert('Login required.');
-  const existing = favorites.value.find(fav => fav.productId?._id === product._id);
+  console.log('🔍 toggleFavorite called for product:', product._id, product.name);
+  console.log('🔍 Current favorite state:', product.isFavorite);
+  
+  // Check authentication status
+  const isAuthenticated = checkAuthStatus();
+  
   try {
-    if (existing) {
-      await axios.delete(`${API}/deleteDoc/Favorite/${existing._id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      favorites.value = favorites.value.filter(f => f._id !== existing._id);
-      product.isFavorite = false;
+    if (isAuthenticated) {
+      // Authenticated: use backend
+      console.log('🔍 Using backend for authenticated user');
+      if (product.isFavorite) {
+        // Remove favorite
+        console.log('🔍 Removing favorite from backend');
+        const fav = favorites.value.find(f => f.productId?._id === product._id);
+        
+        if (fav) {
+          await axios.delete(`${API}/deleteDoc/Favorite/${fav._id}`, {
+            headers: { Authorization: `Bearer ${store.getToken}` }
+          });
+          
+          favorites.value = favorites.value.filter(f => f._id !== fav._id);
+          product.isFavorite = false;
+          console.log('🔍 Favorite removed successfully');
+          Swal.fire({ 
+            icon: 'success', 
+            title: 'Removed from favorites!', 
+            timer: 1000, 
+            showConfirmButton: false 
+          });
+        }
+      } else {
+        // Add favorite
+        console.log('🔍 Adding favorite to backend');
+        const response = await axios.post(`${API}/insertDoc/Favorite`, {
+          fields: { 
+            productId: product._id
+          }
+        }, {
+          headers: { 
+            Authorization: `Bearer ${store.getToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('🔍 Add favorite response:', response.data);
+        favorites.value.push(response.data.data);
+        product.isFavorite = true;
+        console.log('🔍 Favorite added successfully');
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Added to favorites!', 
+          timer: 1000, 
+          showConfirmButton: false 
+        });
+      }
     } else {
-      const res = await axios.post(
-        `${API}/insertDoc/Favorite`,
-        { fields: { productId: product._id } },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      favorites.value.push(res.data.data);
-      product.isFavorite = true;
+      // Not logged in: use localStorage
+      console.log('🔍 Using localStorage for guest user');
+      let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      const isFavorited = favorites.some(item => item.id === product._id);
+      
+      if (isFavorited) {
+        favorites = favorites.filter(item => item.id !== product._id);
+        product.isFavorite = false;
+        console.log('🔍 Favorite removed from localStorage');
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Removed from favorites!', 
+          timer: 1000, 
+          showConfirmButton: false 
+        });
+      } else {
+        favorites.push({
+          id: product._id,
+          name: product.name,
+          price: discountedPrice(product),
+          image: product.imageURL
+        });
+        product.isFavorite = true;
+        console.log('🔍 Favorite added to localStorage');
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Added to favorites!', 
+          timer: 1000, 
+          showConfirmButton: false 
+        });
+      }
+      localStorage.setItem("favorites", JSON.stringify(favorites));
     }
   } catch (err) {
-    console.error('❌ Favorite toggle failed:', err);
+    console.error('❌ Error toggling favorite:', err);
+    console.error('❌ Error response:', err.response?.data);
+    Swal.fire({ 
+      icon: 'error', 
+      title: 'Failed to update favorite', 
+      text: err.response?.data?.message || 'Please try again', 
+      timer: 2000, 
+      showConfirmButton: false 
+    });
   }
 };
 

@@ -52,10 +52,15 @@
 
             <!-- Product Info in New Products Section -->
             <div class="p-4 flex flex-col flex-grow">
-              <!-- Rating -->
-              <div class="text-yellow-400 text-base mb-2">
-                ★★★★★
+              <!-- Rating (average) -->
+              <div class="flex items-center justify-center mb-2">
+                <span v-for="i in 5" :key="i" class="text-xl"
+                      :class="{'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0)}">
+                  ★
+                </span>
+                <span class="ml-2 text-sm text-gray-500">({{ product.ratingCount || 0 }})</span>
               </div>
+              <button @click="openRatingModal(product)" class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">Rate this product</button>
 
               <!-- Product Name -->
               <h3 class="text-base font-bold text-center mb-2 text-gray-800">
@@ -82,11 +87,8 @@
 
               <!-- Buttons -->
               <div class="flex justify-between items-center mt-2">
-                <button @click="toggleFavorite(product)" :class="[
-                  'bg-transparent border-none cursor-pointer p-2 transition-all duration-300',
-                  product.isFavorite ? 'text-red-600' : 'text-gray-400 hover:text-yellow-400'
-                ]">
-                  <span class="text-xl">❤</span>
+                <button @click="toggleFavorite(product)">
+                  <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
                 </button>
 
                 <button @click="addToCart(product)"
@@ -154,11 +156,8 @@
 
               <!-- Buttons -->
               <div class="flex justify-between items-center mt-2">
-                <button @click="toggleFavorite(product)" :class="[
-                  'bg-transparent border-none cursor-pointer p-2 transition-all duration-300',
-                  product.isFavorite ? 'text-red-600' : 'text-gray-400 hover:text-yellow-400'
-                ]">
-                  <span class="text-xl">❤</span>
+                <button @click="toggleFavorite(product)">
+                  <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
                 </button>
 
                 <button @click="addToCart(product)"
@@ -231,17 +230,93 @@
         </div>
       </div>
     </footer>
+
+    <!-- Cart Drawer -->
+    <div v-if="showCartDrawer" class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5">
+      <div class="flex justify-between items-center mb-3 text-lg">
+        <h3 class="font-medium">Your Cart</h3>
+        <button @click="showCartDrawer = false" class="text-xl hover:text-red-500">✕</button>
+      </div>
+
+      <div v-if="cartItems.length === 0" class="text-center text-gray-500 mt-12">Your cart is empty</div>
+
+      <div v-else class="flex-1 overflow-y-auto">
+        <div v-for="item in cartItems" :key="item._id" class="flex items-center mb-4">
+          <img :src="item.productData?.imageURL || defaultImage" class="w-[70px] h-[70px] object-cover mr-3 rounded bg-gray-100" />
+          <div class="flex-1">
+            <h4 class="m-0 text-sm font-semibold">{{ item.productData?.name || 'Product' }}</h4>
+            <div class="flex items-center gap-2.5 my-1">
+              <button 
+                @click="updateCartQuantity(item, item.quantity - 1)" 
+                :disabled="item.quantity <= 1"
+                class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50"
+              >−</button>
+              <span>{{ item.quantity }}</span>
+              <button 
+                @click="updateCartQuantity(item, item.quantity + 1)"
+                class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer"
+              >+</button>
+            </div>
+            <p class="text-orange-600 font-bold">៛{{ calculateItemPrice(item) }}</p>
+          </div>
+          <button @click="removeFromCart(item._id)" class="bg-transparent border-0 text-xl cursor-pointer text-red-700">×</button>
+        </div>
+      </div>
+
+      <div v-if="cartItems.length > 0" class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex justify-between mb-2">
+          <span>Subtotal:</span>
+          <span class="font-bold">៛{{ calculateCartTotal() }}</span>
+        </div>
+        <router-link to="/cart" class="block w-full bg-yellow-400 text-center py-2 rounded font-bold hover:bg-orange-400 transition-colors">
+          View Cart
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Cart Button -->
+    <button @click="showCartDrawer = true" 
+      class="fixed bottom-8 right-8 bg-yellow-400 text-gray-800 rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-orange-400 transition-colors z-50">
+      <span class="text-2xl">🛒</span>
+      <span v-if="cartItems.length > 0" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+        {{ cartItems.length }}
+      </span>
+    </button>
+
+    <!-- Rating Modal -->
+    <transition name="fade">
+      <div v-if="showRatingModal" class="fixed inset-0 bg-gray-500 bg-opacity-40 flex items-center justify-center z-[999]">
+        <div class="bg-white rounded-lg p-6 w-full max-w-xs shadow-lg">
+          <h3 class="text-lg font-bold mb-4">Rate For {{ selectedProduct?.name }}</h3>
+          <div class="flex justify-center mb-4">
+            <span v-for="i in 5" :key="i"
+                  @click="setRating(i)"
+                  class="text-3xl cursor-pointer"
+                  :class="{'text-yellow-400': i <= rating, 'text-gray-300': i > rating}">
+              ★
+            </span>
+          </div>
+          <textarea v-model="review" class="w-full border rounded p-2 mb-4" rows="2" placeholder="Write a review (optional)"></textarea>
+          <div class="flex justify-end gap-2">
+            <button @click="showRatingModal = false" class="px-3 py-1 rounded bg-gray-200">Cancel</button>
+            <button @click="submitRating" class="px-3 py-1 rounded bg-yellow-400 text-white font-bold">Submit</button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import apiURL from '@/api/config'
-import cover1 from '@/assets/cover1.png'
-import cover2 from '@/assets/cover2.png'
-import cover4 from '@/assets/cover4.png'
-import socket from '@/services/socket'  // Import the socket service
-import axios from 'axios'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import apiURL from '@/api/config';
+import cover1 from '@/assets/cover1.png';
+import cover2 from '@/assets/cover2.png';
+import cover4 from '@/assets/cover4.png';
+import socket from '@/services/socket'; // Import the socket service
+import { useStore } from '@/store/useStore';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 // Reactive data
 const searchQuery = ref('')
@@ -251,6 +326,14 @@ const footerRef = ref(null)
 const isVisible = ref(false)
 const isLoading = ref(false)
 const error = ref(null)
+const showCartDrawer = ref(false)
+const cartItems = ref([])
+const defaultImage = require('@/assets/image.png')
+const store = useStore()
+const showRatingModal = ref(false);
+const selectedProduct = ref(null);
+const rating = ref(0);
+const review = ref('');
 
 // Slides data
 const slides = ref([
@@ -283,7 +366,6 @@ async function fetchProducts() {
       params: {
         sortField: 'createdAt',
         sortOrder: 'desc',
-        limit: 20 // Or any number you prefer, or remove for all products
       }
     })
     
@@ -292,7 +374,7 @@ async function fetchProducts() {
     if (response.data && response.data.success && response.data.data) {
       products.value = response.data.data
       console.log('Products loaded:', products.value.length)
-      applyFavorites()
+      await applyFavorites()
     } else {
       console.warn('No product data in response')
       products.value = []
@@ -305,13 +387,83 @@ async function fetchProducts() {
   }
 }
 
+// Fetch cart items from database
+async function fetchCartItems() {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    // If no token, try to get cart from localStorage
+    const localCart = JSON.parse(localStorage.getItem('cart')) || []
+    cartItems.value = localCart
+    return
+  }
+
+  try {
+    // First, fetch cart items
+    const cartRes = await axios.get(`${apiURL}/api/getAllDocs/Cart`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (cartRes.data && cartRes.data.success) {
+      cartItems.value = cartRes.data.data
+      
+      // Extract product IDs from cart items
+      const productIds = cartItems.value.map(item => item.productId)
+      
+      // Fetch product details for all products in cart
+      if (productIds.length > 0) {
+        const productRes = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        
+        if (productRes.data && productRes.data.success) {
+          // Create a map of product data for easy access
+          const productMap = {}
+          productRes.data.data.forEach(product => {
+            productMap[product._id] = product
+          })
+          
+          // Attach product data to cart items for easier access
+          cartItems.value.forEach(item => {
+            item.productData = productMap[item.productId] || null
+          })
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching cart items:', err)
+  }
+}
+
 // Get favorites from localStorage and mark products
-function applyFavorites() {
-  const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || []
+async function applyFavorites() {
+  const isAuthenticated = checkAuthStatus();
   
-  products.value.forEach(product => {
-    product.isFavorite = storedFavorites.some(fav => fav.id === product._id)
-  })
+  if (isAuthenticated) {
+    // Authenticated: fetch favorites from backend
+    try {
+      const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
+        headers: { Authorization: `Bearer ${store.getToken}` }
+      });
+      const favoriteIds = res.data.data.map(fav => fav.productId?._id);
+      products.value.forEach(product => {
+        product.isFavorite = favoriteIds.includes(product._id);
+      });
+      console.log('🔍 Applied favorites from backend:', favoriteIds);
+    } catch (err) {
+      console.error('Error fetching favorites:', err);
+    }
+  } else {
+    // Guest: use localStorage
+    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    products.value.forEach(product => {
+      product.isFavorite = storedFavorites.some(fav => fav.id === product._id);
+    });
+    console.log('🔍 Applied favorites from localStorage:', storedFavorites.map(f => f.id));
+  }
 }
 
 // Calculate final price after discount
@@ -327,6 +479,36 @@ function calculateFinalPrice(product) {
 // Format price for display
 function formatPrice(price) {
   return price.toFixed(2)
+}
+
+// Calculate price for cart item
+function calculateItemPrice(item) {
+  const product = item.productData
+  if (!product) return '0.00'
+  
+  let price = product.salePrice || 0
+  if (product.discount && product.discount > 0) {
+    const discountAmount = (price * product.discount) / 100
+    price = price - discountAmount
+  }
+  
+  return (price * item.quantity).toFixed(2)
+}
+
+// Calculate total cart price
+function calculateCartTotal() {
+  return cartItems.value.reduce((total, item) => {
+    const product = item.productData
+    if (!product) return total
+    
+    let price = product.salePrice || 0
+    if (product.discount && product.discount > 0) {
+      const discountAmount = (price * product.discount) / 100
+      price = price - discountAmount
+    }
+    
+    return total + (price * item.quantity)
+  }, 0).toFixed(2)
 }
 
 // Computed properties
@@ -345,49 +527,312 @@ const newProducts = computed(() => {
 })
 
 // Methods
-function addToCart(product) {
-  let cart = JSON.parse(localStorage.getItem("cart")) || []
-  let existingItem = cart.find(item => item.id === product._id)
-  
+async function addToCart(product) {
+  // Check if user is logged in
+  const token = localStorage.getItem("token")
   const finalPrice = calculateFinalPrice(product)
   
-  if (existingItem) {
-    existingItem.quantity += 1
+  // If user is logged in, add to cart in database
+  if (token) {
+    try {
+      const response = await axios.post(`${apiURL}/api/insertDoc/Cart`, 
+        {
+          fields: {
+            productId: product._id,
+            quantity: 1,
+            userId: store.getUserId,
+            createdBy: store.getUserId
+          }
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      
+      if (response.data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Added to cart!',
+          timer: 1000,
+          showConfirmButton: false
+        })
+        // Refresh cart items
+        await fetchCartItems()
+        // Show cart drawer
+        showCartDrawer.value = true
+      }
+    } catch (err) {
+      console.error('Error adding to cart:', err)
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to add to cart',
+        text: err.response?.data?.message || 'Unknown error',
+        timer: 1500,
+        showConfirmButton: false
+      })
+    }
   } else {
-    cart.push({ 
-      id: product._id,
-      name: product.name,
-      price: finalPrice,
-      originalPrice: product.salePrice,
-      discount: product.discount,
-      image: product.imageURL,
-      quantity: 1
+    // If not logged in, store in localStorage (fallback)
+    let cart = JSON.parse(localStorage.getItem("cart")) || []
+    let existingItem = cart.find(item => item.productId === product._id)
+    
+    if (existingItem) {
+      existingItem.quantity += 1
+    } else {
+      cart.push({ 
+        productId: product._id,
+        quantity: 1,
+        productData: {
+          _id: product._id,
+          name: product.name,
+          salePrice: product.salePrice,
+          discount: product.discount,
+          imageURL: product.imageURL
+        }
+      })
+    }
+    
+    localStorage.setItem("cart", JSON.stringify(cart))
+    
+    // Update local cart items
+    cartItems.value = cart
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Added to cart!',
+      timer: 1000,
+      showConfirmButton: false
     })
+    
+    // Show cart drawer
+    showCartDrawer.value = true
   }
-  
-  localStorage.setItem("cart", JSON.stringify(cart))
-  localStorage.setItem("cartCount", cart.length)
-  window.dispatchEvent(new Event("storage"))
 }
 
-function toggleFavorite(product) {
-  let favorites = JSON.parse(localStorage.getItem("favorites")) || []
-  const isFavorited = favorites.some(item => item.id === product._id)
+// Update cart item quantity
+async function updateCartQuantity(item, newQuantity) {
+  if (newQuantity < 1) return
   
-  if (isFavorited) {
-    favorites = favorites.filter(item => item.id !== product._id)
-    product.isFavorite = false
+  const token = localStorage.getItem("token")
+  
+  if (token) {
+    try {
+      await axios.patch(`${apiURL}/api/updateDoc/Cart/${item._id}`, 
+        {
+          fields: {
+            quantity: newQuantity
+          }
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      
+      // Update local state
+      item.quantity = newQuantity
+    } catch (err) {
+      console.error('Error updating cart quantity:', err)
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to update quantity',
+        timer: 1500,
+        showConfirmButton: false
+      })
+    }
   } else {
-    favorites.push({
-      id: product._id,
-      name: product.name,
-      price: calculateFinalPrice(product),
-      image: product.imageURL
-    })
-    product.isFavorite = true
+    // If not logged in, update in localStorage
+    let cart = JSON.parse(localStorage.getItem("cart")) || []
+    const existingItem = cart.find(cartItem => cartItem._id === item._id)
+    
+    if (existingItem) {
+      existingItem.quantity = newQuantity
+      localStorage.setItem("cart", JSON.stringify(cart))
+      
+      // Update local state
+      item.quantity = newQuantity
+    }
   }
+}
+
+// Remove item from cart
+async function removeFromCart(itemId) {
+  const token = localStorage.getItem("token")
   
-  localStorage.setItem("favorites", JSON.stringify(favorites))
+  if (token) {
+    try {
+      await axios.delete(`${apiURL}/api/deleteDoc/Cart/${itemId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      // Remove from local state
+      cartItems.value = cartItems.value.filter(item => item._id !== itemId)
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Removed from cart',
+        timer: 1000,
+        showConfirmButton: false
+      })
+    } catch (err) {
+      console.error('Error removing from cart:', err)
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to remove item',
+        timer: 1500,
+        showConfirmButton: false
+      })
+    }
+  } else {
+    // If not logged in, remove from localStorage
+    let cart = JSON.parse(localStorage.getItem("cart")) || []
+    cart = cart.filter(item => item._id !== itemId)
+    localStorage.setItem("cart", JSON.stringify(cart))
+    
+    // Update local state
+    cartItems.value = cart
+  }
+}
+
+// Check if user is properly authenticated
+function checkAuthStatus() {
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
+  const storeToken = store.getToken;
+  const storeAuth = store.isAuthenticated;
+  const storeUserId = store.getUserId;
+  const storeUserRole = store.getUserRole;
+  
+  console.log('🔐 Auth Status Check:');
+  console.log('  - localStorage token:', !!token);
+  console.log('  - localStorage user:', !!user);
+  console.log('  - store token:', !!storeToken);
+  console.log('  - store isAuthenticated:', storeAuth);
+  console.log('  - store userId:', storeUserId);
+  console.log('  - store userRole:', storeUserRole);
+  
+  // User is authenticated if they have a token AND a userId (either from store or localStorage)
+  const hasToken = !!(token || storeToken);
+  const hasUserId = !!(storeUserId || user);
+  
+  console.log('  - Has token:', hasToken);
+  console.log('  - Has userId:', hasUserId);
+  
+  return hasToken && hasUserId;
+}
+
+async function toggleFavorite(product) {
+  console.log('🔍 toggleFavorite called for product:', product._id, product.name);
+  console.log('🔍 Current favorite state:', product.isFavorite);
+  
+  // Check authentication status
+  const isAuthenticated = checkAuthStatus();
+  
+  try {
+    if (isAuthenticated) {
+      // Authenticated: use backend
+      console.log('🔍 Using backend for authenticated user');
+      if (product.isFavorite) {
+        // Remove favorite
+        console.log('🔍 Removing favorite from backend');
+        const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
+          headers: { Authorization: `Bearer ${store.getToken}` }
+        });
+        
+        console.log('🔍 Favorites response:', res.data);
+        const fav = res.data.data.find(f => f.productId?._id === product._id);
+        console.log('🔍 Found favorite to remove:', fav);
+        
+        if (fav) {
+          await axios.delete(`${apiURL}/api/deleteDoc/Favorite/${fav._id}`, {
+            headers: { Authorization: `Bearer ${store.getToken}` }
+          });
+          
+          product.isFavorite = false;
+          console.log('🔍 Favorite removed successfully');
+          Swal.fire({ 
+            icon: 'success', 
+            title: 'Removed from favorites!', 
+            timer: 1000, 
+            showConfirmButton: false 
+          });
+        }
+      } else {
+        // Add favorite
+        console.log('🔍 Adding favorite to backend');
+        const response = await axios.post(`${apiURL}/api/insertDoc/Favorite`, {
+          fields: { 
+            productId: product._id
+          }
+        }, {
+          headers: { 
+            Authorization: `Bearer ${store.getToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('🔍 Add favorite response:', response.data);
+        product.isFavorite = true;
+        console.log('🔍 Favorite added successfully');
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Added to favorites!', 
+          timer: 1000, 
+          showConfirmButton: false 
+        });
+      }
+    } else {
+      // Not logged in: use localStorage
+      console.log('🔍 Using localStorage for guest user');
+      let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      const isFavorited = favorites.some(item => item.id === product._id);
+      
+      if (isFavorited) {
+        favorites = favorites.filter(item => item.id !== product._id);
+        product.isFavorite = false;
+        console.log('🔍 Favorite removed from localStorage');
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Removed from favorites!', 
+          timer: 1000, 
+          showConfirmButton: false 
+        });
+      } else {
+        favorites.push({
+          id: product._id,
+          name: product.name,
+          price: calculateFinalPrice(product),
+          image: product.imageURL
+        });
+        product.isFavorite = true;
+        console.log('🔍 Favorite added to localStorage');
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Added to favorites!', 
+          timer: 1000, 
+          showConfirmButton: false 
+        });
+      }
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+    }
+  } catch (err) {
+    console.error('❌ Error toggling favorite:', err);
+    console.error('❌ Error response:', err.response?.data);
+    Swal.fire({ 
+      icon: 'error', 
+      title: 'Failed to update favorite', 
+      text: err.response?.data?.message || 'Please try again', 
+      timer: 2000, 
+      showConfirmButton: false 
+    });
+  }
 }
 
 function nextSlide() {
@@ -436,12 +881,55 @@ function setupSocketConnection() {
       console.log('Product collection updated, refreshing products...')
       await fetchProducts() // Refresh products when there's an update
     }
+    
+    if (update.collection === 'Cart') {
+      console.log('Cart collection updated, refreshing cart...')
+      await fetchCartItems() // Refresh cart when there's an update
+    }
   })
+}
+
+function openRatingModal(product) {
+  selectedProduct.value = product;
+  rating.value = 0;
+  review.value = '';
+  showRatingModal.value = true;
+}
+
+function setRating(val) {
+  rating.value = val;
+}
+
+async function submitRating() {
+  if (!rating.value) {
+    Swal.fire({ icon: 'warning', title: 'Please select a rating!' });
+    return;
+  }
+  try {
+    const token = localStorage.getItem('token');
+    await axios.post(`${apiURL}/api/insertDoc/Rate`, {
+      fields: {
+        productId: selectedProduct.value._id,
+        RTCTrackEvent: rating.value,
+        review: review.value,
+        userId: store.getUserId,
+        createdBy: store.getUserId,
+      }
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    Swal.fire({ icon: 'success', title: 'Thank you for your rating!' });
+    showRatingModal.value = false;
+    // Optionally: refresh product ratings here
+  } catch (err) {
+    Swal.fire({ icon: 'error', title: 'Failed to submit rating', text: err.response?.data?.message || 'Try again' });
+  }
 }
 
 // Lifecycle hooks
 onMounted(() => {
   fetchProducts()
+  fetchCartItems()
   startCarousel()
   setupIntersectionObserver()
   setupSocketConnection() // Setup socket connection
@@ -458,3 +946,16 @@ onUnmounted(() => {
   }
 })
 </script>
+
+<style scoped>
+/* Add any custom styles here */
+.heart {
+  font-size: 20px;
+  color: #ccc;
+  transition: all 0.2s ease;
+}
+.heart.favorited {
+  color: red;
+  transform: scale(1.2);
+}
+</style>

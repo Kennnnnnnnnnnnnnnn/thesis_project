@@ -319,6 +319,10 @@ export default {
                     collectionName = 'PurchaseProduct';
                     searchFieldsArray.value = 'name';
                     break;
+                case '/admin/orders':
+                    collectionName = 'Order';
+                    // searchFieldsArray.value = 'name';
+                break;
 
             }
 

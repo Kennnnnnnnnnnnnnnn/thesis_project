@@ -111,13 +111,13 @@
         </button>
         <transition name="fade">
           <nav v-show="isUserManagementOpen" class="space-y-2 pl-4 mt-2">
-            <router-link to="/admin/delivery" :class="[
+            <!-- <router-link to="/admin/delivery" :class="[
               'nav-link',
               route.path === '/admin/delivery' ? 'bg-yellow-500 text-white' : ''
             ]">
               <MapPinned class="h-4 w-4" />
               <span class="text-sm">Tracking</span>
-            </router-link>
+            </router-link> -->
             <router-link to="/admin/users" :class="[
               'nav-link',
               route.path === '/admin/users' ? 'bg-yellow-500 text-white' : ''
