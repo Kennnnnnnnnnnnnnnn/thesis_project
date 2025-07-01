@@ -1,21 +1,21 @@
 <template>
   <div class="bg-white min-h-screen mt-14">
     <div class="max-w-6xl mx-auto px-5">
-      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">❤️ Your Favorites</h1>
+      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">❤️ {{ $t('favorites.title') }}</h1>
 
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
-        <p class="mt-2 text-gray-600">Loading your favorites...</p>
+        <p class="mt-2 text-gray-600">{{ $t('favorites.loading') }}</p>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="favorites.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4">💔</div>
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">No favorites yet</h2>
-        <p class="text-gray-600 mb-6">Start adding products to your favorites to see them here!</p>
+        <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ $t('favorites.emptyTitle') }}</h2>
+        <p class="text-gray-600 mb-6">{{ $t('favorites.emptyDescription') }}</p>
         <router-link to="/" class="bg-yellow-400 text-gray-800 px-6 py-3 rounded-lg font-bold hover:bg-orange-400 transition-colors">
-          Browse Products
+          {{ $t('favorites.browseProducts') }}
         </router-link>
       </div>
 
@@ -44,13 +44,15 @@
 
             <!-- Product Name -->
             <h3 class="text-base font-bold mb-2 text-gray-800 line-clamp-2">
-              {{ fav.productId?.name || 'Unknown Product' }}
+              {{ fav.productId?.name || $t('favorites.unknownProduct') }}
             </h3>
+
 
             <!-- Description -->
             <p class="text-sm text-gray-600 mb-3 flex-grow line-clamp-2">
-              {{ fav.productId?.description || 'Premium quality product' }}
+              {{ fav.productId?.description || $t('favorites.premiumQuality') }}
             </p>
+
 
             <!-- Price -->
             <div class="text-center mb-4">
@@ -71,8 +73,10 @@
                 @click="addToCart(fav.productId)"
                 class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow hover:bg-orange-400 hover:text-white"
               >
-                Add to Cart
+                {{ $t('favorites.addToCart') }}
               </button>
+
+
               <button
                 @click="removeFavorite(fav._id)"
                 class="bg-red-500 text-white border-none px-3 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm hover:bg-red-600"
@@ -123,8 +127,8 @@ async function fetchFavorites() {
     console.error('Failed to load favorites:', err);
     Swal.fire({
       icon: 'error',
-      title: 'Failed to load favorites',
-      text: err.response?.data?.message || 'Please try again',
+      title: $t('alerts.failedToLoadFavorites'),
+      text: err.response?.data?.message || $t('alerts.tryAgain'),
       timer: 2000,
       showConfirmButton: false
     });
@@ -143,7 +147,7 @@ async function removeFavorite(favoriteId) {
     
     Swal.fire({
       icon: 'success',
-      title: 'Removed from favorites!',
+      title: $t('alerts.removedFromFavorites'),
       timer: 1000,
       showConfirmButton: false
     });
@@ -153,8 +157,8 @@ async function removeFavorite(favoriteId) {
     console.error('Failed to remove favorite:', err);
     Swal.fire({
       icon: 'error',
-      title: 'Failed to remove favorite',
-      text: err.response?.data?.message || 'Please try again',
+      title: $t('alerts.failedToRemoveFavorite'),
+      text: err.response?.data?.message || $t('alerts.tryAgain'),
       timer: 2000,
       showConfirmButton: false
     });
@@ -185,7 +189,7 @@ async function addToCart(product) {
     if (response.data.success) {
       Swal.fire({
         icon: 'success',
-        title: 'Added to cart!',
+        title: $t('alerts.addedToCart'),
         timer: 1000,
         showConfirmButton: false
       });
@@ -194,8 +198,8 @@ async function addToCart(product) {
     console.error('Error adding to cart:', err);
     Swal.fire({
       icon: 'error',
-      title: 'Failed to add to cart',
-      text: err.response?.data?.message || 'Unknown error',
+      title: $t('alerts.failedToAddToCart'),
+      text: err.response?.data?.message || $t('alerts.unknownError'),
       timer: 1500,
       showConfirmButton: false
     });
@@ -225,10 +229,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.line-clamp-2 {
+/* .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
+} */
 </style>

@@ -13,7 +13,7 @@
             </button>
           </div>
           <h1>{{ fullName }}</h1>
-          <p class="email">{{ user.email || 'No email provided' }}</p>
+          <p class="email">{{ user.email || $t('profile.noEmail') }}</p>
         </div>
       </div>
     </section>
@@ -22,49 +22,49 @@
     <section class="profile-content">
       <div class="container">
         <div class="profile-card">
-          <h2 class="section-title">Personal Information</h2>
+          <h2 class="section-title">{{ $t('profile.personalInfo') }}</h2>
           
           <form @submit.prevent="saveProfile">
             <div class="form-grid">
               <div class="form-group">
-                <label>First Name</label>
+                <label>{{ $t('profile.firstName') }}</label>
                 <input type="text" v-model="user.firstName" required>
               </div>
               
               <div class="form-group">
-                <label>Last Name</label>
+                <label>{{ $t('profile.lastName') }}</label>
                 <input type="text" v-model="user.lastName" required>
               </div>
               
               <div class="form-group">
-                <label>Email</label>
+                <label>{{ $t('profile.email') }}</label> 
                 <input type="email" v-model="user.email" required>
               </div>
               
               <div class="form-group">
-                <label>Phone Number</label>
+                <label>{{ $t('profile.phone') }}</label>
                 <input type="tel" v-model="user.phone">
               </div>
               
               <div class="form-group full-width">
-                <label>Address</label>
+                <label>{{ $t('profile.address') }}</label>
                 <input type="text" v-model="user.address">
               </div>
               
               <div class="form-group">
-                <label>City</label>
+                <label>{{ $t('profile.city') }}</label>
                 <input type="text" v-model="user.city">
               </div>
               
               <div class="form-group">
-                <label>Postal Code</label>
+                <label>{{ $t('profile.postalCode') }}</label>
                 <input type="text" v-model="user.postalCode">
               </div>
             </div>
             
             <div class="form-actions">
-              <button type="button" class="cancel-btn" @click="resetForm">Cancel</button>
-              <button type="submit" class="save-btn">Save Changes</button>
+              <button type="button" class="cancel-btn" @click="resetForm">{{ $t('common.cancel') }}</button>
+              <button type="submit" class="save-btn">{{ $t('profile.saveChanges') }}</button>
             </div>
           </form>
         </div>

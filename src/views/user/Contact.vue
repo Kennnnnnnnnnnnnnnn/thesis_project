@@ -1,31 +1,30 @@
 <template>
   <div class="contact-page">
-    <h1>Contact Us</h1>
-    <p class="subtitle">Get in touch with our support team</p>
+    <h1>{{ $t('contact.title') }}</h1>
+    <p class="subtitle">{{ $t('contact.subtitle') }}</p>
     
     <div class="contact-container">
       <div class="contact-info">
-        <h2>Our Information</h2>
+        <h2>{{ $t('contact.ourInfo') }}</h2>
         <div class="info-item">
           <i class="fas fa-map-marker-alt"></i>
-          <p>123 Main Street, City, Country</p>
+          <p>{{ $t('contact.address') }}</p>
         </div>
         <div class="info-item">
           <i class="fas fa-phone"></i>
-          <p>+1 (555) 123-4567</p>
+          <p>{{ $t('contact.phone') }}</p>
         </div>
         <div class="info-item">
           <i class="fas fa-envelope"></i>
-          <p>support@example.com</p>
+          <p>{{ $t('contact.email') }}</p>
         </div>
         <div class="info-item">
           <i class="fas fa-clock"></i>
-          <p>Monday - Friday: 9:00 AM - 5:00 PM</p>
+          <p>{{ $t('contact.hours') }}</p>
         </div>
         
-        <!-- Social Media Section -->
         <div class="social-media">
-          <h3>Connect With Us</h3>
+          <h3>{{ $t('contact.connect') }}</h3>
           <div class="social-icons">
             <a href="https://facebook.com/yourpage" target="_blank" class="social-icon">
               <i class="fab fa-facebook-f"></i>
@@ -44,9 +43,10 @@
       </div>
       
       <form @submit.prevent="submitForm" class="contact-form">
-        <h2>Send Us a Message</h2>
+        <h2>{{ $t('contact.sendMessage') }}</h2>
+        
         <div class="form-group">
-          <label for="name">Name</label>
+          <label for="name">{{ $t('contact.name') }}</label>
           <input 
             type="text" 
             id="name" 
@@ -58,7 +58,7 @@
         </div>
         
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="email">{{ $t('contact.emailLabel') }}</label>
           <input 
             type="email" 
             id="email" 
@@ -70,7 +70,7 @@
         </div>
         
         <div class="form-group">
-          <label for="subject">Subject</label>
+          <label for="subject">{{ $t('contact.subject') }}</label>
           <input 
             type="text" 
             id="subject" 
@@ -82,7 +82,7 @@
         </div>
         
         <div class="form-group">
-          <label for="message">Message</label>
+          <label for="message">{{ $t('contact.message') }}</label>
           <textarea 
             id="message" 
             v-model="form.message" 
@@ -93,16 +93,17 @@
         </div>
         
         <button type="submit" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+          {{ isSubmitting ? $t('contact.sending') : $t('contact.send') }}
         </button>
         
         <div class="success-message" v-if="isSuccess">
-          Thank you! Your message has been sent successfully.
+          {{ $t('contact.success') }}
         </div>
       </form>
     </div>
   </div>
 </template>
+
 
 <script>
 export default {
@@ -128,27 +129,25 @@ export default {
   methods: {
     validateField(field) {
       switch(field) {
-        case 'name': {
-          this.errors.name = this.form.name.trim() ? '' : 'Name is required';
+        case 'name':
+          this.errors.name = this.form.name.trim() ? '' : this.$t('contact.errors.name');
           break;
-        }
         case 'email': {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           this.errors.email = this.form.email.trim() 
-            ? emailRegex.test(this.form.email) ? '' : 'Please enter a valid email'
-            : 'Email is required';
+            ? emailRegex.test(this.form.email) ? '' : this.$t('contact.errors.emailValid')
+            : this.$t('contact.errors.email');
           break;
         }
-        case 'subject': {
-          this.errors.subject = this.form.subject.trim() ? '' : 'Subject is required';
+        case 'subject':
+          this.errors.subject = this.form.subject.trim() ? '' : this.$t('contact.errors.subject');
           break;
-        }
-        case 'message': {
-          this.errors.message = this.form.message.trim() ? '' : 'Message is required';
+        case 'message':
+          this.errors.message = this.form.message.trim() ? '' : this.$t('contact.errors.message');
           break;
-        }
       }
     },
+
     validateForm() {
       this.validateField('name');
       this.validateField('email');

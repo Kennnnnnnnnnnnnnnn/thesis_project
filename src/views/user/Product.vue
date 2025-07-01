@@ -25,16 +25,17 @@
         <img :src="product.imageURL || defaultImage" class="product-img" />
         <div class="card-body">
           <h2 class="product-name">{{ product.name }}</h2>
-          <p class="product-description">{{ product.description || 'No description available.' }}</p>
+          <p class="product-description">{{ product.description || $t('products.noDescription') }}</p>
 
-          <p class="product-category">🗂️ {{ $t('products.category') }}: {{ product.categoryName || 'N/A' }}</p>
+          <p class="product-category">🗂️ {{ $t('products.category') }}: {{ product.categoryName || $t('common.na') }}</p>
+
 
           <div class="price-block">
             <span v-if="product.discount > 0" class="original-price">${{ product.salePrice.toFixed(2) }}</span>
             <span class="discounted-price">
               ៛{{ discountedPrice(product).toFixed(2) }}
             </span>
-            <span v-if="product.discount > 0" class="discount-tag">-{{ product.discount }}%</span>
+            <span v-if="product.discount > 0" class="discount-tag">{{ $t('common.save') }} {{ product.discount }}%</span>
           </div>
 
           <div class="actions">
@@ -192,7 +193,7 @@ const toggleFavorite = async (product) => {
           console.log('🔍 Favorite removed successfully');
           Swal.fire({ 
             icon: 'success', 
-            title: 'Removed from favorites!', 
+            title: $t('alerts.removedFromFavorites'), 
             timer: 1000, 
             showConfirmButton: false 
           });
@@ -217,7 +218,7 @@ const toggleFavorite = async (product) => {
         console.log('🔍 Favorite added successfully');
         Swal.fire({ 
           icon: 'success', 
-          title: 'Added to favorites!', 
+          title: $t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -234,7 +235,7 @@ const toggleFavorite = async (product) => {
         console.log('🔍 Favorite removed from localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: 'Removed from favorites!', 
+          title: $t('alerts.removedFromFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -249,7 +250,7 @@ const toggleFavorite = async (product) => {
         console.log('🔍 Favorite added to localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: 'Added to favorites!', 
+          title: $t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -261,8 +262,8 @@ const toggleFavorite = async (product) => {
     console.error('❌ Error response:', err.response?.data);
     Swal.fire({ 
       icon: 'error', 
-      title: 'Failed to update favorite', 
-      text: err.response?.data?.message || 'Please try again', 
+      title: $t('alerts.failedToUpdateFavorite'), 
+      text: err.response?.data?.message || $t('alerts.tryAgain'), 
       timer: 2000, 
       showConfirmButton: false 
     });

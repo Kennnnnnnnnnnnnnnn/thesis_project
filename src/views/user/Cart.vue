@@ -5,10 +5,10 @@
       <div class="text-start mb-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-start justify-start">
           <span class="mr-3 text-xl">🛒</span>
-          Shopping Cart
+          {{ $t('cart.title') }}
         </h1>
         <p class="text-gray-600 text-lg text-start">
-          {{ cartItems.length }} item{{ cartItems.length !== 1 ? 's' : '' }} in your cart
+          {{ cartItems.length }} {{ $t('cart.items', { count: cartItems.length }) }}
         </p>
       </div>
 
@@ -37,29 +37,27 @@
         <div class="flex-1">
           <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-2xl font-bold text-gray-800">Cart Items</h2>
+              <h2 class="text-2xl font-bold text-gray-800">{{ $t('cart.itemsTitle') }}</h2>
               <button
                 v-if="cartItems.length > 0"
                 @click="clearCart"
                 class="px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors duration-200 flex items-center gap-2"
               >
                 <i class="fa-solid fa-trash-can"></i>
-                Clear All
+                {{ $t('cart.clearAll') }}
               </button>
             </div>
 
             <div v-if="cartItems.length === 0" class="text-center py-16">
               <div class="text-8xl text-gray-200 mb-6">🛒</div>
-              <h3 class="text-2xl font-semibold text-gray-700 mb-3">Your cart is empty</h3>
-              <p class="text-gray-500 mb-8 max-w-md mx-auto">
-                Looks like you haven't added any items to your cart yet.
-              </p>
+              <h3 class="text-2xl font-semibold text-gray-700 mb-3">{{ $t('cart.empty') }}</h3>
+              <p class="text-gray-500 mb-8 max-w-md mx-auto">{{ $t('cart.emptyDescription') }}</p>
               <router-link 
                 to="/" 
                 class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 <i class="fa-solid fa-shopping-bag mr-2"></i>
-                Continue Shopping
+                {{ $t('cart.continueShopping') }}
               </router-link>
             </div>
 
@@ -129,22 +127,22 @@
         <!-- Order Summary -->
         <div class="w-full lg:w-96">
           <div class="bg-white rounded-xl shadow-xl p-8 border border-gray-100 sticky top-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Order Summary</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ $t('cart.orderSummary') }}</h2>
             
             <div class="space-y-2 mb-2">
               <div class="flex justify-between items-center py-4">
-                <span class="text-gray-600">Sub Total</span>
+                <span class="text-gray-600">{{ $t('cart.subtotal') }}</span>
                 <span class="font-semibold text-gray-800">{{ formatPrice(subtotal) }} ៛</span>
               </div>
               <div class="flex justify-between items-center ">
-                <span class="text-gray-600">Discount</span>
+                <span class="text-gray-600">{{ $t('cart.discount') }}</span>
                 <span class="font-semibold text-green-600">-{{ formatPrice(discountTotal) }} ៛</span>
               </div>
             </div>
 
             <div class="border-t-2 border-gray-200 pt-6 mb-6">
               <div class="flex justify-between items-center">
-                <span class="text-xl font-bold text-gray-800">Total</span>
+                <span class="text-xl font-bold text-gray-800">{{ $t('cart.total') }}</span>
                 <span class="text-3xl font-bold text-gray-900">{{ formatPrice(finalAmount) }} ៛</span>
               </div>
             </div>
@@ -155,7 +153,7 @@
               class="w-full py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-xl mb-4 hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
             >
               <i class="fa-solid fa-credit-card"></i>
-              {{ isProcessing ? 'Processing...' : 'Proceed to Checkout' }}
+              {{ isProcessing ? $t('cart.processing') : $t('cart.proceedToCheckout') }}
             </button>
 
             
@@ -197,18 +195,18 @@
           <i class="fa-solid fa-times"></i>
         </button>
         <div class="px-8 py-6 flex flex-col items-center">
-          <h3 class="text-xl font-semibold mb-2 mt-2">Rice Shop</h3>
+          <h3 class="text-xl font-semibold mb-2 mt-2">{{ $t('cart.shopName') }}</h3>
           <p class="text-3xl font-bold mb-4">{{ formatPrice(finalAmount) }} KHR</p>
           <div class="mb-4 bg-white border border-gray-200 rounded-lg flex items-center justify-center" style="width: 240px; height: 240px;">
             <img v-if="qrImageUrl" :src="qrImageUrl" alt="QR Code" class="w-full h-full rounded-lg" />
             <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
               <div class="text-center">
                 <i class="fa-solid fa-qrcode text-4xl mb-2"></i>
-                <p class="text-sm">Loading QR code...</p>
+                <p class="text-sm">{{ $t('cart.loadingQR') }}</p>
               </div>
             </div>
           </div>
-          <p class="text-gray-500 text-base mb-4">Expires in 5 minutes</p>
+          <p class="text-gray-500 text-base mb-4">{{ $t('cart.expiresIn') }}</p>
           <div class="flex items-center justify-center mb-4">
             <input 
               type="checkbox" 
@@ -217,7 +215,7 @@
               class="mr-2 w-4 h-4 accent-green-500" 
             />
             <label for="payment-confirmation" class="text-base text-gray-700 select-none">
-              I confirm that I have scanned and paid
+              {{ $t('cart.confirmPaymentText') }}
             </label>
           </div>
           <button 
@@ -225,13 +223,13 @@
             :disabled="!paymentConfirmed" 
             class="w-full py-3 text-lg font-bold rounded mb-3 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-green-400 hover:bg-green-500 text-white"
           >
-            I'VE PAID
+            {{ $t('cart.iHavePaid') }}
           </button>
           <button 
             @click="showQRModal = false" 
             class="w-full py-3 text-lg font-bold rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition"
           >
-            CANCEL
+            {{  $t('common.cancel') }}
           </button>
         </div>
       </div>
@@ -245,6 +243,8 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
 
 const router = useRouter();
 const token = localStorage.getItem('token');
@@ -259,6 +259,7 @@ const qrImageUrl = ref('');
 const qrTransaction = ref(null);
 const billNumber = ref('#' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'));
 const paymentConfirmed = ref(false);
+const { t } = useI18n();
 
 // Fetch cart items
 const fetchCart = async () => {
@@ -302,8 +303,8 @@ const fetchCart = async () => {
     console.error('❌ Failed to fetch cart:', err);
     Swal.fire({
       icon: 'error',
-      title: 'Failed to load cart',
-      text: 'Please try refreshing the page.',
+      title: t('alerts.failedToLoadCart'),
+      text: t('alerts.tryAgain'),
       timer: 3000,
       showConfirmButton: false,
     });
@@ -323,10 +324,10 @@ const getProductImage = (item) => {
 
 const getProductName = (item) => {
   if (!token) {
-    return item.productData?.name || 'Product';
+    return item.productData?.name || t('common.product');
   }
   const product = products.value[item.productId];
-  return product?.name || 'Product';
+  return product?.name || t('common.product');
 };
 
 const getProductPrice = (item) => {
@@ -347,11 +348,13 @@ const getProductDiscount = (item) => {
 
 const getProductDescription = (item) => {
   if (!token) {
-    return item.productData?.description || 'No description available.';
+    return item.productData?.description || t('products.noDescription');
   }
   const product = products.value[item.productId];
-  return product?.description || 'No description available.';
+  return product?.description || t('products.noDescription');
 };
+
+
 
 const getProductOldPrice = (item) => {
   if (!token) {
@@ -414,10 +417,11 @@ const updateQuantity = async (item, newQuantity) => {
     console.error('Error updating quantity:', err);
     Swal.fire({
       icon: 'error',
-      title: 'Failed to update quantity',
+      title: t('alerts.failedToUpdateQuantity'),
       timer: 1500,
       showConfirmButton: false,
     });
+
   }
 };
 
@@ -440,30 +444,32 @@ const removeItem = async (id) => {
 
     Swal.fire({
       icon: 'success',
-      title: 'Item removed from cart',
+      title: t('alerts.removedFromCart'),
       timer: 1000,
       showConfirmButton: false,
     });
+
   } catch (err) {
     Swal.fire({
       icon: 'error',
-      title: 'Failed to remove item',
+      title: t('alerts.failedToRemoveItem'),
       timer: 1500,
       showConfirmButton: false,
     });
+
   }
 };
 
-// Clear entire cart
 const clearCart = async () => {
   const result = await Swal.fire({
-    title: 'Clear Cart?',
-    text: 'Are you sure you want to remove all items from your cart?',
+    title: t('alerts.clearCartTitle'),
+    text: t('alerts.clearCartText'),
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#d33',
     cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, clear it!'
+    confirmButtonText: t('alerts.confirmClear'),
+    cancelButtonText: t('common.cancel')
   });
 
   if (result.isConfirmed) {
@@ -472,7 +478,6 @@ const clearCart = async () => {
         localStorage.removeItem('cart');
         cartItems.value = [];
       } else {
-        // Remove all cart items for the user
         for (const item of cartItems.value) {
           await axios.delete(`${API}/deleteDoc/Cart/${item._id}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -483,20 +488,21 @@ const clearCart = async () => {
 
       Swal.fire({
         icon: 'success',
-        title: 'Cart cleared!',
+        title: t('alerts.cartCleared'),
         timer: 1000,
         showConfirmButton: false,
       });
     } catch (err) {
       Swal.fire({
         icon: 'error',
-        title: 'Failed to clear cart',
+        title: t('alerts.failedToClearCart'),
         timer: 1500,
         showConfirmButton: false,
       });
     }
   }
 };
+
 
 // Proceed to checkout
 const openQRModal = async () => {
@@ -507,7 +513,11 @@ const openQRModal = async () => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
-      Swal.fire({ icon: 'error', title: 'Login required', text: 'Please login to continue.' });
+      Swal.fire({ 
+        icon: 'error', 
+        title: t('alerts.loginRequired'), 
+        text: t('alerts.pleaseLoginToContinue') 
+      });
       isProcessing.value = false;
       return;
     }
@@ -527,7 +537,11 @@ const openQRModal = async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.data || !res.data.data) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Invalid response from server' });
+      Swal.fire({ 
+        icon: 'error', 
+        title: t('alerts.error'), 
+        text: t('alerts.invalidServerResponse') 
+      });
       isProcessing.value = false;
       return;
     }
@@ -536,24 +550,38 @@ const openQRModal = async () => {
     if (data.qrCodeUrl) {
       qrImageUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qrCodeUrl)}`;
     } else {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to generate QR code' });
+      Swal.fire({ 
+        icon: 'error', 
+        title: t('alerts.error'), 
+        text: t('alerts.qrGenerationFailed') 
+      });
       isProcessing.value = false;
       return;
     }
     showQRModal.value = true;
   } catch (err) {
-    Swal.fire({ icon: 'error', title: 'Failed to initiate payment', text: err?.response?.data?.message || 'Please try again.' });
+    Swal.fire({ 
+      icon: 'error', 
+      title: t('alerts.paymentInitiationFailed'), 
+      text: err?.response?.data?.message || t('alerts.tryAgain') 
+    });
   } finally {
     isProcessing.value = false;
   }
 };
 
+
 const createOrders = async () => {
   const token = localStorage.getItem('token');
   if (!token) {
-    Swal.fire({ icon: 'error', title: 'Login required', text: 'Please login to continue.' });
+    Swal.fire({ 
+      icon: 'error', 
+      title: $t('alerts.loginRequired'), 
+      text: $t('alerts.pleaseLoginToContinue') 
+    });
     return;
   }
+
   try {
     // Prepare order items
     const orderItems = cartItems.value.map(item => ({
@@ -579,19 +607,27 @@ const createOrders = async () => {
     await axios.post(`${API}/insertDoc/Order`, orderPayload, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    Swal.fire({ icon: 'success', title: 'Order submitted!', timer: 1500, showConfirmButton: false });
+    Swal.fire({ icon: 'success', title: $t('alerts.orderSubmitted'),  timer: 1500, showConfirmButton: false });
     showQRModal.value = false;
     // Optionally clear cart here
     await fetchCart();
   } catch (err) {
-    Swal.fire({ icon: 'error', title: 'Order creation failed', text: err?.response?.data?.message || 'Please contact support.' });
+  Swal.fire({ 
+      icon: 'error', 
+      title: $t('alerts.orderCreationFailed'), 
+      text: err?.response?.data?.message || $t('alerts.contactSupport') 
+    });
   }
 };
 
 const confirmPayment = async () => {
   try {
     if (!qrTransaction.value || !qrTransaction.value._id) {
-      Swal.fire({ icon: 'error', title: 'Invalid transaction', text: 'Please try again.' });
+      Swal.fire({ 
+        icon: 'error', 
+        title: t('alerts.invalidTransaction'), 
+        text: t('alerts.tryAgain') 
+      });
       return;
     }
     const txId = qrTransaction.value._id;
@@ -600,7 +636,7 @@ const confirmPayment = async () => {
     try {
       await axios.post(`${API}/transaction/update-scanned`, {
         transactionId: txId,
-        scannerInfo: { accountId: 'customer', bankName: 'BAKONG', deviceInfo: 'Web Browser' }
+        scannerInfo: { accountId: t('scanner.customer'), bankName: t('scanner.bankBakong'), deviceInfo: t('scanner.webBrowser') }
       }, { headers: { Authorization: `Bearer ${token}` } });
     } catch (scanErr) { /* ignore */ }
     // Mark as paid
@@ -608,7 +644,11 @@ const confirmPayment = async () => {
     // Create the order
     await createOrders();
   } catch (err) {
-    Swal.fire({ icon: 'error', title: 'Confirm failed', text: err?.response?.data?.message || 'Please try again.' });
+    Swal.fire({ 
+      icon: 'error', 
+      title: t('alerts.confirmFailed'), 
+      text: err?.response?.data?.message || t('alerts.tryAgain') 
+    });
   }
 };
 

@@ -1,15 +1,15 @@
 <template>
   <div class="history-page">
     <div class="header-section">
-      <h1 class="page-title">Your Order History</h1>
-      <p class="page-subtitle">Review your past purchases and order details</p>
+      <h1 class="page-title">{{ $t('history.yourOrderHistory') }}</h1>
+      <p class="page-subtitle">{{ $t('history.reviewPastPurchases') }}</p>
       
       <div class="action-bar" v-if="orderHistory.length > 0">
         <button class="btn-clear" @click="confirmClearAll">
-          <i class="fas fa-trash-alt"></i> Clear All History
+          <i class="fas fa-trash-alt"></i> {{ $t('history.clearAllHistory') }}
         </button>
         <div class="order-count">
-          <i class="fas fa-history"></i> {{ orderHistory.length }} {{ orderHistory.length === 1 ? 'Order' : 'Orders' }}
+          {{ orderHistory.length }} {{ orderHistory.length === 1 ? $t('history.order') : $t('history.orders') }}
         </div>
       </div>
     </div>
@@ -22,7 +22,7 @@
               <i class="far fa-calendar-alt"></i> {{ formatDate(order.date) }}
             </h3>
             <div class="order-total">
-              Total: ${{ calculateOrderTotal(order.items).toFixed(2) }}
+              {{ $t('history.total') }}: ${{ calculateOrderTotal(order.items).toFixed(2) }}
             </div>
           </div>
           <button class="btn-remove-order" @click="removeOrder(index)">
@@ -41,7 +41,7 @@
               <p class="item-price">${{ item.price.toFixed(2) }}</p>
               <div class="item-actions">
                 <button class="btn-reorder" @click="reorderItem(item)">
-                  <i class="fas fa-redo"></i> Reorder
+                  <i class="fas fa-redo"></i> {{ $t('history.reorder') }}
                 </button>
               </div>
             </div>
@@ -54,19 +54,19 @@
       <div class="empty-icon">
         <i class="fas fa-shopping-basket"></i>
       </div>
-      <h3>No Order History Yet</h3>
-      <p>Your completed orders will appear here</p>
-      <button class="btn-shop" @click="navigateToShop">Start Shopping</button>
+      <h3>{{ $t('history.noHistoryYet') }}</h3>
+      <p>{{ $t('history.completedOrdersAppear') }}</p>
+      <button class="btn-shop" @click="navigateToShop">{{ $t('history.startShopping') }}</button>
     </div>
 
     <!-- Clear All Confirmation Modal -->
     <div v-if="showClearConfirm" class="modal-overlay">
       <div class="modal-content">
-        <h3>Clear All Order History?</h3>
-        <p>This action cannot be undone. All your order history will be permanently deleted.</p>
+        <h3>{{ $t('history.clearAllConfirmTitle') }}</h3>
+        <p>{{ $t('history.clearAllConfirmText') }}</p>
         <div class="modal-actions">
-          <button class="btn-cancel" @click="showClearConfirm = false">Cancel</button>
-          <button class="btn-confirm" @click="clearAllHistory">Clear All</button>
+          <button class="btn-cancel" @click="showClearConfirm = false">{{ $t('common.cancel') }}</button>
+          <button class="btn-confirm" @click="clearAllHistory">{{ $t('history.clearAll') }}</button>
         </div>
       </div>
     </div>
@@ -126,8 +126,13 @@ getItemImage(item) {
       localStorage.setItem('orderHistory', JSON.stringify(this.orderHistory));
     },
     reorderItem(item) {
-      // Implement reorder functionality
-      alert(`Added ${item.name} to your cart!`);
+      this.$swal({
+        icon: 'success',
+        title: this.$t('history.itemAdded'),
+        text: this.$t('history.addedToCart', { item: item.name }),
+        timer: 1500,
+        showConfirmButton: false
+      });
     },
     navigateToShop() {
       // Implement navigation to shop

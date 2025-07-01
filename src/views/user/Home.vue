@@ -69,7 +69,7 @@
 
               <!-- Description -->
               <p class="text-sm text-gray-600 text-center mb-3 flex-grow">
-                {{ product.description || 'Premium quality product' }}
+                {{ product.description || $t('home.premiumProduct') }}
               </p>
 
               <!-- Price -->
@@ -81,7 +81,7 @@
                   ៛{{ formatPrice(calculateFinalPrice(product)) }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
-                  Save {{ product.discount }}%
+                   {{ $t('common.save') }} {{ product.discount }}%
                 </span>
               </div>
 
@@ -138,7 +138,7 @@
 
               <!-- Description -->
               <p class="text-sm text-gray-600 text-center mb-3 flex-grow">
-                {{ product.description || 'Premium quality product' }}
+                {{ product.description || $t('home.premiumProduct') }}
               </p>
 
               <!-- Price -->
@@ -150,7 +150,7 @@
                   ៛{{ formatPrice(calculateFinalPrice(product)) }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
-                  Save {{ product.discount }}%
+                  {{ $t('common.save') }} {{ product.discount }}%
                 </span>
               </div>
 
@@ -162,7 +162,7 @@
 
                 <button @click="addToCart(product)"
                   class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow ml-2 hover:bg-orange-400 hover:text-white">
-                  Add to Cart
+                  {{ $t('common.addToCart') }}
                 </button>
               </div>
             </div>
@@ -180,7 +180,7 @@
         <!-- Company Logo and Slogan -->
         <div class="flex flex-col items-center md:items-start">
           <img src="@/assets/logo-removebg.png" alt="Taing Eang Huot Rice Mill" class="w-32 mb-4" />
-          <p class="text-sm italic">Better Rice, Better Life!</p>
+          <p class="text-sm italic">{{ $t('footer.slogan') }}</p>
         </div>
 
         <!-- Factory Address -->
@@ -193,9 +193,9 @@
             </svg>
           </div>
           <div>
-            <h3 class="font-bold mb-1">Factory address</h3>
-            <p class="text-sm">No.01, Street 1510, Andong Jenh Village, Ouchar District, Battambang City, Battambang
-              Province, Cambodia.</p>
+            <h3 class="font-bold mb-1">{{ $t('footer.factoryAddress') }}</h3>
+            <h3 class="font-bold mb-1">{{ $t('footer.officeAddress') }}</h3>
+            <h3 class="font-bold mb-1">{{ $t('footer.emailUs') }}</h3>
           </div>
         </div>
 
@@ -209,8 +209,8 @@
             </svg>
           </div>
           <div>
-            <h3 class="font-bold mb-1">Office address</h3>
-            <p class="text-sm">No.1 Borey Honglay, Street Lu5, Stung Mean Chey 3, Mean Chey, Phnom Penh, Cambodia.</p>
+            <h3 class="font-bold mb-1">{{ $t('footer.officeAddress') }}</h3>
+            <p class="text-sm">{{ $t('footer.officeAddressDetail') }}</p>
           </div>
         </div>
 
@@ -224,7 +224,7 @@
             </svg>
           </div>
           <div>
-            <h3 class="font-bold mb-1">Email Us</h3>
+            <h3 class="font-bold mb-1">{{ $t('footer.emailUs') }}</h3>
             <p class="text-sm">Info@tehrice.com</p>
           </div>
         </div>

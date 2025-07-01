@@ -1,8 +1,6 @@
 {
  "companyName" : "Tang Eang Hout",
-
-
-
+ "logout": "Logout",
  
  "nav": {
     "home": "Home",
@@ -27,7 +25,6 @@
   },
 
 
-
   
 
   "home": {
@@ -36,19 +33,17 @@
     "allProductsTitle": "All Products",
     "rateProduct": "Rate this product",
     "rateFor": "Rate For",
-    "reviewPlaceholder": "Write a review (optional)"
+    "reviewPlaceholder": "Write a review (optional)",
+    "premiumProduct": "Premium quality product"
   },
   "common": {
     "viewAll": "View All",
     "addToCart": "Add to Cart",
     "submit": "Submit",
-    "cancel": "Cancel"
-  },
-  "cart": {
-    "title": "Your Cart",
-    "empty": "Your cart is empty",
-    "subtotal": "Subtotal",
-    "viewCart": "View Cart"
+    "cancel": "Cancel",
+    "save": "Save",
+    "na": "N/A",
+    "product": "Product"
   },
   "alerts": {
     "addedToCart": "Added to cart!",
@@ -63,7 +58,138 @@
     "thankYouForRating": "Thank you for your rating!",
     "failedToSubmitRating": "Failed to submit rating",
     "tryAgain": "Please try again",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "failedToLoadFavorites": "Failed to load favorites",
+    "failedToRemoveFavorite": "Failed to remove favorite",
+    "clearCartTitle": "Clear Cart?",
+    "clearCartText": "Are you sure you want to remove all items from your cart?",
+    "confirmClear": "Yes, clear it!",
+    "cartCleared": "Cart cleared!",
+    "failedToClearCart": "Failed to clear cart",
+    "loginRequired": "Login required",
+    "pleaseLoginToContinue": "Please login to continue.",
+    "error": "Error",
+    "invalidServerResponse": "Invalid response from server.",
+    "qrGenerationFailed": "Failed to generate QR code.",
+    "paymentInitiationFailed": "Failed to initiate payment",
+    "invalidTransaction": "Invalid transaction",
+    "confirmFailed": "Confirmation failed",
+    "orderSubmitted": "Order submitted!",
+    "orderCreationFailed": "Order creation failed",
+    "contactSupport": "Please contact support."
+  },
+  "footer": {
+    "slogan": "Better Rice, Better Life!",
+    "factoryAddress": "Factory address",
+    "officeAddress": "Office address",
+    "officeAddressDetail": "No.1 Borey Honglay, Street Lu5, Stung Mean Chey 3, Mean Chey, Phnom Penh, Cambodia.",
+    "emailUs": "Email Us"
+  },
+
+
+
+  "favorites": {
+  "title": "Your Favorites",
+  "loading": "Loading your favorites...",
+  "emptyTitle": "No favorites yet",
+  "emptyDescription": "Start adding products to your favorites to see them here!",
+  "browseProducts": "Browse Products",
+  "unknownProduct": "Unknown Product",
+  "premiumQuality": "Premium quality product",
+  "addToCart": "Add to Cart"
+  },
+
+
+
+
+
+  "cart": {
+    "clearAll": "Clear All",
+    "itemsTitle": "Cart Items",
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "viewCart": "View Cart",
+    "items": "{count} item(s) in your cart",
+    "emptyDescription": "Looks like you haven't added any items to your cart yet.",
+    "continueShopping": "Continue Shopping",
+    "orderSummary": "Order Summary",
+    "subtotal": "Sub Total",
+    "discount": "Discount",
+    "total": "Total",
+    "proceedToCheckout": "Proceed to Checkout",
+    "processing": "Processing...",
+    "shopName": "Rice Shop",
+    "expiresIn": "Expires in 5 minutes",
+    "confirmPaymentText": "I confirm that I have scanned and paid",
+    "iHavePaid": "I'VE PAID",
+    "loadingQR": "Loading QR code..."
+  },
+
+  "scanner": {
+    "customer": "Customer",
+    "bankBakong": "Bakong Bank",
+    "webBrowser": "Web Browser"
+  },
+
+
+  "profile": {
+    "noEmail": "No email provided",
+    "personalInfo": "Personal Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "address": "Address",
+    "city": "City",
+    "postalCode": "Postal Code",
+    "saveChanges": "Save Changes"
+  },
+
+
+
+  "history": {
+    "yourOrderHistory": "Your Order History",
+    "reviewPastPurchases": "Review your past purchases and order details",
+    "clearAllHistory": "Clear All History",
+    "order": "Order",
+    "orders": "Orders",
+    "total": "Total",
+    "reorder": "Reorder",
+    "noHistoryYet": "No Order History Yet",
+    "completedOrdersAppear": "Your completed orders will appear here",
+    "startShopping": "Start Shopping",
+    "clearAllConfirmTitle": "Clear All Order History?",
+    "clearAllConfirmText": "This action cannot be undone. All your order history will be permanently deleted.",
+    "clearAll": "Clear All",
+    "itemAdded": "Item Added",
+    "addedToCart": "{{item}} has been added to your cart!"
+  },
+
+
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with our support team",
+    "ourInfo": "Our Information",
+    "address": "123 Main Street, City, Country",
+    "phone": "+1 (555) 123-4567",
+    "email": "support@example.com",
+    "hours": "Monday - Friday: 9:00 AM - 5:00 PM",
+    "connect": "Connect With Us",
+    "sendMessage": "Send Us a Message",
+    "name": "Name",
+    "emailLabel": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "sending": "Sending...",
+    "send": "Send Message",
+    "success": "Thank you! Your message has been sent successfully.",
+    "errors": {
+      "name": "Name is required",
+      "email": "Email is required",
+      "emailValid": "Please enter a valid email",
+      "subject": "Subject is required",
+      "message": "Message is required"
+    }
   }
 
 }

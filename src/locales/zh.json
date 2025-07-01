@@ -31,26 +31,23 @@
 
 
 
-  
+
   "home": {
     "searchPlaceholder": "搜索产品...",
     "newProductsTitle": "新品推荐",
     "allProductsTitle": "所有产品",
     "rateProduct": "评价此产品",
     "rateFor": "评分：",
-    "reviewPlaceholder": "写下评价（可选）"
+    "reviewPlaceholder": "写下评价（可选）",
+    "premiumProduct": "优质产品"
   },
   "common": {
     "viewAll": "查看全部",
     "addToCart": "加入购物车",
     "submit": "提交",
-    "cancel": "取消"
-  },
-  "cart": {
-    "title": "您的购物车",
-    "empty": "您的购物车是空的",
-    "subtotal": "小计",
-    "viewCart": "查看购物车"
+    "cancel": "取消",
+    "save": "省",
+    "product": "商品"
   },
   "alerts": {
     "addedToCart": "已加入购物车！",
@@ -65,6 +62,145 @@
     "thankYouForRating": "感谢您的评分！",
     "failedToSubmitRating": "提交评分失败",
     "tryAgain": "请再试一次",
-    "unknownError": "未知错误"
+    "unknownError": "未知错误",
+    "clearCartTitle": "清空购物车？",
+    "clearCartText": "您确定要移除购物车中的所有商品吗？",
+    "confirmClear": "是的，清空！",
+    "cartCleared": "购物车已清空！",
+    "failedToClearCart": "清空购物车失败",
+    "loginRequired": "需要登录",
+    "pleaseLoginToContinue": "请登录后继续操作。",
+    "error": "错误",
+    "invalidServerResponse": "服务器响应无效。",
+    "qrGenerationFailed": "生成二维码失败。",
+    "paymentInitiationFailed": "支付启动失败",
+    "invalidTransaction": "无效的交易",
+    "confirmFailed": "确认失败",
+    "loadingQR": "正在加载二维码...",
+    "orderSubmitted": "订单已提交！",
+    "orderCreationFailed": "订单创建失败",
+    "contactSupport": "请联系支持人员。"
+
+  },
+  "footer": {
+    "slogan": "好米造就更好生活！",
+    "factoryAddress": "工厂地址",
+    "officeAddress": "办公室地址",
+    "officeAddressDetail": "柬埔寨金边市敏切区敏切3区Lu5街Honglay城1号。",
+    "emailUs": "给我们发邮件"
+  },
+
+
+
+
+
+  "favorites": {
+    "title": "您的收藏",
+    "loading": "正在加载您的收藏...",
+    "emptyTitle": "暂无收藏",
+    "emptyDescription": "开始将商品加入收藏，即可在这里查看！",
+    "browseProducts": "浏览商品",
+    "unknownProduct": "未知商品",
+    "premiumQuality": "优质商品",
+    "addToCart": "加入购物车"
+  },
+
+
+
+
+
+
+
+  "cart": {
+    "title": "您的购物车",
+    "clearAll": "清空购物车",
+    "itemsTitle": "购物车商品",
+    "empty": "您的购物车是空的",
+    "subtotal": "小计",
+    "viewCart": "查看购物车",
+    "items": "您的购物车中有 {count} 件商品",
+    "emptyDescription": "看起来您还没有将任何商品添加到购物车。",
+    "continueShopping": "继续购物",
+    "orderSummary": "订单摘要",
+    "discount": "折扣",
+    "total": "总计",
+    "proceedToCheckout": "继续结账",
+    "processing": "处理中...",
+    "shopName": "大米商店",
+    "expiresIn": "5分钟后过期",
+    "confirmPaymentText": "我确认我已扫描并付款",
+    "iHavePaid": "我已付款"
+  },
+
+
+  "scanner": {
+    "customer": "客户",
+    "bankBakong": "BAKONG 银行",
+    "webBrowser": "网页浏览器"
+  },
+
+
+  "profile": {
+    "noEmail": "未提供邮箱",
+    "personalInfo": "个人信息",
+    "firstName": "名",
+    "lastName": "姓",
+    "email": "电子邮件",
+    "phone": "电话号码",
+    "address": "地址",
+    "city": "城市",
+    "postalCode": "邮政编码",
+    "saveChanges": "保存更改"
+  },
+
+
+  "history": {
+    "yourOrderHistory": "您的订单历史",
+    "reviewPastPurchases": "查看您过去的购买记录和订单详情",
+    "clearAllHistory": "清除所有历史",
+    "order": "订单",
+    "orders": "订单",
+    "total": "总计",
+    "reorder": "再次购买",
+    "noHistoryYet": "暂无订单历史",
+    "completedOrdersAppear": "您完成的订单将显示在这里",
+    "startShopping": "开始购物",
+    "clearAllConfirmTitle": "清除所有订单历史？",
+    "clearAllConfirmText": "此操作无法撤销。所有订单历史将被永久删除。",
+    "clearAll": "清除全部",
+    "itemAdded": "商品已添加",
+    "addedToCart": "{{item}} 已添加到您的购物车！"
+  },
+
+
+
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "与我们的支持团队取得联系",
+    "ourInfo": "我们的信息",
+    "address": "123 主街，城市，国家",
+    "phone": "+1 (555) 123-4567",
+    "email": "support@example.com",
+    "hours": "周一 - 周五：上午9:00 - 下午5:00",
+    "connect": "与我们联系",
+    "sendMessage": "发送消息给我们",
+    "name": "姓名",
+    "emailLabel": "电子邮件",
+    "subject": "主题",
+    "message": "留言",
+    "sending": "发送中...",
+    "send": "发送消息",
+    "success": "谢谢！您的消息已成功发送。",
+    "errors": {
+      "name": "姓名为必填项",
+      "email": "电子邮件为必填项",
+      "emailValid": "请输入有效的电子邮件",
+      "subject": "主题为必填项",
+      "message": "留言为必填项"
+    }
   }
+
+
+
+
 }

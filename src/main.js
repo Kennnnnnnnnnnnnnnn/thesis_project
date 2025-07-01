@@ -25,13 +25,13 @@ import en from './locales/en.json';
 import kh from './locales/kh.json';
 import zh from './locales/zh.json';
 
-// 🔧 Create instances
+//  Create instances
 const app = createApp(App);
 const pinia = createPinia();
 
 pinia.use(piniaPluginPersistedstate);
 
-// 🔌 Create Vuetify instance
+//  Create Vuetify instance
 const vuetify = createVuetify({
   components,
   directives,
@@ -42,7 +42,7 @@ const vuetify = createVuetify({
   },
 });
 
-// 🔌 Create Vue I18n instance
+//  Create Vue I18n instance
 const i18n = createI18n({
   legacy: false,
   locale: 'en',
