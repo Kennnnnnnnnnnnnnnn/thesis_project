@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import api from '@/api/config' // Make sure this is your Axios instance
+import api from '@/api/config' 
 
 const amount = 600
 const name = 'Ant'

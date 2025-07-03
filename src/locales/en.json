@@ -68,7 +68,10 @@
     "active": "Active",
     "inactive": "Inactive",
     "reset": "Reset",
-    "actions": "Actions"
+    "actions": "Actions",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
   },
   "alerts": {
     "addedToCart": "Added to cart!",
@@ -264,7 +267,23 @@
     "subtotal": "Subtotal",
     "close": "Close",
     "updateOrder": "Update Order"
+  },
+
+
+  "register": {
+    "title": "Register Account",
+    "phone": "Phone Number",
+    "password": "Password",
+    "registerBtn": "Register",
+    "alreadyHaveAccount": "Already have an account? Login",
+    "fillAllFields": "Please fill in all fields",
+    "registerSuccess": "Registered successfully!",
+    "registerFailed": "Registration failed",
+    "tryAgain": "Please try again",
+    "confirmPassword": "Confirm Password",
+    "passwordMismatch": "Passwords do not match"
   }
+
 
 
 

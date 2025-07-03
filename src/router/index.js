@@ -11,6 +11,7 @@ const routes = [
     component: DefaultLayout,
     children: [
       { path: '', name: 'Home', component: () => import('@/views/user/Home.vue') },
+      { path: '/register', name: 'Register', component: () => import('@/views/user/Register.vue')},
       { path: '/product', name: 'Product', component: () => import('@/views/user/Product.vue') },
       { path: '/favorite', name: 'Favorite', component: () => import('@/views/user/Favorite.vue') },
       { path: '/cart', name: 'Cart', component: () => import('@/views/user/Cart.vue') },

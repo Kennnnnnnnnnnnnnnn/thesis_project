@@ -308,6 +308,7 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
 import apiURL from '@/api/config';
 import cover1 from '@/assets/cover1.png';
 import cover2 from '@/assets/cover2.png';
@@ -334,6 +335,7 @@ const showRatingModal = ref(false);
 const selectedProduct = ref(null);
 const rating = ref(0);
 const review = ref('');
+const { t } = useI18n();
 
 // Slides data
 const slides = ref([
@@ -401,9 +403,10 @@ async function fetchCartItems() {
     // First, fetch cart items
     const cartRes = await axios.get(`${apiURL}/api/getAllDocs/Cart`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        Authorization: token ? `Bearer ${token}` : ''
       }
     })
+
 
     if (cartRes.data && cartRes.data.success) {
       cartItems.value = cartRes.data.data
@@ -413,11 +416,11 @@ async function fetchCartItems() {
       
       // Fetch product details for all products in cart
       if (productIds.length > 0) {
-        const productRes = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
+          headers: { Authorization: token ? `Bearer ${token}` : '' }
+        });
+
         
         if (productRes.data && productRes.data.success) {
           // Create a map of product data for easy access
@@ -547,19 +550,19 @@ async function addToCart(product) {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: token ? `Bearer ${token}` : '',
             'Content-Type': 'application/json'
           }
         }
       )
       
       if (response.data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: $t('alerts.addedToCart'),
-          timer: 1000,
-          showConfirmButton: false
-        })
+        // Swal.fire({
+        //   icon: 'success',
+        //   title: t('alerts.addedToCart'),
+        //   timer: 1000,
+        //   showConfirmButton: false
+        // })
         // Refresh cart items
         await fetchCartItems()
         // Show cart drawer
@@ -569,8 +572,8 @@ async function addToCart(product) {
       console.error('Error adding to cart:', err)
       Swal.fire({
         icon: 'error',
-        title: $t('alerts.selectRating'),
-        text: err.response?.data?.message || $t('alerts.unknownError'),
+        title: t('alerts.selectRating'),
+        text: err.response?.data?.message || t('alerts.unknownError'),
         timer: 1500,
         showConfirmButton: false
       })
@@ -603,7 +606,7 @@ async function addToCart(product) {
     
     Swal.fire({
       icon: 'success',
-      title: $t('alerts.addedToCart'),
+      title: t('alerts.addedToCart'),
       timer: 1000,
       showConfirmButton: false
     })
@@ -629,7 +632,7 @@ async function updateCartQuantity(item, newQuantity) {
         },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: token ? `Bearer ${token}` : '',
             'Content-Type': 'application/json'
           }
         }
@@ -641,7 +644,7 @@ async function updateCartQuantity(item, newQuantity) {
       console.error('Error updating cart quantity:', err)
       Swal.fire({
         icon: 'error',
-        title: $t('alerts.updateQuantityFailed'),
+        title: t('alerts.updateQuantityFailed'),
         timer: 1500,
         showConfirmButton: false
       })
@@ -669,24 +672,24 @@ async function removeFromCart(itemId) {
     try {
       await axios.delete(`${apiURL}/api/deleteDoc/Cart/${itemId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: token ? `Bearer ${token}` : ''
         }
       })
       
       // Remove from local state
       cartItems.value = cartItems.value.filter(item => item._id !== itemId)
       
-      Swal.fire({
-        icon: 'success',
-        title: $t('alerts.removedFromCart'),
-        timer: 1000,
-        showConfirmButton: false
-      })
+      // Swal.fire({
+      //   icon: 'success',
+      //   title: t('alerts.removedFromCart'),
+      //   timer: 1000,
+      //   showConfirmButton: false
+      // })
     } catch (err) {
       console.error('Error removing from cart:', err)
       Swal.fire({
         icon: 'error',
-        title: $t('alerts.failedToRemoveItem'),
+        title: t('alerts.failedToRemoveItem'),
         timer: 1500,
         showConfirmButton: false
       })
@@ -744,7 +747,7 @@ async function toggleFavorite(product) {
         // Remove favorite
         console.log('🔍 Removing favorite from backend');
         const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
-          headers: { Authorization: `Bearer ${store.getToken}` }
+          headers: { Authorization: token ? `Bearer ${token}` : '' }
         });
         
         console.log('🔍 Favorites response:', res.data);
@@ -760,7 +763,7 @@ async function toggleFavorite(product) {
           console.log('🔍 Favorite removed successfully');
           Swal.fire({ 
             icon: 'success', 
-            title: $t('alerts.removedFromFavorites'), 
+            title: t('alerts.removedFromFavorites'), 
             timer: 1000, 
             showConfirmButton: false 
           });
@@ -773,8 +776,8 @@ async function toggleFavorite(product) {
             productId: product._id
           }
         }, {
-          headers: { 
-            Authorization: `Bearer ${store.getToken}`,
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
             'Content-Type': 'application/json'
           }
         });
@@ -784,7 +787,7 @@ async function toggleFavorite(product) {
         console.log('🔍 Favorite added successfully');
         Swal.fire({ 
           icon: 'success', 
-          title: $t('alerts.addedToFavorites'), 
+          title: t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -801,7 +804,7 @@ async function toggleFavorite(product) {
         console.log('🔍 Favorite removed from localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: $t('alerts.removedFromFavorites'), 
+          title: t('alerts.removedFromFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -816,7 +819,7 @@ async function toggleFavorite(product) {
         console.log('🔍 Favorite added to localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: $t('alerts.addedToFavorites'), 
+          title: t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -828,8 +831,8 @@ async function toggleFavorite(product) {
     console.error('❌ Error response:', err.response?.data);
     Swal.fire({ 
       icon: 'error', 
-      title: $t('alerts.failedToUpdateFavorite'), 
-      text: err.response?.data?.message || $t('alerts.pleaseTryAgain'),
+      title: t('alerts.failedToUpdateFavorite'), 
+      text: err.response?.data?.message || t('alerts.pleaseTryAgain'),
       timer: 2000, 
       showConfirmButton: false 
     });
@@ -917,7 +920,7 @@ async function submitRating() {
         createdBy: store.getUserId,
       }
     }, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: token ? `Bearer ${token}` : '' }
     });
     Swal.fire({ icon: 'success', title: $t('alerts.thankYouForRating') });
     showRatingModal.value = false;
