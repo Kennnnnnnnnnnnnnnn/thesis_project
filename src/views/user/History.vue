@@ -1,527 +1,255 @@
 <template>
-  <div class="history-page">
-    <div class="header-section">
-      <h1 class="page-title">{{ $t('history.yourOrderHistory') }}</h1>
-      <p class="page-subtitle">{{ $t('history.reviewPastPurchases') }}</p>
-      
-      <div class="action-bar" v-if="orderHistory.length > 0">
-        <button class="btn-clear" @click="confirmClearAll">
-          <i class="fas fa-trash-alt"></i> {{ $t('history.clearAllHistory') }}
-        </button>
-        <div class="order-count">
-          {{ orderHistory.length }} {{ orderHistory.length === 1 ? $t('history.order') : $t('history.orders') }}
+  <div class="history-page min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+      <!-- Header Section -->
+      <div class="text-center mb-10">
+        <h1 class="text-3xl sm:text-4xl font-bold text-yellow-800">
+          {{ $t('history.yourOrderHistory') }}
+        </h1>
+        <p class="mt-2 text-lg text-gray-600">
+          {{ $t('history.reviewPastPurchases') }}
+        </p>
+        <div v-if="orders.length > 0" class="mt-6 bg-white shadow-sm rounded-lg p-4 flex justify-center items-center">
+          <span class="text-yellow-700 font-medium">
+            {{ orders.length }} {{ orders.length === 1 ? $t('history.order') : $t('history.orders') }}
+          </span>
         </div>
       </div>
-    </div>
 
-    <transition-group name="list" tag="div" class="order-list">
-      <div v-for="(order, index) in orderHistory" :key="order.date" class="order-card">
-        <div class="order-header">
-          <div class="order-meta">
-            <h3 class="order-date">
-              <i class="far fa-calendar-alt"></i> {{ formatDate(order.date) }}
-            </h3>
-            <div class="order-total">
-              {{ $t('history.total') }}: ${{ calculateOrderTotal(order.items).toFixed(2) }}
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex flex-col items-center justify-center py-16">
+        <div class="w-12 h-12 border-4 border-t-yellow-500 border-gray-200 rounded-full animate-spin"></div>
+        <p class="mt-4 text-gray-600">{{ $t('common.loading') }}...</p>
+      </div>
+
+      <!-- Order List -->
+      <transition-group
+        v-else
+        name="list"
+        tag="div"
+        class="grid gap-6"
+      >
+        <div
+          v-for="order in orders"
+          :key="order._id"
+          class="order-card bg-white rounded-xl shadow-lg overflow-hidden transition-transform hover:-translate-y-1 border border-yellow-200"
+        >
+          <!-- Order Header -->
+          <div class="bg-white-50 p-5 border-b border-white-200">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="flex items-center">
+                <i class="far fa-calendar-alt mr-2 text-yellow-600"></i>
+                <h3 class="text-lg font-semibold text-gray-900">
+                  {{ formatDate(order.createdAt) }}
+                </h3>
+              </div>
+              <!-- <div class="text-gray-600">
+                {{ $t('history.orderId') }}: #{{ order._id.substr(-8) }}
+              </div> -->
+              <div class="font-semibold text-yellow-700">
+                {{ $t('history.total') }}: {{ formatPrice(order.totalCost) }} ៛
+              </div>
+              <div
+                :class="getStatusClass(order.status)"
+                class="text-sm font-medium px-3 py-1 rounded-full text-center"
+              >
+                {{ $t(`history.status.${order.status}`) }}
+              </div>
             </div>
           </div>
-          <button class="btn-remove-order" @click="removeOrder(index)">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
 
-        <div class="order-items">
-          <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="item-card">
-            <div class="item-image-container">
-              <img :src="getItemImage(item)" :alt="item.name" class="item-image">
-              <span class="item-quantity-badge">{{ item.quantity || 1 }}</span>
-            </div>
-            <div class="item-details">
-              <h4 class="item-name">{{ item.name }}</h4>
-              <p class="item-price">${{ item.price.toFixed(2) }}</p>
-              <div class="item-actions">
-                <button class="btn-reorder" @click="reorderItem(item)">
-                  <i class="fas fa-redo"></i> {{ $t('history.reorder') }}
-                </button>
+          <!-- Order Items -->
+          <div class="p-5 grid gap-4">
+            <div
+              v-for="(item, itemIndex) in order.items"
+              :key="itemIndex"
+              class="flex gap-4 p-4 bg-white-50 rounded-lg  transition-colors border border-white-200"
+            >
+              <div class="relative flex-shrink-0">
+                <img
+                  :src="item.image || require('@/assets/image.png')"
+                  :alt="item.name"
+                  class="w-20 h-20 object-cover rounded-lg border border-yellow-200"
+                >
+                <span
+                  class="absolute -top-2 -right-2 bg-yellow-400 text-gray-900 text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full"
+                >
+                  {{ item.quantity || 1 }}
+                </span>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-lg font-medium text-gray-900">{{ item.name || 'Product' }}</h4>
+                <p class="text-yellow-700 font-semibold">{{ formatPrice(item.price) }} ៛</p>
+                <!-- Uncomment if reorder functionality is needed -->
+                <!-- <button
+                  @click="reorderItem(item)"
+                  class="mt-2 inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-full hover:bg-yellow-700 transition-colors"
+                >
+                  <i class="fas fa-redo mr-2"></i> {{ $t('history.reorder') }}
+                </button> -->
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </transition-group>
+      </transition-group>
 
-    <div v-if="orderHistory.length === 0" class="empty-state">
-      <div class="empty-icon">
-        <i class="fas fa-shopping-basket"></i>
-      </div>
-      <h3>{{ $t('history.noHistoryYet') }}</h3>
-      <p>{{ $t('history.completedOrdersAppear') }}</p>
-      <button class="btn-shop" @click="navigateToShop">{{ $t('history.startShopping') }}</button>
-    </div>
-
-    <!-- Clear All Confirmation Modal -->
-    <div v-if="showClearConfirm" class="modal-overlay">
-      <div class="modal-content">
-        <h3>{{ $t('history.clearAllConfirmTitle') }}</h3>
-        <p>{{ $t('history.clearAllConfirmText') }}</p>
-        <div class="modal-actions">
-          <button class="btn-cancel" @click="showClearConfirm = false">{{ $t('common.cancel') }}</button>
-          <button class="btn-confirm" @click="clearAllHistory">{{ $t('history.clearAll') }}</button>
-        </div>
+      <!-- Empty State -->
+      <div v-if="!isLoading && orders.length === 0" class="text-center py-16 bg-white rounded-xl shadow-lg border border-yellow-200">
+        <i class="fas fa-shopping-basket text-5xl text-yellow-600 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-900">{{ $t('history.noHistoryYet') }}</h3>
+        <p class="text-gray-600 mt-2">{{ $t('history.completedOrdersAppear') }}</p>
+        <button
+          @click="navigateToShop"
+          class="mt-6 inline-flex items-center px-6 py-3 bg-yellow-600 text-white font-semibold rounded-full hover:bg-yellow-700 transition-colors shadow-md hover:shadow-lg"
+        >
+          {{ $t('history.startShopping') }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'HistoryView',
-  data() {
-    return {
-      orderHistory: JSON.parse(localStorage.getItem('orderHistory')) || [],
-      showClearConfirm: false
-    };
-  },
-  methods: {
-// Update getItemImage method to match:
-getItemImage(item) {
-  if (!item?.image) {
-    return require('@/assets/image.png');
-  }
-  
+<script setup>
+import apiURL from '@/api/config.js';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const { t } = useI18n();
+const orders = ref([]);
+const isLoading = ref(true);
+const API = `${apiURL}/api`;
+
+// Fetch orders from the database
+const fetchOrders = async () => {
   try {
-    return require(`@/assets/${item.image}`);
-  } catch {
-    return require('@/assets/image.png');
-  }
-},
-    formatDate(dateString) {
-      const options = { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      };
-      return new Date(dateString).toLocaleDateString('en-US', options);
-    },
-    calculateOrderTotal(items) {
-      return items.reduce((total, item) => {
-        return total + (item.price * (item.quantity || 1));
-      }, 0);
-    },
-    removeOrder(index) {
-      this.orderHistory.splice(index, 1);
-      this.saveHistory();
-    },
-    confirmClearAll() {
-      this.showClearConfirm = true;
-    },
-    clearAllHistory() {
-      this.orderHistory = [];
-      localStorage.removeItem('orderHistory');
-      this.showClearConfirm = false;
-    },
-    saveHistory() {
-      localStorage.setItem('orderHistory', JSON.stringify(this.orderHistory));
-    },
-    reorderItem(item) {
-      this.$swal({
-        icon: 'success',
-        title: this.$t('history.itemAdded'),
-        text: this.$t('history.addedToCart', { item: item.name }),
-        timer: 1500,
-        showConfirmButton: false
-      });
-    },
-    navigateToShop() {
-      // Implement navigation to shop
-      this.$router.push('/shop');
+    isLoading.value = true;
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
     }
+    
+    const response = await axios.get(`${API}/getAllDocs/Order`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    if (response.data && response.data.success) {
+      orders.value = response.data.data.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    }
+  } catch (error) {
+    console.error('Failed to fetch orders:', error);
+    Swal.fire({
+      icon: 'error',
+      title: t('alerts.error'),
+      text: t('alerts.failedToLoadOrders')
+    });
+  } finally {
+    isLoading.value = false;
   }
 };
+
+// Format date
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  
+  const options = { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  };
+  return new Date(dateString).toLocaleDateString('en-US', options);
+};
+
+// Format price
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('en-US').format(Math.round(price || 0));
+};
+
+// Status classes
+const getStatusClass = (status) => {
+  const statusMap = {
+    paid: 'bg-green-100 text-green-800',
+    pending: 'bg-yellow-100 text-yellow-800',
+    delivered: 'bg-blue-100 text-blue-800',
+    cancelled: 'bg-red-100 text-red-800'
+  };
+  
+  return statusMap[status] || 'bg-gray-100 text-gray-800';
+};
+
+// Reorder item (uncomment if needed)
+const reorderItem = async (item) => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    
+    const cartPayload = {
+      fields: {
+        productId: item.productId,
+        quantity: item.quantity || 1
+      }
+    };
+    
+    await axios.post(`${API}/insertDoc/Cart`, cartPayload, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    Swal.fire({
+      icon: 'success',
+      title: t('history.itemAdded'),
+      text: t('history.addedToCart', { item: item.name || 'Product' }),
+      timer: 1500,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    console.error('Failed to add item to cart:', error);
+    Swal.fire({
+      icon: 'error',
+      title: t('alerts.error'),
+      text: t('alerts.failedToAddToCart')
+    });
+  }
+};
+
+// Navigate to shop
+const navigateToShop = () => {
+  router.push('/');
+};
+
+// Fetch orders on mount
+onMounted(() => {
+  fetchOrders();
+});
 </script>
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-
-.history-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Poppins', sans-serif;
-  color: #333;
-  background-color: #fff;
-}
-
-.header-section {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #FFEC8B;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  color: #666;
-  margin-bottom: 2rem;
-}
-
-.action-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: #FFF9E6;
-  border-radius: 10px;
-  border: 1px solid #FFEC8B;
-}
-
-.btn-clear {
-  background: #FFD700;
-  color: #333;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 25px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.btn-clear:hover {
-  background: #FFA500;
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.order-count {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #666;
-  font-weight: 500;
-}
-
-.order-list {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.order-card {
-  background: white;
-  border-radius: 15px;
-  overflow: hidden;
-  border: 1px solid #FFEC8B;
-  transition: transform 0.3s ease;
-}
-
-.order-card:hover {
-  transform: translateY(-5px);
-  border-color: #FFD700;
-}
-
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.2rem;
-  background: #FFF9E6;
-  border-bottom: 1px solid #FFEC8B;
-}
-
-.order-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.order-date {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.order-total {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #FF8C00;
-}
-
-.btn-remove-order {
-  background: none;
-  border: none;
-  color: #e74c3c;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  padding: 0.5rem;
-  border-radius: 50%;
-}
-
-.btn-remove-order:hover {
-  transform: scale(1.2);
-  background: rgba(231, 76, 60, 0.1);
-}
-
-.order-items {
-  padding: 1rem;
-  display: grid;
-  gap: 1rem;
-}
-
-.item-card {
-  display: flex;
-  gap: 1.2rem;
-  padding: 1rem;
-  border-radius: 10px;
-  background: #FFFDF5;
-  transition: all 0.3s ease;
-  border: 1px solid #FFEC8B;
-}
-
-.item-card:hover {
-  background: #FFF9E6;
-}
-
-.item-image-container {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.item-image {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #FFEC8B;
-  background-color: #FFF9C4;
-}
-
-.item-quantity-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #FFD700;
-  color: #333;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.item-details {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.item-name {
-  margin: 0;
-  font-weight: 500;
-  color: #333;
-}
-
-.item-price {
-  margin: 0.3rem 0;
-  font-weight: 600;
-  color: #FF8C00;
-}
-
-.item-actions {
-  display: flex;
-  gap: 0.8rem;
-}
-
-.btn-reorder {
-  background: #FFD700;
-  color: #333;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 25px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-weight: 500;
-}
-
-.btn-reorder:hover {
-  background: #FFA500;
-  color: #fff;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  background: white;
-  border-radius: 15px;
-  border: 1px solid #FFEC8B;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  color: #FFD700;
-  margin-bottom: 1rem;
-}
-
-.empty-state h3 {
-  font-size: 1.5rem;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-  color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.btn-shop {
-  background: #FFD700;
-  color: #333;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.btn-shop:hover {
-  background: #FFA500;
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 2rem;
-  border-radius: 15px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  border: 1px solid #FFEC8B;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  color: #333;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1.5rem;
-}
-
-.btn-cancel, .btn-confirm {
-  padding: 0.6rem 1.2rem;
-  border-radius: 25px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-cancel {
-  background: #f8f9fa;
-  border: 1px solid #FFEC8B;
-  color: #333;
-}
-
-.btn-cancel:hover {
-  background: #e9ecef;
-}
-
-.btn-confirm {
-  background: #FFD700;
-  border: none;
-  color: #333;
-  font-weight: 600;
-}
-
-.btn-confirm:hover {
-  background: #FFA500;
-  color: #fff;
-}
-
-/* Animations */
-.list-enter-active, .list-leave-active {
+/* List transition animations */
+.list-enter-active,
+.list-leave-active {
   transition: all 0.5s ease;
 }
-.list-enter-from, .list-leave-to {
+.list-enter-from,
+.list-leave-to {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(20px);
 }
 
-@media (max-width: 768px) {
-  .history-page {
-    padding: 1rem;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .order-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.8rem;
-  }
-  
-  .item-card {
-    flex-direction: column;
-  }
-  
-  .item-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1/1;
-  }
-  
-  .action-bar {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
+@media (max-width: 640px) {
+  .order-card .grid-cols-4 {
+    grid-template-columns: 1fr;
   }
 }
 </style>

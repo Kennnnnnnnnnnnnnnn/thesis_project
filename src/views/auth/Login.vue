@@ -49,14 +49,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useStore } from '@/store/useStore';
-import axios from 'axios';
 import apiURL from '@/api/config';
 import { decodeJwt } from '@/composables/jwt';
+import { useStore } from '@/store/useStore';
 import { getDeviceDetails } from '@/utils/getDeviceDetails';
+import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import SplashScreen from '@/components/SplashScreen.vue';
 
@@ -166,7 +166,8 @@ const handleLogin = async () => {
         'read_order',
         'read_transaction',
         'create_transaction',
-        'update_transaction'
+        'update_transaction',
+        'update_product',
       ];
     } else if (userRole === 'superadmin') {
       // Superadmin gets all permissions

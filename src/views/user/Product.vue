@@ -92,19 +92,10 @@ function checkAuthStatus() {
   const user = localStorage.getItem("user");
   const storeToken = store.getToken;
   const storeUserId = store.getUserId;
-  
-  console.log('🔐 Auth Status Check:');
-  console.log('  - localStorage token:', !!token);
-  console.log('  - localStorage user:', !!user);
-  console.log('  - store token:', !!storeToken);
-  console.log('  - store userId:', storeUserId);
-  
-  // User is authenticated if they have a token AND a userId (either from store or localStorage)
+
   const hasToken = !!(token || storeToken);
   const hasUserId = !!(storeUserId || user);
-  
-  console.log('  - Has token:', hasToken);
-  console.log('  - Has userId:', hasUserId);
+
   
   return hasToken && hasUserId;
 }
@@ -149,38 +140,31 @@ const fetchFavorites = async () => {
   }
   
   try {
-    console.log('🔍 Fetching favorites for authenticated user');
     const res = await axios.get(`${API}/getAllDocs/Favorite`, {
       headers: { Authorization: `Bearer ${store.getToken}` }
     });
     
     favorites.value = res.data.data || [];
-    console.log('🔍 Favorites loaded:', favorites.value.length);
     
     // Mark products as favorite
     products.value.forEach(p => {
       p.isFavorite = favorites.value.some(fav => fav.productId?._id === p._id);
     });
-    console.log('🔍 Applied favorites to products');
   } catch (err) {
     console.error('❌ Failed to fetch favorites:', err);
   }
 };
 
 const toggleFavorite = async (product) => {
-  console.log('🔍 toggleFavorite called for product:', product._id, product.name);
-  console.log('🔍 Current favorite state:', product.isFavorite);
-  
+ 
   // Check authentication status
   const isAuthenticated = checkAuthStatus();
   
   try {
     if (isAuthenticated) {
       // Authenticated: use backend
-      console.log('🔍 Using backend for authenticated user');
       if (product.isFavorite) {
         // Remove favorite
-        console.log('🔍 Removing favorite from backend');
         const fav = favorites.value.find(f => f.productId?._id === product._id);
         
         if (fav) {
@@ -212,10 +196,8 @@ const toggleFavorite = async (product) => {
           }
         });
         
-        console.log('🔍 Add favorite response:', response.data);
         favorites.value.push(response.data.data);
         product.isFavorite = true;
-        console.log('🔍 Favorite added successfully');
         Swal.fire({ 
           icon: 'success', 
           title: $t('alerts.addedToFavorites'), 
@@ -225,14 +207,12 @@ const toggleFavorite = async (product) => {
       }
     } else {
       // Not logged in: use localStorage
-      console.log('🔍 Using localStorage for guest user');
       let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
       const isFavorited = favorites.some(item => item.id === product._id);
       
       if (isFavorited) {
         favorites = favorites.filter(item => item.id !== product._id);
         product.isFavorite = false;
-        console.log('🔍 Favorite removed from localStorage');
         Swal.fire({ 
           icon: 'success', 
           title: $t('alerts.removedFromFavorites'), 

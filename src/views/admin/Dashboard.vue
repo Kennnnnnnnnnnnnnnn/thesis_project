@@ -106,6 +106,7 @@ export default {
     const chartCanvas = ref(null);
     const selectedTimeRange = ref('30');
     let chartInstance = null;
+    let fetchTimer = null;
     const { t, locale } = useI18n();
 
     // Sample metrics data
@@ -211,6 +212,9 @@ export default {
 
     // Fetch data (simulated)
     const fetchChartData = () => {
+      if (!chartInstance || !chartInstance.canvas) {
+        return;
+      }
       generateChartData();
       if (chartInstance) {
         chartInstance.update();
@@ -230,13 +234,17 @@ export default {
     onMounted(() => {
       generateChartData();
       initChart();
-      // Simulate loading real data
-      setTimeout(fetchChartData, 1000);
+      fetchTimer = setTimeout(fetchChartData, 1000);
     });
 
     onBeforeUnmount(() => {
       if (chartInstance) {
         chartInstance.destroy();
+        chartInstance = null;
+      }
+      if (fetchTimer) {
+        clearTimeout(fetchTimer);
+        fetchTimer = null;
       }
     });
 

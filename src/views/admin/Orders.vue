@@ -96,7 +96,7 @@
             <td class="px-4 py-2 text-gray-700">{{ item.userId && item.userId.name ? item.userId.name : 'Guest' }}</td>
             <td class="px-4 py-2 text-center text-gray-600">{{ formatDate(item.createdAt) }}</td>
             <td class="px-4 py-2 text-center text-gray-600">{{ item.items.length }}</td>
-            <td class="px-4 py-2 text-center font-medium text-gray-700">{{ item.totalCost ? '$' + item.totalCost.toFixed(2) : '$0.00' }}</td>
+            <td class="px-4 py-2 text-center font-medium text-gray-700">{{ item.totalCost ? '៛' + item.totalCost.toFixed(2) : '៛0.00' }}</td>
             <td class="px-4 py-2 text-center">
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
                 :class="getStatusClass(item.status)">
@@ -128,7 +128,7 @@
       :limitedPerPage="pageSize" :searchQuery="searchText" />
 
     <!-- Order Detail Modal -->
-    <div v-if="selectedOrder" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
+    <div v-if="selectedOrder" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000]">
       <div class="font-sans w-[95%] md:w-[80%] max-w-4xl mt-20 p-6 bg-white shadow-md rounded-lg relative z-50 m-auto overflow-y-auto max-h-[80vh]">
         <!-- Close Button -->
         <i class="fa-solid fa-circle-xmark cursor-pointer text-red-700 text-lg absolute top-3 right-3 
@@ -149,18 +149,18 @@
               <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.date') }}:</span>
               <span class="text-sm text-gray-700">{{ formatDate(selectedOrder.createdAt) }}</span>
             </div>
-            <div v-if="selectedOrder.trackingNumber" class="flex items-center">
+            <!-- <div v-if="selectedOrder.trackingNumber" class="flex items-center">
               <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.tracking') }}:</span>
               <span class="text-sm text-gray-700">{{ selectedOrder.trackingNumber }}</span>
-            </div>
-            <div class="flex items-center">
+            </div> -->
+            <!-- <div class="flex ">
               <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.paymentMethod') }}:</span>
-              <span class="text-sm text-gray-700">{{ selectedOrder.paymentMethod || '-' }}</span>
-            </div>
+              <span class="text-sm text-gray-700 pl-2">{{ selectedOrder.paymentMethod || '-' }}</span>
+            </div> -->
           </div>
 
           <div class="space-y-2">
-            <div class="flex items-center">
+            <!-- <div class="flex items-center">
               <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.status') }}:</span>
               <select v-model="selectedOrder.status" 
                 class="border border-gray-300 focus:border-green-500 focus:ring-green-100 rounded-md px-3 py-1 text-sm outline-none transition">
@@ -168,9 +168,9 @@
                   {{ $t(`order.${status.toLowerCase()}`) }}
                 </option>
               </select>
-            </div>
+            </div> -->
             <div class="flex items-center">
-              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.paymentStatus') }}:</span>
+              <span class="text-sm font-medium text-gray-500 w-24">{{ $t('order.status') }}:</span>
               <span class="text-sm text-gray-700" :class="selectedOrder.paymentStatus === 'paid' ? 'text-green-600 font-medium' : 'text-red-600 font-medium'">
                 {{ selectedOrder.paymentStatus ? $t(`order.${selectedOrder.paymentStatus.toLowerCase()}`) : '-' }}
               </span>
@@ -192,28 +192,28 @@
                 <i v-else class="fas fa-box text-gray-400"></i>
               </div>
               <div class="flex-1">
-                <h4 class="font-medium text-gray-800">{{ item.productName || item.name }}</h4>
-                <p class="text-sm text-gray-500">{{ item.sku || item.productId }}</p>
+                <h4 class="font-medium text-gray-800">{{ item.name }}</h4>
+                <p class="text-sm text-gray-500">{{ item.productId?.name }}</p>
               </div>
               <div class="font-medium text-gray-700">
-                {{ item.quantity }} x ${{ item.price.toFixed(2) }}
+                {{ item.quantity }} x ៛{{ item.price.toFixed(2) }}
               </div>
             </div>
           </div>
         </div>
 
-        <div class="border-t border-gray-200 mt-6 pt-4">
-          <div class="flex justify-between items-center">
+        <div class=" mt-6 pt-4">
+          <!-- <div class="flex justify-between items-center">
             <span class="text-sm text-gray-500">{{ $t('order.subtotal') }}:</span>
-            <span class="text-sm text-gray-700">${{ selectedOrder.subtotal?.toFixed(2) || '0.00' }}</span>
+            <span class="text-sm text-gray-700">៛{{ selectedOrder.subtotal?.toFixed(2) || '0.00' }}</span>
           </div>
           <div class="flex justify-between items-center mt-2">
             <span class="text-sm text-gray-500">{{ $t('order.shipping') }}:</span>
-            <span class="text-sm text-gray-700">${{ selectedOrder.shippingCost?.toFixed(2) || '0.00' }}</span>
-          </div>
+            <span class="text-sm text-gray-700">៛{{ selectedOrder.shippingCost?.toFixed(2) || '0.00' }}</span>
+          </div> -->
           <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
             <span class="font-medium text-gray-700">{{ $t('order.total') }}:</span>
-            <span class="font-medium text-gray-900">${{ selectedOrder.totalCost?.toFixed(2) || '0.00' }}</span>
+            <span class="font-medium text-gray-900">៛{{ selectedOrder.totalCost?.toFixed(2) || '0.00' }}</span>
           </div>
         </div>
 

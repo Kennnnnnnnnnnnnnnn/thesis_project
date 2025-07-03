@@ -1,5 +1,7 @@
 <template>
-  <div class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5" v-if="visible">
+  <div
+    class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5"
+    v-if="visible">
     <div class="flex justify-between items-center mb-3 text-lg">
       <h3 class="font-medium">Your Basket</h3>
       <button @click="close" class="text-xl hover:text-red-500">✕</button>
@@ -14,16 +16,11 @@
           <h4 class="m-0 text-sm font-semibold">{{ item.name }}</h4>
           <p class="text-xs text-gray-500 mb-1">{{ item.categoryName || 'No category' }}</p>
           <div class="flex items-center gap-2.5 my-1">
-            <button 
-              @click="changeQty(item, item.quantity - 1)" 
-              :disabled="item.quantity <= 1"
-              class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50"
-            >−</button>
+            <button @click="changeQty(item, item.quantity - 1)" :disabled="item.quantity <= 1"
+              class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50">−</button>
             <span>{{ item.quantity }}</span>
-            <button 
-              @click="changeQty(item, item.quantity + 1)"
-              class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer"
-            >+</button>
+            <button @click="changeQty(item, item.quantity + 1)"
+              class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer">+</button>
           </div>
           <p class="text-orange-600 font-bold">៛{{ (discountedPrice(item) * item.quantity).toFixed(2) }}</p>
         </div>
@@ -34,20 +31,18 @@
     <div class="border-t border-gray-100 pt-3">
       <div class="flex justify-between mb-3 text-sm">
         <label class="flex items-center">
-          <input type="radio" value="home" v-model="delivery" class="mr-1" /> 
+          <input type="radio" value="home" v-model="delivery" class="mr-1" />
           <span>Home Delivery</span>
         </label>
         <label class="flex items-center">
-          <input type="radio" value="collect" v-model="delivery" class="mr-1" /> 
+          <input type="radio" value="collect" v-model="delivery" class="mr-1" />
           <span>Click & Collect</span>
         </label>
       </div>
       <p class="mb-1">Subtotal: ៛{{ subtotal.toFixed(2) }}</p>
       <p class="font-bold mb-3">Total: ៛{{ subtotal.toFixed(2) }}</p>
-      <button 
-        @click="proceedToCheckout"
-        class="bg-green-600 text-white py-3 w-full border-0 rounded-md font-bold text-base cursor-pointer hover:bg-green-700 transition-colors"
-      >
+      <button @click="proceedToCheckout"
+        class="bg-green-600 text-white py-3 w-full border-0 rounded-md font-bold text-base cursor-pointer hover:bg-green-700 transition-colors">
         Proceed to Checkout
       </button>
     </div>
@@ -58,46 +53,37 @@
       <div class="bg-red-600 text-white py-3 px-4 text-center font-bold text-xl">
         KHQR
       </div>
-      
+
       <div class="p-6 bg-white">
         <h3 class="text-center text-gray-800 text-lg font-medium mb-2">Rice Shop</h3>
-        
+
         <p class="text-center text-2xl font-bold mb-4">{{ subtotal.toFixed(0) }} KHR</p>
-        
-        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 mx-auto mb-4" style="width: 220px; height: 220px;">
+
+        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 mx-auto mb-4"
+          style="width: 220px; height: 220px;">
           <img v-if="qrImageUrl" :src="qrImageUrl" alt="QR Code" class="w-full h-full" />
           <div v-else class="w-full h-full flex items-center justify-center">
             <span class="text-gray-400">Loading QR code...</span>
           </div>
         </div>
-        
+
         <p class="text-center text-gray-500 text-sm mb-4">Expires in 5 minutes</p>
-        
+
         <div class="flex items-center justify-center mb-4">
-          <input 
-            type="checkbox" 
-            id="payment-confirmation" 
-            v-model="paymentConfirmed"
-            class="mr-2"
-          />
+          <input type="checkbox" id="payment-confirmation" v-model="paymentConfirmed" class="mr-2" />
           <label for="payment-confirmation" class="text-sm text-gray-700">
             I confirm that I have scanned and paid
           </label>
         </div>
-        
-        <button 
-          @click="confirmPayment" 
+
+        <button @click="confirmPayment"
           class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md font-bold text-base transition-colors mb-2"
-          :disabled="!paymentConfirmed"
-          :class="{'opacity-50 cursor-not-allowed': !paymentConfirmed}"
-        >
+          :disabled="!paymentConfirmed" :class="{ 'opacity-50 cursor-not-allowed': !paymentConfirmed }">
           I'VE PAID
         </button>
-        
-        <button 
-          @click="showQRModal = false" 
-          class="w-full bg-white text-gray-700 py-3 rounded-md font-medium text-base border border-gray-300 hover:bg-gray-50 transition-colors"
-        >
+
+        <button @click="showQRModal = false"
+          class="w-full bg-white text-gray-700 py-3 rounded-md font-medium text-base border border-gray-300 hover:bg-gray-50 transition-colors">
           CANCEL
         </button>
       </div>
@@ -106,10 +92,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios';
 import apiURL from '@/api/config.js';
 import { useStore } from '@/store/useStore';
+import axios from 'axios';
+import { computed, ref } from 'vue';
 
 const store = useStore();
 const userId = store.userId;
@@ -126,12 +112,6 @@ const emit = defineEmits(['close', 'updateQty', 'removeItem']);
 const delivery = ref('home');
 const defaultImg = require('@/assets/image.png');
 
-onMounted(() => {
-  console.log("Auth check on mount:");
-  console.log("Token:", localStorage.getItem('token') ? "Present" : "Missing");
-  console.log("Store authenticated:", store.isAuthenticated ? "Yes" : "No");
-  console.log("Store userId:", store.userId);
-});
 
 const discountedPrice = (product) => {
   if (!product.discount || product.discount <= 0) return product.salePrice;
@@ -150,10 +130,9 @@ const proceedToCheckout = async () => {
   try {
     const userId = store.userId;
     const token = localStorage.getItem('token');
-    
-    console.log("Checkout - Store userId:", userId);
-    console.log("Checkout - Token:", token ? "Present" : "Missing");
-    
+
+
+
     if (!userId || !token) {
       console.error("Missing user or token");
       alert("Please login to continue with checkout");
@@ -161,10 +140,9 @@ const proceedToCheckout = async () => {
     }
 
     const totalAmount = subtotal.value;
-    console.log("Total amount:", totalAmount);
-    
+
     billNumber.value = `BILL${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-    
+
     const payload = {
       amount: totalAmount,
       name: store.userName || 'Guest',
@@ -176,15 +154,14 @@ const proceedToCheckout = async () => {
       billNumber: billNumber.value,
       phoneNumber: '85512345678'
     };
-    
-    console.log("Sending payload:", payload);
+
 
     const res = await axios.post(`${API}/transaction/generate-qr`, payload, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
     console.log("Response received:", res.data);
-    
+
     if (!res.data || !res.data.data) {
       console.error("Invalid response format:", res.data);
       alert("Invalid response from server");
@@ -193,7 +170,7 @@ const proceedToCheckout = async () => {
 
     const { data } = res.data;
     qrTransaction.value = data;
-    
+
     if (data.qrCodeUrl) {
       qrImageUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qrCodeUrl)}`;
       console.log("QR code URL:", data.qrCodeUrl);
@@ -202,26 +179,26 @@ const proceedToCheckout = async () => {
       alert("Failed to generate QR code");
       return;
     }
-    
+
     showQRModal.value = true;
 
   } catch (err) {
     console.error('Failed to initiate payment:', err);
-    
+
     if (err.response) {
       console.error('Error response:', err.response.status, err.response.data);
-      
+
       if (err.response.status === 401) {
         alert("Your session has expired. Please login again.");
         return;
       }
-      
+
       if (err.response.data && err.response.data.message) {
         alert(`Error: ${err.response.data.message}`);
         return;
       }
     }
-    
+
     alert('Failed to initiate payment. Please try again.');
   }
 };
@@ -236,18 +213,18 @@ const createOrders = async () => {
   }
 
   try {
-    console.log("Creating order for user:", userId);
-    
-    // First create a single order with all items
+
     const orderItems = props.cartItems.map(item => ({
       productId: item._id,
+      name: item.name, 
       quantity: item.quantity,
       price: discountedPrice(item),
-      discount: item.discount || 0
+      discount: item.discount || 0,
+      image: item.imageURL || ''
     }));
-    
+
     const totalCost = subtotal.value;
-    
+
     const orderPayload = {
       fields: {
         userId: userId,
@@ -262,8 +239,7 @@ const createOrders = async () => {
         createdBy: userId
       }
     };
-    
-    console.log("Creating order with payload:", orderPayload);
+
 
     // Create the order
     const orderResponse = await axios.post(`${API}/insertDoc/Order`, orderPayload, {
@@ -274,8 +250,8 @@ const createOrders = async () => {
     if (qrTransaction.value && qrTransaction.value._id && orderResponse.data && orderResponse.data.data && orderResponse.data.data._id) {
       try {
         await axios.patch(
-          `${API}/transaction/update-status/${qrTransaction.value._id}`, 
-          { 
+          `${API}/transaction/update-status/${qrTransaction.value._id}`,
+          {
             paymentStatus: 'paid',
             orderId: orderResponse.data.data._id,
             paidAt: new Date().toISOString()
@@ -288,17 +264,52 @@ const createOrders = async () => {
       }
     }
 
-    alert('Order submitted successfully!');
+    // Update product stock quantities
+    try {
+      // Process each item to update product stock
+      for (const item of props.cartItems) {
+        // Get current product data
+        const productResponse = await axios.get(`${API}/getAllDocs/Product?_id=${item._id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (productResponse.data && productResponse.data.success && productResponse.data.data.length > 0) {
+          const product = productResponse.data.data[0];
+          
+          // Calculate new stock amount
+          const newStockAmount = Math.max(0, (product.totalStock || 0) - item.quantity);
+          
+          // Update the product with new stock amount
+          await axios.patch(
+            `${API}/updateDoc/Product/${item._id}`,
+            {
+              fields: {
+                totalStock: newStockAmount,
+                updatedAt: new Date().toISOString(),
+                updatedBy: userId
+              }
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          
+          console.log(`Updated stock for product ${product.name}: ${product.totalStock} → ${newStockAmount}`);
+        }
+      }
+    } catch (stockErr) {
+      console.error("Failed to update product stock:", stockErr);
+      // Continue with order process even if stock update fails
+    }
+
     showQRModal.value = false;
     emit('close');
     props.cartItems.forEach(item => emit('removeItem', item));
   } catch (err) {
     console.error('Failed to submit order:', err);
-    
+
     if (err.response) {
       console.error('Error response:', err.response.status, err.response.data);
     }
-    
+
     alert('Order creation failed. Please contact support.');
   }
 };
@@ -309,10 +320,10 @@ const confirmPayment = async () => {
       alert('Invalid transaction. Please try again.');
       return;
     }
-    
+
     const txId = qrTransaction.value._id;
     const token = localStorage.getItem('token');
-    
+
     try {
       // First, try to simulate the QR code being scanned
       console.log("Updating transaction as scanned");
@@ -330,26 +341,26 @@ const confirmPayment = async () => {
       console.error("Failed to update scanned status:", scanErr);
       // Continue anyway - this step is optional
     }
-    
+
     // Then update the payment status to paid
     console.log("Updating payment status to paid");
-    await axios.patch(`${API}/transaction/update-status/${txId}`, 
+    await axios.patch(`${API}/transaction/update-status/${txId}`,
       { paymentStatus: 'paid' },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    
+
     // Finally create the order
     await createOrders();
-    
+
   } catch (err) {
     console.error('Confirm failed:', err);
-    
+
     // If we get a 401 error, the token might be expired
     if (err.response && err.response.status === 401) {
       alert('Your session has expired. Please log in again.');
       return;
     }
-    
+
     // If we can't update the transaction status, try creating the order anyway
     try {
       await createOrders();

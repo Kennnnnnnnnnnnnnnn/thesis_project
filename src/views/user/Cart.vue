@@ -7,9 +7,9 @@
           <span class="mr-3 text-xl">🛒</span>
           {{ $t('cart.title') }}
         </h1>
-        <p class="text-gray-600 text-lg text-start">
+        <!-- <p class="text-gray-600 text-lg text-start">
           {{ cartItems.length }} {{ $t('cart.items', { count: cartItems.length }) }}
-        </p>
+        </p> -->
       </div>
 
       <!-- Stepper -->
@@ -239,12 +239,12 @@
 
 <script setup>
 import apiURL from '@/api/config.js';
+import socket from '@/services/socket';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { computed, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const token = localStorage.getItem('token');
@@ -576,8 +576,8 @@ const createOrders = async () => {
   if (!token) {
     Swal.fire({ 
       icon: 'error', 
-      title: $t('alerts.loginRequired'), 
-      text: $t('alerts.pleaseLoginToContinue') 
+      title: t('alerts.loginRequired'), 
+      text: t('alerts.pleaseLoginToContinue') 
     });
     return;
   }
@@ -604,18 +604,102 @@ const createOrders = async () => {
       }
     };
     // Create the order
-    await axios.post(`${API}/insertDoc/Order`, orderPayload, {
+    const orderResponse = await axios.post(`${API}/insertDoc/Order`, orderPayload, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    Swal.fire({ icon: 'success', title: $t('alerts.orderSubmitted'),  timer: 1500, showConfirmButton: false });
+    
+    // Update product stock quantities
+    try {
+      // Process each item to update product stock
+      for (const item of cartItems.value) {
+        const productId = item.productId || item._id;
+        
+        // Get current product data
+        const productResponse = await axios.get(`${API}/getAllDocs/Product?_id=${productId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (productResponse.data && productResponse.data.success && productResponse.data.data.length > 0) {
+          const product = productResponse.data.data[0];
+          
+          // Calculate new stock amount
+          const newStockAmount = Math.max(0, (product.totalStock || 0) - item.quantity);
+          
+          // Update the product with new stock amount
+          const updateResponse = await axios.patch(
+            `${API}/updateDoc/Product/${productId}`,
+            {
+              fields: {
+                totalStock: newStockAmount,
+                updatedAt: new Date().toISOString(),
+                updatedBy: localStorage.getItem('userId') || 'customer'
+              }
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          
+          // Emit socket event for real-time update
+          socket.emit('dataUpdate', {
+            action: 'update',
+            collection: 'Product',
+            data: productId
+          });
+          
+          console.log(`Updated stock for product ${product.name}: ${product.totalStock} → ${newStockAmount}`);
+        }
+      }
+      
+      // Emit socket event for the new order
+      if (orderResponse.data && orderResponse.data.data && orderResponse.data.data._id) {
+        socket.emit('dataUpdate', {
+          action: 'insert',
+          collection: 'Order',
+          data: orderResponse.data.data._id
+        });
+      }
+      
+    } catch (stockErr) {
+      console.error("Failed to update product stock:", stockErr);
+      // Continue with order process even if stock update fails
+    }
+    
+    // Clear all items from cart after successful order
+    try {
+      if (!token) {
+        // Clear local storage cart
+        localStorage.removeItem('cart');
+        cartItems.value = [];
+      } else {
+        // Delete each cart item from database
+        const deletePromises = cartItems.value.map(item => 
+          axios.delete(`${API}/deleteDoc/Cart/${item._id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        );
+        
+        await Promise.all(deletePromises);
+        cartItems.value = []; // Clear cart items in UI
+        
+        // Emit socket event for cart update
+        socket.emit('dataUpdate', {
+          action: 'delete',
+          collection: 'Cart',
+          data: 'all'
+        });
+      }
+    } catch (clearErr) {
+      console.error("Failed to clear cart after order:", clearErr);
+      // Don't interrupt the flow if clearing cart fails
+    }
+    
+    Swal.fire({ icon: 'success', title: t('alerts.orderSubmitted'),  timer: 1500, showConfirmButton: false });
     showQRModal.value = false;
-    // Optionally clear cart here
-    await fetchCart();
+    // No need to fetch cart again since we've already cleared it
   } catch (err) {
   Swal.fire({ 
       icon: 'error', 
-      title: $t('alerts.orderCreationFailed'), 
-      text: err?.response?.data?.message || $t('alerts.contactSupport') 
+      title: t('alerts.orderCreationFailed'), 
+      text: err?.response?.data?.message || t('alerts.contactSupport') 
     });
   }
 };
@@ -674,6 +758,24 @@ const finalAmount = computed(() =>
 
 onMounted(() => {
   fetchCart();
+  
+  // Connect to socket if not already connected
+  if (!socket.connected) {
+    socket.connect();
+  }
+  
+  // Listen for socket events
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'Product') {
+      // Refresh cart to get updated product data
+      fetchCart();
+    }
+  });
+});
+
+// Clean up socket listeners when component is unmounted
+onUnmounted(() => {
+  socket.off('dataUpdate');
 });
 </script>
 

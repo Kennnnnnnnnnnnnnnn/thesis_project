@@ -541,7 +541,8 @@ async function addToCart(product) {
             productId: product._id,
             quantity: 1,
             userId: store.getUserId,
-            createdBy: store.getUserId
+            createdBy: store.getUserId,
+            
           }
         },
         {
