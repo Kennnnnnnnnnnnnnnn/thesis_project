@@ -1,102 +1,86 @@
 <template>
-  <div class="flex flex-col min-h-screen bg-gray-50">
-    <!-- Header -->
-    <div class="px-8 py-6 bg-white shadow flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-800">My Profile</h1>
-    </div>
+  <div class="profile-page">
 
     <!-- Form -->
-    <div class="flex-grow flex flex-col justify-center items-center p-6">
-      <form @submit.prevent="updateProfile" class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-8 rounded shadow">
-
+    <div class="profile-container">
+      <form @submit.prevent="updateProfile" class="profile-form">
         <!-- Profile Picture -->
-        <div class="flex flex-col items-center md:col-span-2">
-          <img :src="form.profilePicture || defaultImage" alt="Profile" class="w-32 h-32 rounded-full object-cover mb-4" />
-          <input type="file" @change="handleImageUpload" class="text-sm text-gray-600" />
+        <div class="profile-picture">
+          <img :src="form.profilePicture || defaultImage" alt="Profile" />
+          <input type="file" @change="handleImageUpload" />
         </div>
 
-        <div>
-          <label class="block text-gray-700 mb-1">Name</label>
-          <input v-model="form.name" type="text" class="w-full border rounded p-2" required />
+        <div class="form-group">
+          <label>Name</label>
+          <input v-model="form.name" type="text" required />
         </div>
 
-        <div>
-          <label class="block text-gray-700 mb-1">Email</label>
-          <input v-model="form.email" type="email" class="w-full border rounded p-2" />
+        <div class="form-group">
+          <label>Email</label>
+          <input v-model="form.email" type="email" />
         </div>
 
-        <div>
-          <label class="block text-gray-700 mb-1">Phone Number</label>
-          <input v-model="form.phoneNumber" type="text" class="w-full border rounded p-2" required />
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input v-model="form.phoneNumber" type="text" required />
         </div>
 
-        <div>
-          <label class="block text-gray-700 mb-1">Gender</label>
-          <select v-model="form.gender" class="w-full border rounded p-2">
+        <div class="form-group">
+          <label>Gender</label>
+          <select v-model="form.gender">
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
           </select>
         </div>
 
-        <div class="md:col-span-2">
-          <label class="block text-gray-700 mb-1">Country</label>
-          <input v-model="form.country" type="text" class="w-full border rounded p-2" placeholder="Country" />
+        <div class="form-group">
+          <label>Country</label>
+          <input v-model="form.country" type="text" placeholder="Country" />
         </div>
 
-        <!-- Province Dropdown -->
-        <div>
-          <label class="block text-gray-700 mb-1">Province</label>
-          <select v-model="selectedProvince" class="w-full border rounded p-2" @change="onProvinceChange">
+        <div class="form-group">
+          <label>Province</label>
+          <select v-model="selectedProvince" @change="onProvinceChange">
             <option value="">Select Province</option>
             <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
           </select>
         </div>
 
-        <!-- District Dropdown -->
-        <div>
-          <label class="block text-gray-700 mb-1">District</label>
-          <select v-model="selectedDistrict" class="w-full border rounded p-2" @change="onDistrictChange" :disabled="!selectedProvince">
+        <div class="form-group">
+          <label>District</label>
+          <select v-model="selectedDistrict" @change="onDistrictChange" :disabled="!selectedProvince">
             <option value="">Select District</option>
             <option v-for="district in filteredDistricts" :key="district" :value="district">{{ district }}</option>
           </select>
         </div>
 
-        <!-- Commune Dropdown -->
-        <div>
-          <label class="block text-gray-700 mb-1">Commune</label>
-          <select v-model="form.commune" class="w-full border rounded p-2" :disabled="!selectedDistrict">
+        <div class="form-group">
+          <label>Commune</label>
+          <select v-model="form.commune" :disabled="!selectedDistrict">
             <option value="">Select Commune</option>
             <option v-for="commune in filteredCommunes" :key="commune" :value="commune">{{ commune }}</option>
           </select>
         </div>
 
-        <!-- Village -->
-        <div>
-          <label class="block text-gray-700 mb-1">Village</label>
-          <input v-model="form.village" type="text" class="w-full border rounded p-2" placeholder="Village" />
+        <div class="form-group">
+          <label>Village</label>
+          <input v-model="form.village" type="text" placeholder="Village" />
         </div>
 
-        <div class="flex items-center gap-2">
-          <label class="text-gray-700">Status</label>
-          <input type="checkbox" v-model="form.status" />
+
+        <div class="form-group">
+          <label>Role</label>
+          <input v-model="form.role" type="text" class="readonly" disabled />
         </div>
 
-        <div>
-          <label class="block text-gray-700 mb-1">Role</label>
-          <input v-model="form.role" type="text" class="w-full border rounded p-2 bg-gray-100" disabled />
-        </div>
-
-        <div class="md:col-span-2">
-          <button type="submit" class="w-full bg-green-600 text-white py-3 rounded hover:bg-green-700 transition">
-            Update Profile
-          </button>
+        <div class="form-group button-group">
+          <button type="submit">Update Profile</button>
         </div>
       </form>
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
@@ -128,7 +112,22 @@ const filteredDistricts = ref([]);
 const selectedDistrict = ref('');
 const filteredCommunes = ref([]);
 
-// Fetch profile
+// Fetch all locations first
+const fetchLocations = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await axios.get(`${apiURL}/api/locations`, {
+      headers: { Authorization: token ? `Bearer ${token}` : '' },
+    });
+    locations.value = res.data.data;
+    provinces.value = [...new Set(locations.value.map(l => l.provinceNameKh))].sort();
+  } catch (err) {
+    console.error(err);
+    Swal.fire({ icon: 'error', title: 'Failed to load locations' });
+  }
+};
+
+// Fetch user profile & restore data
 const fetchProfile = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -137,10 +136,27 @@ const fetchProfile = async () => {
     });
     if (res.data.success) {
       Object.assign(form.value, res.data.data);
+
+      // Restore selected province/district
       selectedProvince.value = form.value.province || '';
       selectedDistrict.value = form.value.district || '';
-      if (selectedProvince.value) onProvinceChange();
-      if (selectedDistrict.value) onDistrictChange();
+
+      // 1) Restore filteredDistricts directly
+      if (selectedProvince.value) {
+        const districts = locations.value
+          .filter(l => l.provinceNameKh === selectedProvince.value)
+          .map(l => l.districtNameKh);
+        filteredDistricts.value = [...new Set(districts)].sort();
+      }
+
+      // 2) Restore filteredCommunes directly
+      if (selectedProvince.value && selectedDistrict.value) {
+        const communes = locations.value
+          .filter(l => l.provinceNameKh === selectedProvince.value &&
+                       l.districtNameKh === selectedDistrict.value)
+          .map(l => l.communeNameKh);
+        filteredCommunes.value = [...new Set(communes)].sort();
+      }
     } else {
       Swal.fire({ icon: 'error', title: 'Failed to fetch profile' });
     }
@@ -149,6 +165,7 @@ const fetchProfile = async () => {
     Swal.fire({ icon: 'error', title: 'Error fetching profile' });
   }
 };
+
 
 // Update profile
 const updateProfile = async () => {
@@ -164,7 +181,7 @@ const updateProfile = async () => {
   }
 };
 
-// Handle profile image upload
+// Profile picture upload
 const handleImageUpload = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -187,28 +204,16 @@ const handleImageUpload = async (e) => {
   }
 };
 
-// Fetch locations
-const fetchLocations = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const res = await axios.get(`${apiURL}/api/locations`, {
-      headers: { Authorization: token ? `Bearer ${token}` : '' },
-    });
-    locations.value = res.data.data;
-    provinces.value = [...new Set(locations.value.map(l => l.provinceNameKh))].sort();
-  } catch (err) {
-    console.error(err);
-    Swal.fire({ icon: 'error', title: 'Failed to load locations' });
-  }
-};
-
 // Dropdown handlers
 const onProvinceChange = () => {
   form.value.province = selectedProvince.value;
   selectedDistrict.value = '';
   form.value.district = '';
   form.value.commune = '';
-  const districts = locations.value.filter(l => l.provinceNameKh === selectedProvince.value).map(l => l.districtNameKh);
+
+  const districts = locations.value
+    .filter(l => l.provinceNameKh === selectedProvince.value)
+    .map(l => l.districtNameKh);
   filteredDistricts.value = [...new Set(districts)].sort();
   filteredCommunes.value = [];
 };
@@ -216,16 +221,168 @@ const onProvinceChange = () => {
 const onDistrictChange = () => {
   form.value.district = selectedDistrict.value;
   form.value.commune = '';
-  const communes = locations.value.filter(l => l.provinceNameKh === selectedProvince.value && l.districtNameKh === selectedDistrict.value).map(l => l.communeNameKh);
+
+  const communes = locations.value
+    .filter(l => l.provinceNameKh === selectedProvince.value && l.districtNameKh === selectedDistrict.value)
+    .map(l => l.communeNameKh);
   filteredCommunes.value = [...new Set(communes)].sort();
 };
 
-onMounted(() => {
-  fetchProfile();
-  fetchLocations();
+// Ensure locations load BEFORE restoring profile
+onMounted(async () => {
+  await fetchLocations();
+  await fetchProfile();
 });
 </script>
 
+
 <style scoped>
-/* optional custom styling */
+.profile-page {
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #fffbea, #ffffff, #fffbea);
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-header {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  padding: 16px 32px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.profile-header h1 {
+  color: #b7791f;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.profile-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 60px;
+}
+
+.profile-form {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  max-width: 1200px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: 1px solid #fcd34d;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+@media (min-width: 640px) {
+  .profile-form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-form {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.profile-picture {
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-picture img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 4px solid #fcd34d;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.profile-picture input[type="file"] {
+  font-size: 0.9rem;
+  color: #92400e;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group select {
+  border: 1px solid #fcd34d;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  color: #78350f;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #fbbf24;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
+}
+
+.form-group .readonly {
+  background-color: #fef3c7;
+  cursor: not-allowed;
+}
+
+.status-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.button-group {
+  grid-column: span 1;
+}
+
+@media (min-width: 640px) {
+  .button-group {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .button-group {
+    grid-column: span 4;
+  }
+}
+
+.button-group button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 9999px;
+  background-color: #facc15;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.button-group button:hover {
+  background-color: #fbbf24;
+  transform: scale(1.03);
+}
 </style>
