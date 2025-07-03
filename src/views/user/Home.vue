@@ -421,20 +421,18 @@ async function fetchCartItems() {
           headers: { Authorization: token ? `Bearer ${token}` : '' }
         });
 
-        
-        if (productRes.data && productRes.data.success) {
-          // Create a map of product data for easy access
-          const productMap = {}
-          productRes.data.data.forEach(product => {
-            productMap[product._id] = product
-          })
+        if (res.data && res.data.success) {
+          const productMap = {};
+          res.data.data.forEach(product => {
+            productMap[product._id] = product;
+          });
           
-          // Attach product data to cart items for easier access
           cartItems.value.forEach(item => {
-            item.productData = productMap[item.productId] || null
-          })
+            item.productData = productMap[item.productId] || null;
+          });
         }
       }
+
     }
   } catch (err) {
     console.error('Error fetching cart items:', err)
