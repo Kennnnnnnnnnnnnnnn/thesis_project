@@ -120,17 +120,30 @@ const removeItem = (item) => {
 const fetchProducts = async () => {
   try {
     const res = await axios.get(`${API}/public/products`);
-    products.value = res.data.data.map(p => ({
-      ...p,
-      isFavorite: false,
-      isBestSeller: p.isBestSeller || false,
-      isNew: p.isNew || false
-    }));
+    const now = new Date();
+
+    products.value = res.data.data.map(p => {
+      // Calculate if created in the last 3 days
+      const createdAt = new Date(p.createdAt);
+      const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+      const isNew = diffDays <= 3;
+
+      // Determine best seller based on backend flag or custom logic
+      const isBestSeller = p.isBestSeller || (p.salesCount && p.salesCount >= 50); // example threshold
+
+      return {
+        ...p,
+        isFavorite: false,
+        isNew,
+        isBestSeller,
+      };
+    });
     console.log('Products loaded:', products.value.length);
   } catch (err) {
     console.error('❌ Failed to load products:', err);
   }
 };
+
 
 const fetchFavorites = async () => {
   const isAuthenticated = checkAuthStatus();

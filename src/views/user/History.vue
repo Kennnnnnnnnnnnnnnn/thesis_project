@@ -97,12 +97,15 @@ const fetchOrders = async () => {
     isLoading.value = true;
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/login');
+      // Guest user: don't redirect, just skip fetching
+      isLoading.value = false;
       return;
     }
+
     const response = await axios.get(`${API}/getAllDocs/Order`, {
       headers: { Authorization: `Bearer ${token}` }
     });
+
     if (response.data && response.data.success) {
       orders.value = response.data.data.sort((a, b) =>
         new Date(b.createdAt) - new Date(a.createdAt)
@@ -119,6 +122,7 @@ const fetchOrders = async () => {
     isLoading.value = false;
   }
 };
+
 
 // Format date
 const formatDate = (dateString) => {

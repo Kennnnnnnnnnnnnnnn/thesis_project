@@ -129,6 +129,7 @@ const fetchLocations = async () => {
 
 // Fetch user profile & restore data
 const fetchProfile = async () => {
+  const token = localStorage.getItem('token');
   try {
     const token = localStorage.getItem('token');
     const res = await axios.get(`${apiURL}/api/profile`, {
@@ -231,8 +232,29 @@ const onDistrictChange = () => {
 // Ensure locations load BEFORE restoring profile
 onMounted(async () => {
   await fetchLocations();
-  await fetchProfile();
+
+  const token = localStorage.getItem('token');
+  if (token) {
+    // Authenticated: fetch profile
+    await fetchProfile();
+  } else {
+    // Guest: prompt registration
+    console.log('🔍 Guest user detected: prompting to register');
+    const result = await Swal.fire({
+      icon: 'info',
+      title: 'You are browsing as a guest',
+      text: 'To manage your profile, please register or login.',
+      showCancelButton: true,
+      confirmButtonText: 'Register Now',
+      cancelButtonText: 'Maybe Later',
+    });
+
+    if (result.isConfirmed) {
+      window.location.href = '/register'; // redirect to register page
+    }
+  }
 });
+
 </script>
 
 

@@ -41,8 +41,8 @@
 
 
       <div class="mt-6 text-center text-sm text-yellow-800">
-        <p>Don't have an account? <a href="#"
-            class="text-yellow-700 font-medium hover:text-yellow-800 underline transition">Contact admin</a></p>
+        <p>Don't have an account? <a href="/register"
+            class="text-yellow-700 font-medium hover:text-yellow-800 underline transition">Register</a></p>
       </div>
     </div>
   </div>

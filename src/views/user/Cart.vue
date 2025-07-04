@@ -261,6 +261,19 @@ const billNumber = ref('#' + Math.floor(Math.random() * 10000).toString().padSta
 const paymentConfirmed = ref(false);
 const { t } = useI18n();
 
+function requireLogin(t) {
+  Swal.fire({
+    icon: 'error',
+    title: t('alerts.loginRequired'),
+    text: t('alerts.pleaseLoginToContinue'),
+    confirmButtonText: 'OK',
+    allowOutsideClick: false
+  }).then(() => {
+    router.push('/register');
+  });
+}
+
+
 // Fetch cart items
 const fetchCart = async () => {
   try {
@@ -513,11 +526,7 @@ const openQRModal = async () => {
   try {
     const token = localStorage.getItem('token');
     if (!token) {
-      Swal.fire({ 
-        icon: 'error', 
-        title: t('alerts.loginRequired'), 
-        text: t('alerts.pleaseLoginToContinue') 
-      });
+      requireLogin(t);
       isProcessing.value = false;
       return;
     }
@@ -574,11 +583,8 @@ const openQRModal = async () => {
 const createOrders = async () => {
   const token = localStorage.getItem('token');
   if (!token) {
-    Swal.fire({ 
-      icon: 'error', 
-      title: t('alerts.loginRequired'), 
-      text: t('alerts.pleaseLoginToContinue') 
-    });
+    requireLogin(t);
+    isProcessing.value = false;
     return;
   }
 

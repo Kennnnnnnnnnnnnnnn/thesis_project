@@ -118,7 +118,7 @@ const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   store.clearAuth();
-  router.push('/login');
+  router.push('/home');
 };
 
 // Fetch profile on mount if authenticated

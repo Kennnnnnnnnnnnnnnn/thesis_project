@@ -95,6 +95,7 @@
 import apiURL from '@/api/config.js';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
 const store = useStore();
@@ -134,8 +135,15 @@ const proceedToCheckout = async () => {
 
 
     if (!userId || !token) {
-      console.error("Missing user or token");
-      alert("Please login to continue with checkout");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Login Required',
+        text: 'You need to register or login before checking out.',
+        confirmButtonText: 'Go to Register',
+        allowOutsideClick: false
+      }).then(() => {
+        window.location.href = '/register'; // Redirect to register after user clicks confirm
+      });
       return;
     }
 

@@ -102,6 +102,72 @@
       </div>
     </section>
 
+    <!-- Best Sellers Section -->
+    <section class="py-10">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.bestSellersTitle') }}</h2>
+          <router-link to="/product"
+            class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
+            {{ $t('common.viewAll') }}
+          </router-link>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div v-for="product in bestSellers" :key="product._id"
+            class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
+            <!-- Product Image -->
+            <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
+              <img :src="product.imageURL || require('@/assets/image.png')" alt="Product Image"
+                class="max-w-full max-h-40 object-contain">
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4 flex flex-col flex-grow">
+              <div class="flex items-center justify-center mb-2">
+                <span v-for="i in 5" :key="i" class="text-xl"
+                  :class="{'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0)}">
+                  ★
+                </span>
+                <span class="ml-2 text-sm text-gray-500">({{ product.ratingCount || 0 }})</span>
+              </div>
+
+              <h3 class="text-base font-bold text-center mb-2 text-gray-800">
+                {{ product.name }}
+              </h3>
+
+              <p class="text-sm text-gray-600 text-center mb-3 flex-grow">
+                {{ product.description || $t('home.premiumProduct') }}
+              </p>
+
+              <div class="text-center my-4">
+                <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
+                  ៛{{ formatPrice(product.salePrice) }}
+                </p>
+                <p class="text-xl font-bold text-gray-800">
+                  ៛{{ formatPrice(calculateFinalPrice(product)) }}
+                </p>
+                <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
+                  {{ $t('common.save') }} {{ product.discount }}%
+                </span>
+              </div>
+
+              <div class="flex justify-between items-center mt-2">
+                <button @click="toggleFavorite(product)">
+                  <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
+                </button>
+                <button @click="addToCart(product)"
+                  class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow ml-2 hover:bg-orange-400 hover:text-white">
+                  {{ $t('common.addToCart') }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
     <!-- All Products Section -->
     <section class="py-10">
       <div class="max-w-6xl mx-auto px-5">
@@ -535,16 +601,23 @@ function calculateCartTotal() {
 const filteredProducts = computed(() => {
   return products.value.filter(product =>
     product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
-})
+  );
+});
+
 
 // For "new products" we'll show the most recently added products
 const newProducts = computed(() => {
-  // Sort by createdAt date in descending order (newest first)
-  return [...products.value]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 5)
-})
+  const now = new Date();
+  return products.value
+    .filter(product => {
+      const createdAt = new Date(product.createdAt);
+      const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+      return diffDays <= 3;
+    })
+    .filter(product => product.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+});
+
 
 // Methods
 async function addToCart(product) {
@@ -855,6 +928,13 @@ async function toggleFavorite(product) {
     });
   }
 }
+
+const bestSellers = computed(() => {
+  return products.value
+    .filter(product => product.isBestSeller || (product.salesCount && product.salesCount >= 50))
+    .filter(product => product.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
+});
+
 
 function nextSlide() {
   currentSlide.value = (currentSlide.value + 1) % slides.value.length
