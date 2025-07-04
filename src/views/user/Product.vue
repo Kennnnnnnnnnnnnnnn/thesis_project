@@ -66,11 +66,12 @@ import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const showCartDrawer = ref(false);
 const cartItems = ref([]);
 const store = useStore();
-
+const { t } = useI18n();
 const defaultImage = require('@/assets/image.png');
 const API = `${apiURL}/api`;
 
@@ -177,7 +178,7 @@ const toggleFavorite = async (product) => {
           console.log('🔍 Favorite removed successfully');
           Swal.fire({ 
             icon: 'success', 
-            title: $t('alerts.removedFromFavorites'), 
+            title: t('alerts.removedFromFavorites'), 
             timer: 1000, 
             showConfirmButton: false 
           });
@@ -200,7 +201,7 @@ const toggleFavorite = async (product) => {
         product.isFavorite = true;
         Swal.fire({ 
           icon: 'success', 
-          title: $t('alerts.addedToFavorites'), 
+          title: t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -215,7 +216,7 @@ const toggleFavorite = async (product) => {
         product.isFavorite = false;
         Swal.fire({ 
           icon: 'success', 
-          title: $t('alerts.removedFromFavorites'), 
+          title: t('alerts.removedFromFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -230,7 +231,7 @@ const toggleFavorite = async (product) => {
         console.log('🔍 Favorite added to localStorage');
         Swal.fire({ 
           icon: 'success', 
-          title: $t('alerts.addedToFavorites'), 
+          title: t('alerts.addedToFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
@@ -242,8 +243,8 @@ const toggleFavorite = async (product) => {
     console.error('❌ Error response:', err.response?.data);
     Swal.fire({ 
       icon: 'error', 
-      title: $t('alerts.failedToUpdateFavorite'), 
-      text: err.response?.data?.message || $t('alerts.tryAgain'), 
+      title: t('alerts.failedToUpdateFavorite'), 
+      text: err.response?.data?.message || t('alerts.tryAgain'), 
       timer: 2000, 
       showConfirmButton: false 
     });

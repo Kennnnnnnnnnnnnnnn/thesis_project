@@ -97,7 +97,8 @@ import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
-
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 // Reactive data
 const favorites = ref([]);
 const loading = ref(true);
@@ -127,8 +128,8 @@ async function fetchFavorites() {
     console.error('Failed to load favorites:', err);
     Swal.fire({
       icon: 'error',
-      title: $t('alerts.failedToLoadFavorites'),
-      text: err.response?.data?.message || $t('alerts.tryAgain'),
+      title: t('alerts.failedToLoadFavorites'),
+      text: err.response?.data?.message || t('alerts.tryAgain'),
       timer: 2000,
       showConfirmButton: false
     });
@@ -147,7 +148,7 @@ async function removeFavorite(favoriteId) {
     
     Swal.fire({
       icon: 'success',
-      title: $t('alerts.removedFromFavorites'),
+      title: t('alerts.removedFromFavorites'),
       timer: 1000,
       showConfirmButton: false
     });
@@ -157,8 +158,8 @@ async function removeFavorite(favoriteId) {
     console.error('Failed to remove favorite:', err);
     Swal.fire({
       icon: 'error',
-      title: $t('alerts.failedToRemoveFavorite'),
-      text: err.response?.data?.message || $t('alerts.tryAgain'),
+      title: t('alerts.failedToRemoveFavorite'),
+      text: err.response?.data?.message || t('alerts.tryAgain'),
       timer: 2000,
       showConfirmButton: false
     });
@@ -189,7 +190,7 @@ async function addToCart(product) {
     if (response.data.success) {
       Swal.fire({
         icon: 'success',
-        title: $t('alerts.addedToCart'),
+        title: t('alerts.addedToCart'),
         timer: 1000,
         showConfirmButton: false
       });
@@ -198,8 +199,8 @@ async function addToCart(product) {
     console.error('Error adding to cart:', err);
     Swal.fire({
       icon: 'error',
-      title: $t('alerts.failedToAddToCart'),
-      text: err.response?.data?.message || $t('alerts.unknownError'),
+      title: t('alerts.failedToAddToCart'),
+      text: err.response?.data?.message || t('alerts.unknownError'),
       timer: 1500,
       showConfirmButton: false
     });

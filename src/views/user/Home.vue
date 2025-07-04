@@ -442,30 +442,49 @@ async function fetchCartItems() {
 // Get favorites from localStorage and mark products
 async function applyFavorites() {
   const isAuthenticated = checkAuthStatus();
-  
+
   if (isAuthenticated) {
-    // Authenticated: fetch favorites from backend
+    console.log('🔍 Authenticated user detected, fetching favorites from backend...');
+    const token = localStorage.getItem('token');
+
     try {
       const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
-        headers: { Authorization: `Bearer ${store.getToken}` }
+        headers: { Authorization: token ? `Bearer ${token}` : '' }
       });
-      const favoriteIds = res.data.data.map(fav => fav.productId?._id);
-      products.value.forEach(product => {
-        product.isFavorite = favoriteIds.includes(product._id);
-      });
-      console.log('🔍 Applied favorites from backend:', favoriteIds);
+
+      if (res.data && res.data.success) {
+        const favoriteIds = res.data.data.map(fav => fav.productId?._id);
+
+        products.value.forEach(product => {
+          product.isFavorite = favoriteIds.includes(product._id);
+        });
+
+        console.log('✅ Applied favorites from backend:', favoriteIds);
+      } else {
+        console.warn('⚠️ Favorite fetch succeeded but no data found:', res.data);
+        products.value.forEach(product => {
+          product.isFavorite = false;
+        });
+      }
     } catch (err) {
-      console.error('Error fetching favorites:', err);
+      console.error('❌ Error fetching favorites from backend:', err);
+      products.value.forEach(product => {
+        product.isFavorite = false;
+      });
     }
   } else {
-    // Guest: use localStorage
+    console.log('🔍 Guest user detected, applying favorites from localStorage...');
     const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    const favoriteIds = storedFavorites.map(fav => fav.id);
+
     products.value.forEach(product => {
-      product.isFavorite = storedFavorites.some(fav => fav.id === product._id);
+      product.isFavorite = favoriteIds.includes(product._id);
     });
-    console.log('🔍 Applied favorites from localStorage:', storedFavorites.map(f => f.id));
+
+    console.log('✅ Applied favorites from localStorage:', favoriteIds);
   }
 }
+
 
 // Calculate final price after discount
 function calculateFinalPrice(product) {
@@ -733,7 +752,7 @@ function checkAuthStatus() {
 async function toggleFavorite(product) {
   console.log('🔍 toggleFavorite called for product:', product._id, product.name);
   console.log('🔍 Current favorite state:', product.isFavorite);
-  
+  const token = localStorage.getItem("token");
   // Check authentication status
   const isAuthenticated = checkAuthStatus();
   
