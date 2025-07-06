@@ -1,350 +1,355 @@
 <template>
-  <div class="p-4 md:p-6 font-inter">
+  <div class="p-4 md:p-6 font-khmer">
     <!-- Header Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 md:gap-6">
-        <!-- Title -->
-        <div class="flex items-center gap-3 md:gap-4">
-          <div class="p-2 md:p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 3v18h18"></path>
-              <path d="M18.7 8a3 3 0 0 0-5.4 0"></path>
-              <path d="M15 8a3 3 0 0 0-6 0"></path>
-              <path d="M9 8a3 3 0 0 0-5.4 0"></path>
-              <path d="M3 21l5-5 5 5 8-8"></path>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">Stock Reports</h1>
-            <p class="text-xs md:text-sm text-gray-600 mt-0.5 font-medium">Generate and export inventory analytics</p>
-          </div>
-        </div>
-
-        <!-- Export Button -->
-        <div class="flex items-center gap-3">
-          <button @click="printTable"
-            class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl text-xs md:text-sm font-semibold shadow-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 hover:scale-105">
-            <i class="fas fa-file-pdf text-xs"></i>
-            <span>Export Excel</span>
-          </button>
-        </div>
-      </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-gray-900">Stock Reports</h1>
+      <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
+        <i class="fas fa-file-excel mr-2"></i>Export Excel
+      </button>
     </div>
 
     <!-- Filters Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
-      <div class="flex flex-col lg:flex-row lg:items-end gap-4 md:gap-6">
-        <!-- Filter Options -->
-        <div class="flex flex-col sm:flex-row gap-4 flex-1">
-          <div class="flex-1">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Category Filter</label>
-            <select v-model="selectedCategory"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
-              <option value="">All Categories</option>
-              <option value="electronics">Electronics</option>
-              <option value="clothing">Clothing</option>
-              <option value="food">Food & Beverages</option>
-              <option value="books">Books</option>
-            </select>
-          </div>
-          <div class="flex-1">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Stock Level</label>
-            <select v-model="stockLevel"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
-              <option value="">All Levels</option>
-              <option value="low">Low Stock (< 10)</option>
-              <option value="medium">Medium Stock (10-50)</option>
-              <option value="high">High Stock (> 50)</option>
-            </select>
-          </div>
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select v-model="selectedCategory" class="w-full px-3 py-2 border rounded-lg">
+            <option value="">All Categories</option>
+            <option v-for="category in categories" 
+                    :key="category._id" 
+                    :value="category._id">
+              {{ category.name }}
+            </option>
+          </select>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex gap-2 lg:gap-3">
-          <button @click="handleRefresh"
-            class="flex items-center justify-center p-3 lg:p-3.5 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-gray-800 transition-all duration-200 hover:scale-105 border border-gray-200">
-            <i class="fas fa-sync-alt text-sm"></i>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Stock Level</label>
+          <select v-model="stockLevel" class="w-full px-3 py-2 border rounded-lg">
+            <option value="">All Levels</option>
+            <option value="low">Low Stock (< 10)</option>
+            <option value="medium">Medium Stock (10-50)</option>
+            <option value="high">High Stock (> 50)</option>
+          </select>
+        </div>
+        <div class="flex gap-2">
+          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
+            <i class="fas fa-sync-alt"></i>
           </button>
-          <button @click="handleSearch"
-            class="flex items-center gap-2 px-4 lg:px-6 py-3 lg:py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 hover:scale-105">
-            <i class="fas fa-search text-xs"></i>
-            <span class="hidden sm:inline">Search</span>
+          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+            Search
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Report Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden print-this" ref="printSection">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-        <div class="flex items-center gap-3">
-          <div class="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-2 border-amber-600 border-t-transparent"></div>
-          <span class="text-gray-700 font-medium text-sm md:text-base">Generating report...</span>
-        </div>
+    <!-- Table Section -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <!-- Loading State -->
+      <div v-if="isLoading" class="p-8 text-center">
+        <div class="animate-spin h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto"></div>
+        <p class="mt-2 text-gray-600">Loading stocks...</p>
       </div>
 
-      <!-- Report Header -->
-      <div class="text-center p-6 md:p-8 border-b border-gray-100">
-        <div class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white mb-4 shadow-lg">
-          <i class="fas fa-boxes text-2xl md:text-3xl"></i>
-        </div>
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight mb-2">Stock Report</h2>
-        <p class="text-sm md:text-base text-gray-600 font-medium">
-          Current inventory status and analytics
-        </p>
-        <p class="text-xs text-gray-500 mt-1">
-          Generated on {{ new Date().toLocaleDateString() }}
-        </p>
-      </div>
-
-      <!-- Table Container -->
-      <div class="relative overflow-x-auto">
-        <!-- Desktop Table View -->
-        <div class="hidden md:block">
-          <table class="min-w-full divide-y divide-gray-100">
-            <thead class="bg-gray-50/50">
-              <tr>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Current Stock</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Min Stock</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Unit Price</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Total Value</th>
-                <th class="px-4 lg:px-6 py-4 lg:py-5 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-100">
-              <!-- Sample Data Row 1 -->
-              <tr class="hover:bg-amber-50/50 transition-colors duration-200">
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-sm font-semibold text-gray-900">1</td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap">
-                  <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0">
-                      <div class="h-8 w-8 lg:h-10 lg:w-10 rounded-lg lg:rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center border border-amber-200">
-                        <i class="fas fa-box text-amber-600 text-xs"></i>
-                      </div>
+      <!-- Desktop Table -->
+      <div v-else-if="stocks.length > 0" class="hidden md:block overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50 text-sm">
+            <tr>
+              <th class="text-left p-4">#</th>
+              <th class="text-left p-4">Product</th>
+              <th class="text-center p-4">Current Stock</th>
+              <th class="text-center p-4">Last Purchase</th>
+              <th class="text-center p-4">Min/Max</th>
+              <th class="text-center p-4">Status</th>
+              <th class="text-center p-4">Last Updated</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr v-for="(stock, index) in stocks" :key="stock._id" class="hover:bg-gray-50">
+              <td class="p-4">{{ index + 1 }}</td>
+              <td class="p-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
+                    <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name" class="w-full h-full object-cover rounded">
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                      <i class="fas fa-box text-gray-400"></i>
                     </div>
-                    <div>
-                      <div class="text-sm font-bold text-gray-900">Wireless Headphones</div>
-                      <div class="text-xs text-gray-500 mt-0.5">SKU: WH001</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    Electronics
-                  </span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-lg font-bold text-gray-900">45</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center text-sm text-gray-600">10</td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-sm font-semibold text-gray-900">$99.99</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-lg font-bold text-green-600">$4,499.55</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-bold bg-green-100 text-green-700 border border-green-200">
-                    <i class="fas fa-check-circle text-xs"></i>
-                    <span class="hidden lg:inline">In Stock</span>
-                  </span>
-                </td>
-              </tr>
-
-              <!-- Sample Data Row 2 -->
-              <tr class="hover:bg-amber-50/50 transition-colors duration-200">
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-sm font-semibold text-gray-900">2</td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap">
-                  <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0">
-                      <div class="h-8 w-8 lg:h-10 lg:w-10 rounded-lg lg:rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center border border-amber-200">
-                        <i class="fas fa-tshirt text-amber-600 text-xs"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="text-sm font-bold text-gray-900">Cotton T-Shirt</div>
-                      <div class="text-xs text-gray-500 mt-0.5">SKU: TS001</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-                    Clothing
-                  </span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-lg font-bold text-red-600">8</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center text-sm text-gray-600">15</td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-sm font-semibold text-gray-900">$19.99</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-lg font-bold text-green-600">$159.92</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                    <i class="fas fa-exclamation-triangle text-xs"></i>
-                    <span class="hidden lg:inline">Low Stock</span>
-                  </span>
-                </td>
-              </tr>
-
-              <!-- Sample Data Row 3 -->
-              <tr class="hover:bg-amber-50/50 transition-colors duration-200">
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-sm font-semibold text-gray-900">3</td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap">
-                  <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0">
-                      <div class="h-8 w-8 lg:h-10 lg:w-10 rounded-lg lg:rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center border border-amber-200">
-                        <i class="fas fa-book text-amber-600 text-xs"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="text-sm font-bold text-gray-900">Programming Guide</div>
-                      <div class="text-xs text-gray-500 mt-0.5">SKU: BK001</div>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
-                    Books
-                  </span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-lg font-bold text-gray-900">25</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center text-sm text-gray-600">5</td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-sm font-semibold text-gray-900">$49.99</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="text-lg font-bold text-green-600">$1,249.75</span>
-                </td>
-                <td class="px-4 lg:px-6 py-4 lg:py-5 whitespace-nowrap text-center">
-                  <span class="inline-flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-bold bg-green-100 text-green-700 border border-green-200">
-                    <i class="fas fa-check-circle text-xs"></i>
-                    <span class="hidden lg:inline">In Stock</span>
-                  </span>
-                </td>
-              </tr>
-
-              <!-- Empty State -->
-              <!-- <tr>
-                <td :colspan="8" class="px-4 lg:px-6 py-12 lg:py-20 text-center">
-                  <div class="flex flex-col items-center gap-4">
-                    <div class="p-4 lg:p-6 rounded-xl lg:rounded-2xl bg-amber-50 border border-amber-200">
-                      <i class="fas fa-boxes text-3xl lg:text-5xl text-amber-400"></i>
-                    </div>
-                    <div>
-                      <h3 class="text-base lg:text-lg font-bold text-gray-900">No stock data found</h3>
-                      <p class="text-xs lg:text-sm text-gray-600 mt-1 font-medium">No products match the selected criteria</p>
-                    </div>
-                  </div>
-                </td>
-              </tr> -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile Card View -->
-        <div class="block md:hidden">
-          <div class="divide-y divide-gray-100">
-            <div class="p-4 hover:bg-amber-50/50 transition-colors">
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex items-center gap-3">
-                  <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center border border-amber-200">
-                    <i class="fas fa-box text-amber-600 text-sm"></i>
                   </div>
                   <div>
-                    <h3 class="text-sm font-bold text-gray-900">Wireless Headphones</h3>
-                    <p class="text-xs text-gray-500">SKU: WH001</p>
+                    <p class="text-sm font-medium">{{ stock.name }}</p>
+                    <p class="text-xs text-gray-500">{{ stock.description || 'No description' }}</p>
                   </div>
                 </div>
-                <span class="text-lg font-bold text-green-600">$4,499.55</span>
+              </td>
+              
+              <td class="p-4 text-center">
+                <p class="font-medium" :class="[
+                  stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
+                ]">{{ stock.quantity }} {{ stock.purchaseProducts?.unit || 'kg' }}</p>
+              </td>
+              <td class="p-4 text-center">
+                <div v-if="stock.lastPurchase" class="text-sm">
+                  <p class="font-medium">{{ stock.lastPurchase.quantity }} {{ stock.lastPurchase.unit }}</p>
+                  <p class="text-xs text-gray-500">{{ formatCurrency(stock.lastPurchase.unitPrice) }}/unit</p>
+                </div>
+                <p v-else class="text-sm text-gray-500">-</p>
+              </td>
+              <td class="p-4 text-center">
+                <p class="text-sm">{{ stock.minThreshold }}/{{ stock.maxCapacity }}</p>
+              </td>
+              <td class="p-4 text-center">
+                <span :class="[
+                  'px-2 py-1 rounded text-xs font-medium',
+                  stock.isOutOfStock ? 'bg-red-100 text-red-700' : 
+                  stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-green-100 text-green-700'
+                ]">
+                  {{ stock.isOutOfStock ? 'Out of Stock' : 
+                     stock.quantity < stock.minThreshold ? 'Low Stock' : 
+                     'In Stock' }}
+                </span>
+              </td>
+              <td class="p-4 text-center">
+                <p class="text-sm">{{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
+                <p class="text-xs text-gray-500">{{ stock.updatedBy?.name || stock.createdBy?.name || '-' }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div v-else-if="stocks.length > 0" class="md:hidden divide-y">
+        <div v-for="stock in stocks" :key="stock._id" class="p-4">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0">
+                <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name" class="w-full h-full object-cover rounded">
+                <div v-else class="w-full h-full flex items-center justify-center">
+                  <i class="fas fa-box text-gray-400"></i>
+                </div>
               </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-bold bg-blue-50 text-blue-700">
-                    Electronics
-                  </span>
-                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-green-100 text-green-700">
-                    <i class="fas fa-check-circle text-xs"></i>
-                    In Stock
-                  </span>
-                </div>
-                <div class="text-right">
-                  <p class="text-sm font-bold text-gray-900">Stock: 45</p>
-                  <p class="text-xs text-gray-500">Min: 10</p>
-                </div>
+              <div>
+                <p class="font-medium">{{ stock.name }}</p>
+                <p class="text-sm text-gray-500">{{ stock.description || 'No description' }}</p>
               </div>
             </div>
+            <span :class="[
+              'px-2 py-1 rounded text-xs font-medium',
+              stock.isOutOfStock ? 'bg-red-100 text-red-700' : 
+              stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
+              'bg-green-100 text-green-700'
+            ]">
+              {{ stock.isOutOfStock ? 'Out of Stock' : 
+                 stock.quantity < stock.minThreshold ? 'Low Stock' : 
+                 'In Stock' }}
+            </span>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mt-3">
+            <div>
+              <p class="text-xs text-gray-500">Category</p>
+              <span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                {{ stock.categoryId?.name || 'Uncategorized' }}
+              </span>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Current Stock</p>
+              <p class="font-medium" :class="[
+                stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
+              ]">{{ stock.quantity }} {{ stock.unit || 'units' }}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Last Purchase</p>
+              <div v-if="stock.lastPurchase" class="text-sm">
+                <p class="font-medium">{{ stock.lastPurchase.quantity }} {{ stock.lastPurchase.unit }}</p>
+                <p class="text-xs">{{ formatCurrency(stock.lastPurchase.unitPrice) }}/unit</p>
+              </div>
+              <p v-else class="text-sm">-</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Min/Max</p>
+              <p class="text-sm">{{ stock.minThreshold }}/{{ stock.maxCapacity }}</p>
+            </div>
+          </div>
+          <div class="mt-3 text-right">
+            <p class="text-xs text-gray-500">Last Updated: {{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Report Summary -->
-      <div class="px-4 md:px-6 py-4 md:py-6 border-t border-gray-100 bg-gray-50/30">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="text-center">
-            <p class="text-xs md:text-sm text-gray-600 font-medium">Total Products</p>
-            <p class="text-lg md:text-2xl font-bold text-gray-900">3</p>
-          </div>
-          <div class="text-center">
-            <p class="text-xs md:text-sm text-gray-600 font-medium">Total Value</p>
-            <p class="text-lg md:text-2xl font-bold text-green-600">$5,909.22</p>
-          </div>
-          <div class="text-center">
-            <p class="text-xs md:text-sm text-gray-600 font-medium">In Stock</p>
-            <p class="text-lg md:text-2xl font-bold text-green-600">2</p>
-          </div>
-          <div class="text-center">
-            <p class="text-xs md:text-sm text-gray-600 font-medium">Low Stock</p>
-            <p class="text-lg md:text-2xl font-bold text-red-600">1</p>
-          </div>
-        </div>
+      <!-- Empty State -->
+      <div v-else class="p-8 text-center">
+        <i class="fas fa-box text-4xl text-gray-400 mb-2"></i>
+        <p class="text-gray-600">No stocks found</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import apiURL from '@/api/config'
+import axios from 'axios'
+import { onMounted, ref } from 'vue'
+import * as XLSX from 'xlsx'
+import formatDate from '@/composables/formatDate';
 
 const selectedCategory = ref('')
 const stockLevel = ref('')
 const isLoading = ref(false)
-const printSection = ref(null)
+const stocks = ref([])
+const categories = ref([])
+
+const fetchCategories = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Authentication token not found')
+    }
+
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (response.data.success) {
+      categories.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+  }
+}
+
+const fetchStocks = async () => {
+  try {
+    isLoading.value = true
+    
+    let dynamicConditions = []
+    if (selectedCategory.value) {
+      dynamicConditions.push({
+        field: 'categoryId',
+        operator: '=',
+        value: selectedCategory.value
+      })
+    }
+    
+    if (stockLevel.value) {
+      switch(stockLevel.value) {
+        case 'low':
+          dynamicConditions.push({
+            field: 'quantity',
+            operator: '<',
+            value: 10
+          })
+          break
+        case 'medium':
+          dynamicConditions.push({
+            field: 'quantity',
+            operator: '>=',
+            value: 10
+          }, {
+            field: 'quantity',
+            operator: '<=',
+            value: 50
+          })
+          break
+        case 'high':
+          dynamicConditions.push({
+            field: 'quantity',
+            operator: '>',
+            value: 50
+          })
+          break
+      }
+    }
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Authentication token not found')
+    }
+
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Stock`, {
+      params: {
+        populate: JSON.stringify(['productId', 'categoryId', 'purchaseProducts', 'createdBy']),
+        dynamicConditions: JSON.stringify(dynamicConditions),
+        page: 1,
+        limit: 100
+      },
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (response.data.success) {
+      stocks.value = response.data.data.map(stock => ({
+        ...stock,
+        name: stock.name || stock.productId?.name,
+        description: stock.description || stock.productId?.description,
+        lastPurchase: stock.purchaseProducts ? {
+          quantity: stock.purchaseProducts.quantity,
+          unitPrice: stock.purchaseProducts.unitPrice,
+          unit: stock.purchaseProducts.unit
+        } : null
+      }))
+    }
+  } catch (error) {
+    console.error('Error fetching stocks:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const handleRefresh = () => {
-  isLoading.value = true
-  // Simulate API call
-  setTimeout(() => {
-    isLoading.value = false
-    console.log('Stock data refreshed')
-  }, 1000)
+  fetchStocks()
 }
 
 const handleSearch = () => {
-  isLoading.value = true
-  // Simulate API call
-  setTimeout(() => {
-    isLoading.value = false
-    console.log('Searching with filters:', selectedCategory.value, stockLevel.value)
-  }, 1500)
+  fetchStocks()
 }
 
-const printTable = () => {
-  window.print()
+
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('km-KH', {
+    style: 'decimal',
+    maximumFractionDigits: 0
+  }).format(amount) + '៛'
 }
+
+const exportToExcel = () => {
+  const excelData = stocks.value.map((stock, index) => ({
+    'No.': index + 1,
+    'Product Name': stock.name,
+    'Description': stock.description || '-',
+    'Current Stock': stock.quantity,
+    'Unit': stock.purchaseProducts?.unit || '-',
+    'Min Threshold': stock.minThreshold,
+    'Max Capacity': stock.maxCapacity,
+    'Status': stock.isOutOfStock ? 'Out of Stock' : 
+             stock.quantity < stock.minThreshold ? 'Low Stock' : 
+             'In Stock',
+    'Last Purchase Quantity': stock.lastPurchase?.quantity || '-',
+    'Last Purchase Price': stock.lastPurchase?.unitPrice ? `${formatCurrency(stock.lastPurchase.unitPrice)}` : '-',
+    'Last Restocked': stock.lastRestockedAt ? formatDate(stock.lastRestockedAt) : '-',
+    'Last Sold': stock.lastSoldAt ? formatDate(stock.lastSoldAt) : '-',
+    'Created At': formatDate(stock.createdAt),
+    'Created By': stock.createdBy?.name || stock.createdBy || '-',
+    'Updated At': stock.updatedAt ? formatDate(stock.updatedAt) : '-'
+  }))
+
+  const ws = XLSX.utils.json_to_sheet(excelData)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Stocks')
+  XLSX.writeFile(wb, `stock_report_${new Date().toISOString().split('T')[0]}.xlsx`)
+}
+
+onMounted(() => {
+  fetchCategories()
+  fetchStocks()
+})
 </script>
 
 <style scoped>
-/* Enhanced scrollbar styling */
 .overflow-x-auto::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -364,49 +369,7 @@ const printTable = () => {
   border-radius: 2px;
 }
 
-/* Smooth scrolling */
 .overflow-x-auto {
   scroll-behavior: smooth;
-}
-
-/* Print Styles */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .print-this,
-  .print-this * {
-    visibility: visible;
-    color: black !important;
-  }
-
-  .print-this {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-  }
-  
-  /* Hide buttons and interactive elements when printing */
-  button {
-    display: none !important;
-  }
-  
-  /* Ensure proper styling for print */
-  .bg-gradient-to-br,
-  .bg-gradient-to-r {
-    background: #f59e0b !important;
-    -webkit-print-color-adjust: exact;
-  }
-}
-
-/* Custom select styling */
-select {
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  appearance: none;
 }
 </style>

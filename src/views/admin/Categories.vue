@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -64,11 +64,8 @@
       <!-- Table Container -->
       <div class="relative overflow-hidden">
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-          <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium">Loading...</span>
-          </div>
+        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
         </div>
         
         <div class="overflow-x-auto">
@@ -285,6 +282,9 @@ import { Switch } from '@headlessui/vue';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import formatDate from '@/composables/formatDate';
+
+
 
 // State
 const items = ref([10, 25, 50, 100]);
@@ -317,18 +317,6 @@ const status = ref(true)
 // Router
 const router = useRouter();
 
-// Format date function
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
 const handleListenToPagination = async (items) => {
   categoryData.value = items || [];

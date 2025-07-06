@@ -115,10 +115,9 @@ const navigateToHome = () => {
 };
 
 const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.clear();
   store.clearAuth();
-  router.push('/home');
+  router.push('/login');
 };
 
 // Fetch profile on mount if authenticated

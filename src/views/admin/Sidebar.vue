@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-    'h-screen bg-white-200 text-[#4b5563] fixed top-0 bottom-0 transition-all duration-300 flex flex-col shadow-xl z-50 font-sans',
+    'h-screen bg-white-200 text-[#4b5563] bg-white fixed top-0 bottom-0 transition-all duration-300 flex flex-col shadow-xl z-50 font-sans',
     isOpen ? 'w-56 left-0' : '-left-56 w-56'
   ]">
     <!-- Toggle Handle -->
@@ -27,7 +27,7 @@
       <!-- DASHBOARDS -->
       <div >
         <h2 class="text-[#ca8a04] text-xs font-semibold  tracking-wider mb-2 uppercase">Dashboard</h2>
-        <nav class="space-y-2">
+        <nav class="space-y-2 ">
           <!-- supplier -->
           <router-link to="/admin/dashboard" :class="[
             'nav-link',

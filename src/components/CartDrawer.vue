@@ -93,10 +93,12 @@
 
 <script setup>
 import apiURL from '@/api/config.js';
+import { useTelegram } from '@/composables/useTelegram';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
+const { sendToTelegram } = useTelegram();
 
 const store = useStore();
 const userId = store.userId;
@@ -241,8 +243,6 @@ const createOrders = async () => {
         deliveryMethod: delivery.value,
         deliveryAddress: "",
         paymentMethod: "bakong",
-        paymentStatus: "paid",
-        status: "paid",
         note: "Payment via QR code",
         createdBy: userId
       }
@@ -345,6 +345,19 @@ const confirmPayment = async () => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      // Send Telegram message after QR code scanned
+      const allowedRoles = ['customer', 'admin', 'super admin'];
+      if (allowedRoles.includes(store.userRole)) {
+        await sendToTelegram(
+          `✅ *QR Code Scanned!*\n` +
+          `*User:* ${store.userName || 'Guest'}\n` +
+          `*Amount:* ៛${subtotal.value}\n` +
+          `*Time:* ${new Date().toLocaleString()}\n` +
+          `*Location:* ${store.userLocation || 'Unknown'}\n` +
+          `*Transaction ID:* ${txId}`
+        );
+      }
     } catch (scanErr) {
       console.error("Failed to update scanned status:", scanErr);
       // Continue anyway - this step is optional
@@ -377,6 +390,25 @@ const confirmPayment = async () => {
       alert('Failed to confirm payment and create order');
     }
   }
+};
+
+const getUserLocation = () => {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve('Location not available');
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve(
+            `Lat: ${position.coords.latitude.toFixed(5)}, Lng: ${position.coords.longitude.toFixed(5)}`
+          );
+        },
+        () => {
+          resolve('Location permission denied');
+        }
+      );
+    }
+  });
 };
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 font-inter">
+  <div class="p-4 md:p-6 bg-gray-50 font-khmer">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -23,7 +23,7 @@
           <div class="relative">
             <button @click="toggleDropdownRow"
               class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-              <span>{{ selectedItem }} {{ $t('common.items') }}</span>
+              <span>{{ selectedItem }} {{ $t('items') }}</span>
               <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
                 :class="{ 'rotate-180': isOpen }"></i>
             </button>
@@ -31,7 +31,7 @@
               class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
               <div v-for="item in items" :key="item" @click="selectItem(item)"
                 class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                {{ item }} {{ $t('common.items') }}
+                {{ item }} {{ $t('items') }}
               </div>
             </div>
           </div>
@@ -77,13 +77,9 @@
       <!-- Table Container -->
       <div class="relative overflow-hidden">
         <!-- Loading Overlay -->
-        <div v-if="isLoading"
-          class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-          <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium">{{ $t('common.loading') }}</span>
-          </div>
-        </div>
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
+      </div>
 
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
@@ -91,9 +87,10 @@
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('common.product') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('createdAt') }}</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.category') }}</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.description') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.price') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('price') }}</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.discount') }}</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.stock') }}</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.status') }}</th>
@@ -128,6 +125,12 @@
                         ID: {{ product.idCustom || 'N/A' }}
                       </div>
                     </div>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="max-w-32 text-sm text-gray-600 truncate">
+                    {{ formatDate(product.createdAt) || '-' }}
                   </div>
                 </td>
 
@@ -426,6 +429,7 @@ import { Switch } from '@headlessui/vue';
 import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import formatDate from '@/composables/formatDate';
 
 // State
 const items = ref([10, 25, 50, 100]);
@@ -500,20 +504,8 @@ const getCategoryName = (categoryId) => {
   return category ? category.name : 'Unknown';
 };
 
-// Format date function
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
-// Generate custom ID function
+
 // Generate custom ID function
 const generateCustomId = async () => {
   try {

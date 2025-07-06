@@ -14,11 +14,7 @@
           <div>
             <h3 class="text-gray-500 text-xs mb-2">{{ $t('dashboard.totalOrders') }}</h3>
             <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.totalOrders) }}</p>
-            <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.ordersChange >= 0 ? 'text-green-600' : 'text-red-600'">
-              <span v-if="metrics.ordersChange >= 0">↑</span>
-              <span v-else>↓</span>
-              <span>{{ Math.abs(metrics.ordersChange) }}% {{ $t('dashboard.fromLastPeriod') }}</span>
-            </div>
+            
           </div>
           <div>
             <i class="fa-solid fa-shopping-bag text-amber-500 text-xl"></i>
@@ -32,11 +28,7 @@
           <div>
             <h3 class="text-gray-500 text-xs mb-2">{{ $t('dashboard.totalUsers') }}</h3>
             <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.totalUsers) }}</p>
-            <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.usersChange >= 0 ? 'text-green-600' : 'text-red-600'">
-              <span v-if="metrics.usersChange >= 0">↑</span>
-              <span v-else>↓</span>
-              <span>{{ Math.abs(metrics.usersChange) }}% {{ $t('dashboard.fromLastPeriod') }}</span>
-            </div>
+           
           </div>
           <div>
             <i class="fa-solid fa-users text-blue-500 text-xl"></i>
@@ -51,11 +43,7 @@
           <div>
             <h3 class="text-gray-500 text-xs mb-2">{{ $t('dashboard.pendingOrders') }}</h3>
             <p class="text-xl font-bold text-gray-900">{{ formatNumber(metrics.pendingOrders) }}</p>
-            <div class="flex items-center gap-1 text-xs mt-1" :class="metrics.pendingChange >= 0 ? 'text-green-600' : 'text-red-600'">
-              <span v-if="metrics.pendingChange >= 0">↑</span>
-              <span v-else>↓</span>
-              <span>{{ Math.abs(metrics.pendingChange) }}% {{ $t('dashboard.fromLastPeriod') }}</span>
-            </div>
+           
           </div>
           <div>
             <i class="fa-solid fa-clock text-red-500 text-xl"></i>

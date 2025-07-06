@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -65,8 +65,8 @@
     <!-- Table -->
     <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100"
       style="max-height: 60vh;">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+        <!-- Loading Overlay -->
+        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
       </div>
 
@@ -358,6 +358,7 @@ import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
+import formatDate from '@/composables/formatDate';
 
 // State
 const items = ref([10, 25, 50, 100]);
@@ -513,15 +514,6 @@ const resetForm = () => {
 // Format helpers
 const formatPrice = (price) => {
   return new Intl.NumberFormat('km-KH').format(price || 0) + '៛';
-};
-
-const formatDate = (timestamp) => {
-  if (!timestamp) return 'N/A';
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
 };
 
 // Supplier and product methods

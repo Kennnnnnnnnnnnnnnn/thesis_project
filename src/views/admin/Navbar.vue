@@ -1,7 +1,7 @@
 <template>
     <div class="flex">
         <!-- Add overlay -->
-        <div v-if="isSidebarOpen && windowWidth < 768" class="fixed inset-0 bg-black bg-opacity-50 z-20"
+        <div v-if="isSidebarOpen && windowWidth < 768" class="fixed inset-0 bg-black/50 bg-opacity-50 backdrop-blur-sm z-20"
             @click="toggleSidebar"></div>
 
         <div :class="['flex-1 transition-all duration-300', isSidebarOpen ? 'md:ml-56' : 'ml-0']">

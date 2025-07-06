@@ -1,23 +1,26 @@
 <template>
-    <nav class="nav-menu" :class="{ 'mobile-menu-open': isMobileMenuOpen }">
-        <div class="container">
-            <!-- Mobile menu toggle button -->
-            <button class="mobile-menu-toggle" @click="toggleMobileMenu" aria-label="Toggle navigation menu">
-                <span class="hamburger-icon"></span>
-            </button>
+    <div >
+        <nav class="nav-menu" :class="{ 'mobile-menu-open': isMobileMenuOpen }">
+            <div class="container">
+                <!-- Mobile menu toggle button -->
+                <button class="mobile-menu-toggle" @click="toggleMobileMenu" aria-label="Toggle navigation menu">
+                    <span class="hamburger-icon"></span>
+                </button>
 
-            <ul class="nav-list" :class="{ 'show': isMobileMenuOpen }">
-                <li v-for="item in dynamicNavItems" :key="item.name">
-                    <router-link :to="item.route" class="nav-link" @click="closeMobileMenu">
-                    <span class="nav-icon" v-if="item.icon" :class="item.icon"></span>
-                    <span class="nav-text">{{ $t(item.name) }}</span>
-                    <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
-                    </router-link>
-                </li>
-            </ul>
+                <ul class="nav-list" :class="{ 'show': isMobileMenuOpen }">
+                    <li v-for="item in dynamicNavItems" :key="item.name">
+                        <router-link :to="item.route" class="nav-link" @click="closeMobileMenu">
+                            <span class="nav-icon" v-if="item.icon" :class="item.icon"></span>
+                            <span class="nav-text">{{ $t(item.name) }}</span>
+                            <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
+                        </router-link>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-        </div>
-    </nav>
+    </div>
+
 </template>
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
@@ -47,13 +50,13 @@ watch(() => localStorage.getItem("cart"), () => {
 });
 
 const navItems = ref([
-  { name: 'nav.home', route: '/home', icon: 'icon-home' },
-  { name: 'nav.products', route: '/product', icon: 'icon-products' },
-  { name: 'nav.favorites', route: '/favorite', icon: 'icon-heart' },
-  { name: 'nav.cart', route: '/cart', icon: 'icon-cart' },
-  { name: 'nav.profile', route: '/profile', icon: 'icon-user' },
-  { name: 'nav.history', route: '/history', icon: 'icon-history' },
-  { name: 'nav.contact', route: '/contact', icon: 'icon-envelope' }
+    { name: 'nav.home', route: '/home', icon: 'icon-home' },
+    { name: 'nav.products', route: '/product', icon: 'icon-products' },
+    { name: 'nav.favorites', route: '/favorite', icon: 'icon-heart' },
+    { name: 'nav.cart', route: '/cart', icon: 'icon-cart' },
+    { name: 'nav.profile', route: '/profile', icon: 'icon-user' },
+    { name: 'nav.history', route: '/history', icon: 'icon-history' },
+    { name: 'nav.contact', route: '/contact', icon: 'icon-envelope' }
 ]);
 
 
@@ -316,6 +319,7 @@ const dynamicNavItems = computed(() => {
         transform: translateY(-20px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;

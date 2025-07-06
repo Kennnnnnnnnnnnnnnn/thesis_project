@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -72,12 +72,10 @@
       <!-- Table Container -->
       <div class="relative overflow-hidden">
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-          <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium">Loading...</span>
-          </div>
+        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
         </div>
+
         
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
@@ -85,6 +83,7 @@
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Supplier Name</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Created At</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Address</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Contact</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description</th>
@@ -116,6 +115,10 @@
                       </div> -->
                     </div>
                   </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm text-gray-900 font-medium">{{ formatDate(supplier.createdAt) }}</div>
                 </td>
                 
                 <!-- Address Column -->
@@ -319,6 +322,7 @@ import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
+import formatDate from '@/composables/formatDate';
 
 const showModal = ref(false);
 const showEditModal = ref(false);

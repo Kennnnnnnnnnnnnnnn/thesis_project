@@ -1,91 +1,110 @@
 <template>
   <div class="profile-page">
-
-    <!-- Form -->
     <div class="profile-container">
+      <div class="profile-header">
+        <h1>Profile Settings</h1>
+        <p>Update your personal information</p>
+      </div>
+
       <form @submit.prevent="updateProfile" class="profile-form">
         <!-- Profile Picture -->
-        <div class="profile-picture">
-          <img :src="form.profilePicture || defaultImage" alt="Profile" />
-          <input type="file" @change="handleImageUpload" />
+        <div class="profile-picture-section">
+          <div class="profile-picture">
+            <img :src="form.profilePicture || defaultImage" alt="Profile" />
+            <div class="upload-overlay">
+              <label for="profile-upload" class="upload-btn">Change Photo</label>
+              <input id="profile-upload" type="file" @change="handleImageUpload" accept="image/*" />
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Name</label>
-          <input v-model="form.name" type="text" required />
+        <div class="form-sections">
+          <!-- Personal Information -->
+          <div class="form-section">
+            <h3>Personal Information</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input v-model="form.name" type="text" required />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input v-model="form.email" type="email" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input v-model="form.phoneNumber" type="text" required />
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select v-model="form.gender">
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Information -->
+          <div class="form-section">
+            <h3>Address Information</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Country</label>
+                <input v-model="form.country" type="text" placeholder="Enter country" />
+              </div>
+              <div class="form-group">
+                <label>Province</label>
+                <select v-model="selectedProvince" @change="onProvinceChange">
+                  <option value="">Select Province</option>
+                  <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>District</label>
+                <select v-model="selectedDistrict" @change="onDistrictChange" :disabled="!selectedProvince">
+                  <option value="">Select District</option>
+                  <option v-for="district in filteredDistricts" :key="district" :value="district">{{ district }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Commune</label>
+                <select v-model="form.commune" :disabled="!selectedDistrict">
+                  <option value="">Select Commune</option>
+                  <option v-for="commune in filteredCommunes" :key="commune" :value="commune">{{ commune }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Village</label>
+                <input v-model="form.village" type="text" placeholder="Enter village" />
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <input v-model="form.role" type="text" class="readonly" disabled />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Email</label>
-          <input v-model="form.email" type="email" />
-        </div>
-
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input v-model="form.phoneNumber" type="text" required />
-        </div>
-
-        <div class="form-group">
-          <label>Gender</label>
-          <select v-model="form.gender">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Country</label>
-          <input v-model="form.country" type="text" placeholder="Country" />
-        </div>
-
-        <div class="form-group">
-          <label>Province</label>
-          <select v-model="selectedProvince" @change="onProvinceChange">
-            <option value="">Select Province</option>
-            <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>District</label>
-          <select v-model="selectedDistrict" @change="onDistrictChange" :disabled="!selectedProvince">
-            <option value="">Select District</option>
-            <option v-for="district in filteredDistricts" :key="district" :value="district">{{ district }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Commune</label>
-          <select v-model="form.commune" :disabled="!selectedDistrict">
-            <option value="">Select Commune</option>
-            <option v-for="commune in filteredCommunes" :key="commune" :value="commune">{{ commune }}</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Village</label>
-          <input v-model="form.village" type="text" placeholder="Village" />
-        </div>
-
-
-        <div class="form-group">
-          <label>Role</label>
-          <input v-model="form.role" type="text" class="readonly" disabled />
-        </div>
-
-        <div class="form-group button-group">
-          <button type="submit">Update Profile</button>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import apiURL from '@/api/config';
+import axios from 'axios';
 import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
 
 const defaultImage = require('@/assets/default-profile.png');
 
@@ -262,79 +281,147 @@ onMounted(async () => {
 .profile-page {
   font-family: 'Poppins', sans-serif;
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #fffbea, #ffffff, #fffbea);
-  display: flex;
-  flex-direction: column;
-}
-
-.profile-header {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  padding: 16px 32px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  text-align: center;
-}
-
-.profile-header h1 {
-  color: #b7791f;
-  font-size: 2rem;
-  margin: 0;
+  background: #f8f9fa;
+  padding: 20px;
 }
 
 .profile-container {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  margin-bottom: 60px;
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.profile-header {
+  background: #ffffff;
+  padding: 30px;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.profile-header h1 {
+  color: #333;
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.profile-header p {
+  color: #6c757d;
+  margin: 0;
+  font-size: 1rem;
 }
 
 .profile-form {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 16px;
-  max-width: 1200px;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  border: 1px solid #fcd34d;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  padding: 30px;
 }
 
-@media (min-width: 640px) {
-  .profile-form {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .profile-form {
-    grid-template-columns: repeat(4, 1fr);
-  }
+.profile-picture-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
 }
 
 .profile-picture {
-  grid-column: span 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid #e9ecef;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.profile-picture:hover {
+  border-color: #007bff;
 }
 
 .profile-picture img {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  border: 4px solid #fcd34d;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  margin-bottom: 8px;
 }
 
-.profile-picture input[type="file"] {
-  font-size: 0.9rem;
-  color: #92400e;
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.profile-picture:hover .upload-overlay {
+  opacity: 1;
+}
+
+.upload-btn {
+  background-color: #007bff;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.upload-btn:hover {
+  background-color: #0056b3;
+}
+
+.upload-btn input[type="file"] {
+  display: none;
+}
+
+.form-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.form-section {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 25px;
+}
+
+.form-section h3 {
+  color: #333;
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 640px) {
+  .form-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .form-group {
@@ -343,68 +430,95 @@ onMounted(async () => {
 }
 
 .form-group label {
-  font-weight: 600;
-  color: #92400e;
-  margin-bottom: 4px;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
 }
 
 .form-group input,
 .form-group select {
-  border: 1px solid #fcd34d;
-  border-radius: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
   padding: 10px 12px;
   font-size: 1rem;
-  color: #78350f;
+  color: #495057;
+  background-color: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #fbbf24;
+  border-color: #007bff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
-.form-group .readonly {
-  background-color: #fef3c7;
+.form-group input:disabled,
+.form-group select:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
   cursor: not-allowed;
 }
 
-.status-group {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
+.form-group .readonly {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
 }
 
-.button-group {
-  grid-column: span 1;
+.form-actions {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
 }
 
-@media (min-width: 640px) {
-  .button-group {
-    grid-column: span 2;
-  }
-}
-
-@media (min-width: 1024px) {
-  .button-group {
-    grid-column: span 4;
-  }
-}
-
-.button-group button {
-  width: 100%;
-  padding: 12px;
+.btn-primary {
+  background-color: #007bff;
+  color: #ffffff;
   border: none;
-  border-radius: 9999px;
-  background-color: #facc15;
-  color: #fff;
-  font-weight: 600;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-weight: 500;
   font-size: 1rem;
-  transition: transform 0.2s, background-color 0.2s;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  min-width: 150px;
 }
 
-.button-group button:hover {
-  background-color: #fbbf24;
-  transform: scale(1.03);
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 10px;
+  }
+  
+  .profile-container {
+    border-radius: 8px;
+  }
+  
+  .profile-form {
+    padding: 20px;
+  }
+  
+  .form-section {
+    padding: 20px;
+  }
+  
+  .profile-header {
+    padding: 20px;
+  }
+  
+  .profile-header h1 {
+    font-size: 1.5rem;
+  }
 }
 </style>

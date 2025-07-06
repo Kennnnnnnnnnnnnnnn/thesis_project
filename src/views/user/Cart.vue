@@ -239,12 +239,14 @@
 
 <script setup>
 import apiURL from '@/api/config.js';
+import { useTelegram } from '@/composables/useTelegram';
 import socket from '@/services/socket';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+const { sendToTelegram } = useTelegram();
 
 const router = useRouter();
 const token = localStorage.getItem('token');
@@ -603,8 +605,6 @@ const createOrders = async () => {
         deliveryMethod: 'home',
         deliveryAddress: '',
         paymentMethod: 'bakong',
-        paymentStatus: 'paid',
-        status: 'paid',
         note: 'Payment via QR code',
         createdBy: 'customer'
       }
@@ -614,6 +614,22 @@ const createOrders = async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
     
+    const allowedRoles = ['customer', 'admin', 'super admin'];
+    const userRole = localStorage.getItem('userRole'); // Or use your store if available
+    const userName = localStorage.getItem('userName') || 'Guest';
+    const userLocation = localStorage.getItem('userLocation') || 'Unknown'; // Or use your store if available
+
+    if (allowedRoles.includes(userRole)) {
+      await sendToTelegram(
+        `🛒 *New Order Created!*\n` +
+        `*User:* ${userName}\n` +
+        `*Amount:* ៛${finalAmount.value}\n` +
+        `*Time:* ${new Date().toLocaleString()}\n` +
+        `*Location:* ${userLocation}\n` +
+        `*Order ID:* ${orderResponse.data.data._id || 'N/A'}`
+      );
+    }
+
     // Update product stock quantities
     try {
       // Process each item to update product stock

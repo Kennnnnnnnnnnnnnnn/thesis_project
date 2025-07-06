@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 font-inter">
+  <div class="p-4 md:p-6 font-khmer">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 md:gap-6">
@@ -72,11 +72,8 @@
       <!-- Table Container -->
       <div class="relative">
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-          <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium text-sm md:text-base">Loading...</span>
-          </div>
+        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
         </div>
 
         <!-- Mobile Card View -->
@@ -396,16 +393,15 @@
 
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import axios from 'axios';
 import apiURL from '@/api/config';
-import { fetchTimestamp } from '@/composables/timestamp'
-import socket from '@/services/socket'
 import Pagination from '@/components/Pagination.vue';
+import { fetchTimestamp } from '@/composables/timestamp';
+import { useTelegram } from '@/composables/useTelegram';
+import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
-import { useRouter } from 'vue-router';
-import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
-import getStatusClass from '@/components/GetStatus.vue';
+import axios from 'axios';
+import { onMounted, ref, watch } from 'vue';
+const { sendToTelegram } = useTelegram();
 
 
 const showModal = ref(false);

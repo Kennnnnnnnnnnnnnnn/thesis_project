@@ -1,13 +1,15 @@
 import '@fortawesome/fontawesome-free/css/all.css';
+import 'leaflet/dist/leaflet.css';
 import { KhqrGenerator } from 'phorsz-vue-khqr-generator';
 import 'phorsz-vue-khqr-generator/src/components/KhqrGenerator.css';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
 import { createApp } from 'vue';
+import { Vue3Lottie } from 'vue3-lottie';
 import App from './App.vue';
 import './assets/tailwind.css';
 import router from './router';
-import 'leaflet/dist/leaflet.css';
+
 
 // 🗺️ Google Maps
 import VueGoogleMaps from '@fawmi/vue-google-maps';
@@ -57,6 +59,7 @@ const i18n = createI18n({
 
 // 🔗 Use plugins
 app.component('KhqrGenerator', KhqrGenerator);
+app.component('Vue3Lottie', Vue3Lottie);
 app.use(pinia);
 app.use(router);
 app.use(vuetify);

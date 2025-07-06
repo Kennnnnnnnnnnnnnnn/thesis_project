@@ -10,7 +10,12 @@
       
       <!-- Main scrollable content -->
       <div :class="['flex-1 overflow-y-auto transition-all duration-300 bg-gray-50', isSidebarOpen ? 'md:ml-56' : 'ml-0']">
-        <router-view></router-view>
+        <transition name="fade" mode="out-in">
+          <div class="p-2 sm:p-4 md:p-6 rounded-lg mx-auto w-full" :key="$route.fullPath">
+            <router-view></router-view>
+          </div>
+        </transition>
+
       </div>
     </div>
   </div>
@@ -57,6 +62,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/* Fade and slide down effect */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Starting state for the entering element (initially off-screen down) */
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Final state for the entering element (normal position) */
+.fade-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* For the leaving state (it will move downwards while fading out) */
+.fade-leave {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Enhanced scrollbar styling */
 .overflow-y-auto::-webkit-scrollbar {
   width: 8px;

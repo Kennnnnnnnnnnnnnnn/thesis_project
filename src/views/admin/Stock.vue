@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-inter overflow-y-auto">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer overflow-y-auto">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -136,12 +136,8 @@
       <!-- Table Container -->
       <div class="relative overflow-hidden">
         <!-- Loading Overlay -->
-        <div v-if="isLoading"
-          class="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-10">
-          <div class="flex items-center gap-3">
-            <div class="animate-spin rounded-full h-8 w-8 border-2 border-amber-600 border-t-transparent"></div>
-            <span class="text-gray-700 font-medium">Loading...</span>
-          </div>
+        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
         </div>
 
         <div class="overflow-x-auto">
@@ -150,6 +146,7 @@
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Created At</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
                 <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Level</th> -->
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description
@@ -179,6 +176,13 @@
 
                     </div>
                   </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm">
+                    {{ formatDate(stock.createdAt) || '-' }}
+                  </span>
+
                 </td>
 
                 <!-- Category Column -->
@@ -238,7 +242,7 @@
                       <i class="fa-solid fa-eye"></i>
                     </button>
 
-                    
+
 
                     <!-- Delete Button -->
                     <!-- <button @click="pendingStockId = stock._id; showConfirmDialog = true;"
@@ -274,7 +278,7 @@
           :limitedPerPage="pageSize" :searchQuery="searchText" />
       </div>
     </div>
-    
+
 
     <StockDetailModal :show="showStockDetail" :stockId="selectedStockId" @close="closeStockDetail" />
     <!-- Confirmation Dialog -->
@@ -291,22 +295,12 @@ import StockDetailModal from '@/components/StockDetail.vue';
 import socket from '@/services/socket';
 import axios from 'axios';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
+import formatDate from '@/composables/formatDate';
 
-// Reactive variables
-const showModal = ref(false);
-const showEditModal = ref(false);
+
 const isLoading = ref(false);
-const isSubmitting = ref(false);
 const error = ref('');
 const stockData = ref([]);
-const currentId = ref('');
-const productId = ref('');
-const categoryId = ref('');
-const quantity = ref(0);
-const unit = ref('');
-const minThreshold = ref(5);
-const maxCapacity = ref(100);
-
 // Reference data
 const products = ref([]);
 const categories = ref([]);
