@@ -781,24 +781,37 @@ const finalAmount = computed(() =>
 onMounted(() => {
   fetchCart();
   
-  // Connect to socket if not already connected
   if (!socket.connected) {
     socket.connect();
   }
   
-  // Listen for socket events
   socket.on('dataUpdate', (update) => {
-    if (update.collection === 'Product') {
-      // Refresh cart to get updated product data
+    if (update.collection === 'Product' || update.collection === 'Cart') {
+      console.log('🔄 Real-time cart/product update received:', update);
       fetchCart();
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'info',
+        title: 'Cart updated in real-time',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   });
+
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
 });
 
-// Clean up socket listeners when component is unmounted
 onUnmounted(() => {
   socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
 });
+
 </script>
 
 <style scoped>

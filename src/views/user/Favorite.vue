@@ -96,8 +96,9 @@ import apiURL from '@/api/config';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref , onUnmounted} from 'vue';
 import { useI18n } from 'vue-i18n';
+import socket from '@/services/socket';
 const { t } = useI18n();
 // Reactive data
 const favorites = ref([]);
@@ -141,8 +142,16 @@ async function fetchFavorites() {
 async function removeFavorite(favoriteId) {
   try {
     await axios.delete(`${apiURL}/api/deleteDoc/Favorite/${favoriteId}`, {
-      headers: { Authorization: `Bearer ${store.getToken}` }
-    });
+  headers: { Authorization: `Bearer ${store.getToken}` }
+});
+
+  // Emit update for real-time
+  socket.emit('dataUpdate', {
+    action: 'delete',
+    collection: 'Favorite',
+    data: favoriteId
+  });
+
     
     favorites.value = favorites.value.filter(f => f._id !== favoriteId);
     
@@ -226,6 +235,28 @@ function calculateFinalPrice(product) {
 // Lifecycle
 onMounted(() => {
   fetchFavorites();
+
+  if (!socket.connected) {
+    socket.connect();
+  }
+
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'Favorite') {
+      console.log('🔄 Real-time Favorite update received:', update);
+      fetchFavorites();
+    }
+  });
+
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
+});
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
 });
 </script>
 
