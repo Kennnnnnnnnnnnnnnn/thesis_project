@@ -65,8 +65,10 @@ import CartDrawer from '@/components/CartDrawer.vue';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import socket from '@/services/socket';
+
 
 const showCartDrawer = ref(false);
 const cartItems = ref([]);
@@ -284,7 +286,28 @@ const filteredProducts = computed(() => {
 onMounted(async () => {
   await fetchProducts();
   await fetchFavorites();
+
+  // 📡 Real-time product events
+  socket.on('productCreated', (product) => {
+    console.log('🆕 Real-time productCreated:', product);
+    fetchProducts();
+  });
+  socket.on('productUpdated', (product) => {
+    console.log('🔄 Real-time productUpdated:', product);
+    fetchProducts();
+  });
+  socket.on('productDeleted', (productId) => {
+    console.log('🗑️ Real-time productDeleted:', productId);
+    fetchProducts();
+  });
 });
+
+onUnmounted(() => {
+  socket.off('productCreated');
+  socket.off('productUpdated');
+  socket.off('productDeleted');
+});
+
 </script>
 
 <style scoped>

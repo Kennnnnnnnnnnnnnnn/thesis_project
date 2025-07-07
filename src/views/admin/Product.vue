@@ -430,6 +430,8 @@ import axios from 'axios';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import formatDate from '@/composables/formatDate';
+import Swal from 'sweetalert2';
+
 
 // State
 const items = ref([10, 25, 50, 100]);
@@ -944,27 +946,76 @@ const handleImageUpload = async (e) => {
 
 onBeforeUnmount(() => {
   socket.off('dataUpdate');
+  socket.off('productCreated');
+  socket.off('productUpdated');
+  socket.off('productDeleted');
 });
+
 
 
 onMounted(() => {
   if (!socket.connected) socket.connect();
 
-  socket.on('connect', () => {
-    console.log('✅ Socket.IO connected:', socket.id);
-  });
+  socket.on('connect', () => console.log('✅ Socket.IO connected:', socket.id));
 
   socket.on('dataUpdate', (update) => {
     if (update.collection === 'Product') {
-      fetchProducts(); // refresh product list
+      console.log('🔔 dataUpdate for Product received:', update);
+      fetchProducts();
     }
+  });
+
+  socket.on('productCreated', (product) => {
+    console.log('🆕 Product created (real-time):', product);
+    fetchProducts();
+  });
+
+  socket.on('productUpdated', (product) => {
+    console.log('🔄 Product updated (real-time):', product);
+    fetchProducts();
+  });
+
+  socket.on('productDeleted', (productId) => {
+    console.log('🗑️ Product deleted (real-time):', productId);
+    fetchProducts();
   });
 
   fetchProducts();
   fetchCategories();
 });
 
+socket.on('productCreated', (product) => {
+  fetchProducts();
+  Swal.fire({
+    icon: 'success',
+    title: 'Product Added!',
+    text: `Product "${product.name}" was created.`,
+    timer: 2500,
+    showConfirmButton: false
+  });
+});
 
+socket.on('productUpdated', (product) => {
+  fetchProducts();
+  Swal.fire({
+    icon: 'info',
+    title: 'Product Updated!',
+    text: `Product "${product.name}" was updated.`,
+    timer: 2500,
+    showConfirmButton: false
+  });
+});
+
+socket.on('productDeleted', (productId) => {
+  fetchProducts();
+  Swal.fire({
+    icon: 'warning',
+    title: 'Product Deleted!',
+    text: `Product with ID ${productId} was deleted.`,
+    timer: 2500,
+    showConfirmButton: false
+  });
+});
 
 
 </script>

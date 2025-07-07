@@ -185,10 +185,9 @@
             <h2 class="text-xl font-bold text-gray-900 tracking-tight">
               {{ $t('order.orderDetails') }} #{{ selectedOrder.orderNumber || selectedOrder._id }}
             </h2>
-            <p class="text-sm text-gray-600 mt-1 font-medium">View and manage order information</p>
+            <p class="text-sm text-gray-600 mt-1 font-medium">{{ $t('order.orderProgressDetails') }}</p>
           </div>
-          <button class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-all"
-            @click="selectedOrder = null">
+          <button class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-all" @click="selectedOrder = null">
             <i class="fas fa-times text-lg"></i>
           </button>
         </div>
@@ -198,38 +197,51 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
               <div class="flex items-center">
-                <span class="text-sm font-bold text-gray-500 w-24">{{ $t('order.customer') }}:</span>
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.customer') }}:</span>
                 <span class="text-sm text-gray-700 font-medium">{{ selectedOrder.userId?.name || 'Guest' }}</span>
               </div>
               <div class="flex items-center">
-                <span class="text-sm font-bold text-gray-500 w-24">{{ $t('order.date') }}:</span>
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.date') }}:</span>
                 <span class="text-sm text-gray-700 font-medium">{{ formatDate(selectedOrder.createdAt) }}</span>
+              </div>
+              <div class="flex items-start">
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.address') }}:</span>
+                <span class="text-sm text-gray-700 font-medium">{{ customerAddress }}</span>
               </div>
             </div>
 
             <div class="space-y-4">
               <div class="flex items-center">
-                <span class="text-sm font-bold text-gray-500 w-24">{{ $t('status') }}:</span>
-                <span class="text-sm font-medium" :class="selectedOrder.status === 'paid' ? 'text-green-600' : 'text-red-600'">
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.status') }}:</span>
+                <span class="text-sm font-medium" :class="getStatusClass(selectedOrder.status)">
                   {{ selectedOrder.status ? $t(selectedOrder.status.toLowerCase()) : '-' }}
                 </span>
               </div>
-              
+              <div class="flex items-center" v-if="selectedOrder.confirmedAt">
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.confirmedAt') }}:</span>
+                <span class="text-sm text-gray-700 font-medium">{{ formatDate(selectedOrder.confirmedAt) }}</span>
+              </div>
+              <div class="flex items-center" v-if="selectedOrder.deliveringAt">
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.deliveringAt') }}:</span>
+                <span class="text-sm text-gray-700 font-medium">{{ formatDate(selectedOrder.deliveringAt) }}</span>
+              </div>
+              <div class="flex items-center" v-if="selectedOrder.gotProductAt">
+                <span class="text-sm font-bold text-gray-500 w-32">{{ $t('order.gotProductAt') }}:</span>
+                <span class="text-sm text-gray-700 font-medium">{{ formatDate(selectedOrder.gotProductAt) }}</span>
+              </div>
             </div>
           </div>
 
           <div class="border-t border-gray-200 pt-6">
             <h3 class="font-bold text-gray-700 mb-4">{{ $t('order.orderItems') }}</h3>
             <div class="space-y-4">
-              <div v-for="item in selectedOrder.items" :key="item.id || item.productId" 
-                class="flex items-center p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition">
+              <div v-for="item in selectedOrder.items" :key="item._id" class="flex items-center p-4 border border-gray-100 rounded-2xl hover:bg-gray-50 transition">
                 <div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden flex items-center justify-center mr-4 border border-gray-200">
                   <img :src="item.image || ''" alt="" class="w-full h-full object-cover" v-if="item.image">
                   <i v-else class="fas fa-box text-gray-400"></i>
                 </div>
                 <div class="flex-1">
                   <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
-                  <p class="text-sm text-gray-500 font-medium">{{ item.productId?.name }}</p>
                 </div>
                 <div class="font-bold text-gray-700">
                   {{ item.quantity }} x ៛{{ item.price.toFixed(2) }}
@@ -238,27 +250,73 @@
             </div>
           </div>
 
-          <div class="border-t border-gray-200 pt-6">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-gray-700">{{ $t('order.total') }}:</span>
-              <span class="font-bold text-gray-900 text-lg">៛{{ selectedOrder.totalCost?.toFixed(2) || '0.00' }}</span>
-            </div>
+          <div class="border-t border-gray-200 pt-6 flex justify-between items-center">
+            <span class="font-bold text-gray-700">{{ $t('order.total') }}:</span>
+            <span class="font-bold text-gray-900 text-lg">៛{{ selectedOrder.totalCost?.toFixed(2) || '0.00' }}</span>
           </div>
 
-          <!-- <div class="flex justify-end gap-3 pt-4">
-            <button @click="selectedOrder = null"
-              class="px-6 py-3 rounded-2xl text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
+          <div class="flex justify-end pt-4">
+            <button @click="selectedOrder = null" class="px-6 py-3 rounded-2xl text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
               {{ $t('order.close') }}
             </button>
-            <button @click="updateOrder" :disabled="isLoading"
-              class="px-6 py-3 rounded-2xl text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-              <div v-if="isLoading" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              {{ isLoading ? 'Updating...' : $t('order.updateOrder') }}
-            </button>
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
+
+
+    <!-- Order Edit Dialog -->
+    <div v-if="isEditing" class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl border border-gray-200">
+        <!-- Dialog Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+          <h2 class="text-xl font-bold text-gray-900 tracking-tight">{{ $t('order.updateOrder') }} #{{ editOrderData.orderNumber || editOrderData._id }}</h2>
+          <button class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-400 hover:text-amber-600 transition-all" @click="closeEditDialog">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Dialog Body -->
+        <div class="p-6 space-y-6">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-bold text-gray-500">{{ $t('order.customer') }}:</span>
+              <span class="text-sm text-gray-700 font-medium">{{ editOrderData.userId?.name || 'Guest' }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-bold text-gray-500">{{ $t('order.total') }}:</span>
+              <span class="text-sm text-gray-700 font-medium">៛{{ editOrderData.totalCost?.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 pt-6">
+            <h3 class="font-bold text-gray-700 mb-4">{{ $t('order.status') }}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button @click="updateOrderStatus('confirmed')" :disabled="isLoading"
+                class="px-4 py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-check-circle mr-2"></i> Confirm
+              </button>
+              <button @click="updateOrderStatus('pending')" :disabled="isLoading"
+                class="px-4 py-3 rounded-xl bg-yellow-500 text-white font-bold hover:bg-yellow-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-hourglass-half mr-2"></i> Pending
+              </button>
+              <button @click="updateOrderStatus('rejected')" :disabled="isLoading"
+                class="px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-times-circle mr-2"></i> Reject
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dialog Footer -->
+        <div class="flex justify-end gap-3 p-6 border-t border-gray-100">
+          <button @click="closeEditDialog" class="px-6 py-3 rounded-2xl text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
+            {{ $t('order.close') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -270,7 +328,7 @@ import socket from '@/services/socket.js';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 // Initialize i18n
@@ -296,7 +354,9 @@ const isOpen = ref(false);
 const userData = ref([]);
 const store = useStore();
 const orderData = ref([]);
-
+const isEditing = ref(false);
+const editOrderData = ref(null);
+const customerAddress = ref('');
 
 
 
@@ -449,8 +509,75 @@ const viewOrder = (orderId) => {
 
 // Edit order details
 const editOrder = (orderId) => {
-  selectedOrder.value = orderData.value.find(order => order._id === orderId);
+  const order = orderData.value.find(order => order._id === orderId);
+  if (order) {
+    editOrderData.value = { ...order };  
+    isEditing.value = true;
+  }
 };
+
+const closeEditDialog = () => {
+  isEditing.value = false;
+  editOrderData.value = null;
+};
+
+const updateOrderStatus = async (newStatus) => {
+  if (!editOrderData.value) return;
+
+  const confirmResult = await Swal.fire({
+    icon: 'question',
+    title: `Confirm ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+    text: `Are you sure you want to set this order status to "${newStatus}"?`,
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Update',
+    cancelButtonText: t('common.cancel'),
+    confirmButtonColor: '#f59e0b',
+    cancelButtonColor: '#6b7280'
+  });
+
+  if (!confirmResult.isConfirmed) return;
+
+  try {
+    isLoading.value = true;
+
+    const updateData = {
+      fields: {
+        status: newStatus,
+        updatedBy: userData.value[0]?.name || 'Admin',
+        updatedAt: new Date()
+      }
+    };
+
+    const response = await axios.patch(
+      `${apiURL}/api/updateDoc/Order/${editOrderData.value._id}`,
+      updateData,
+      { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+    );
+
+    if (response.data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Order Updated',
+        text: `Order status set to "${newStatus}"`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+      closeEditDialog();
+      fetchOrders();
+    }
+  } catch (error) {
+    console.error('Error updating order:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Update Failed',
+      text: error.response?.data?.message || 'Failed to update order status.'
+    });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+
 
 // Update order status to delivering
 const updateOrder = async () => {
@@ -572,6 +699,39 @@ const handleDataUpdate = (payload) => {
   }
 };
 
+watch(selectedOrder, async (newOrder) => {
+  if (!newOrder || !newOrder.userId) {
+    customerAddress.value = '';
+    return;
+  }
+
+  try {
+    // Correctly get the user ID from the order, not from the logged-in store
+    const userId = newOrder.userId._id || newOrder.userId; // 🟢 THIS IS KEY
+
+    const response = await axios.get(`${apiURL}/api/getDocById/User/${userId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+
+    const user = response.data?.data;
+    if (user) {
+      customerAddress.value = [
+        user.village,
+        user.commune,
+        user.district,
+        user.province,
+        user.country
+      ].filter(Boolean).join(', ');
+    } else {
+      customerAddress.value = 'Address not found';
+    }
+  } catch (error) {
+    console.error('Error fetching customer address:', error);
+    customerAddress.value = 'Failed to load address';
+  }
+});
+
+
 // Socket connection status monitoring
 const handleSocketConnect = () => {
   console.log('✅ Socket connected');
@@ -590,20 +750,59 @@ onMounted(() => {
   fetchOrders();
   getUserData();
   
-  // Socket event listeners
   socket.on('dataUpdate', handleDataUpdate);
   socket.on('connect', handleSocketConnect);
   socket.on('disconnect', handleSocketDisconnect);
   socket.on('error', handleSocketError);
+
+  socket.on('orderCreated', (order) => {
+    console.log('🆕 Order created (real-time):', order);
+    fetchOrders();
+    Swal.fire({
+      icon: 'info',
+      title: t('order.newOrder'),
+      text: `${t('order.orderNumber')} #${order._id}`,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  });
+
+  socket.on('orderUpdated', (order) => {
+    console.log('🔄 Order updated (real-time):', order);
+    fetchOrders();
+    Swal.fire({
+      icon: 'info',
+      title: t('order.updated'),
+      text: `${t('order.orderNumber')} #${order._id}`,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  });
+
+  socket.on('orderDeleted', (orderId) => {
+    console.log('🗑️ Order deleted (real-time):', orderId);
+    fetchOrders();
+    Swal.fire({
+      icon: 'warning',
+      title: t('order.deleted'),
+      text: `${t('order.orderNumber')} #${orderId}`,
+      timer: 3000,
+      showConfirmButton: false
+    });
+  });
 });
 
 onUnmounted(() => {
-  // Clean up all socket listeners
   socket.off('dataUpdate', handleDataUpdate);
   socket.off('connect', handleSocketConnect);
   socket.off('disconnect', handleSocketDisconnect);
   socket.off('error', handleSocketError);
+
+  socket.off('orderCreated');
+  socket.off('orderUpdated');
+  socket.off('orderDeleted');
 });
+
 </script>
 
 <style scoped>

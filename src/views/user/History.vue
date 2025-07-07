@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 font-poppins">
     <div class="max-w-4xl mx-auto p-4">
-      <!-- Header Section -->
+      <!-- Header -->
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $t('history.yourOrderHistory') }}</h1>
         <p class="text-gray-600 mb-4">{{ $t('history.reviewPastPurchases') }}</p>
@@ -10,14 +10,14 @@
         </div>
       </div>
 
-      <!-- Loading State -->
+      <!-- Loading -->
       <div v-if="isLoading" class="text-center py-12">
         <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p class="text-gray-600">{{ $t('common.loading') }}...</p>
       </div>
 
-      <!-- Order List -->
-      <div v-else class="space-y-4">
+      <!-- Orders List -->
+      <div v-else-if="orders.length > 0" class="space-y-4">
         <div
           v-for="order in orders"
           :key="order._id"
@@ -39,7 +39,6 @@
                 <span :class="`px-2 py-1 rounded text-xs font-medium ${getStatusClass(order.status)}`">
                   {{ $t(order.status) }}
                 </span>
-                <!-- Confirm Receipt Button -->
                 <button 
                   v-if="order.status === 'delivering'"
                   @click="confirmReceipt(order)"
@@ -51,6 +50,33 @@
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- Pending Animation -->
+          <div v-if="order.status === 'pending'" class="flex justify-center p-4">
+            <DotLottieVue
+              style="height: 120px; width: 120px"
+              autoplay
+              loop
+              src="https://lottie.host/b3e4008f-9dbd-4b76-b13e-e1cdb52f6190/3JhAvD9aX1.json"
+              @complete="onAnimationComplete"
+              @error="onAnimationError"
+              @ready="onAnimationReady"
+            />
+          </div>
+
+          <!-- Animation when status is confirm -->
+          <div v-if="order.status === 'confirmed'" class="flex justify-center p-4">
+            <DotLottieVue
+              style="height: 120px; width: 120px"
+              autoplay
+              loop
+              src="https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json"
+         
+              @complete="onAnimationComplete"
+              @error="onAnimationError"
+              @ready="onAnimationReady"
+            />
           </div>
 
           <!-- Order Items -->
@@ -78,11 +104,22 @@
               </div>
             </div>
           </div>
+          <!-- Get Product Button -->
+          <div v-if="normalizeStatus(order.status) === 'confirmed'" class="flex justify-center p-4">
+            <button 
+              class="mt-4 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
+              :disabled="isLoading"
+              @click="confirmGotProduct(order)"
+            >
+              <i class="fas fa-box-open mr-1"></i> Get Product
+            </button>
+          </div>
+
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-if="!isLoading && orders.length === 0" class="text-center py-12">
+      <div v-else class="text-center py-12">
         <i class="fas fa-shopping-basket text-4xl text-gray-400 mb-4"></i>
         <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ $t('history.noHistoryYet') }}</h3>
         <p class="text-gray-600 mb-6">{{ $t('history.completedOrdersAppear') }}</p>
@@ -91,41 +128,18 @@
         </button>
       </div>
     </div>
-
-    <!-- Lottie Animation Modal -->
-    <div v-if="showAnimationModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4" @click="closeAnimationModal">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 text-center" @click.stop>
-        <div class="flex justify-center mb-4">
-          <Vue3Lottie
-            :animation-data="animationData"
-            :height="120"
-            :width="120"
-            :auto-play="true"
-            :loop="false"
-            :speed="1"
-            @on-complete="onAnimationComplete"
-            @error="onAnimationError"
-            @ready="onAnimationReady"
-          />
-        </div>
-        <div>
-          <h3 class="text-xl font-bold text-green-600 mb-2">Receipt Confirmed!</h3>
-          <p class="text-gray-600 text-sm">Thank you for confirming. Your order has been marked as completed.</p>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
+
 <script setup>
 import apiURL from '@/api/config.js';
-import animationData from '@/assets/animation.json';
 import socket from '@/services/socket.js';
 import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { Vue3Lottie } from 'vue3-lottie';
+import { DotLottie, DotLottieVue } from '@lottiefiles/dotlottie-vue'
 
 const router = useRouter();
 const { t } = useI18n();
@@ -243,6 +257,59 @@ const confirmReceipt = async (order) => {
     isLoading.value = false;
   }
 };
+
+const normalizeStatus = (status) => (status || '').toString().toLowerCase().trim();
+
+const confirmGotProduct = async (order) => {
+  console.log('📦 Customer clicked Get Product for order:', order._id);
+
+  // Confirm the action
+  const confirm = window.confirm('Are you sure you received your product?');
+  if (!confirm) return;
+
+  try {
+    isLoading.value = true;
+    console.log('📤 Updating order status to got_product...');
+
+    const updateData = {
+      fields: {
+        status: 'got_product',
+        updatedAt: new Date()
+      }
+    };
+
+    const response = await axios.patch(
+      `${API}/updateDoc/Order/${order._id}`,
+      updateData,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      }
+    );
+
+    if (response.data.success) {
+      console.log('✅ Order status updated to got_product');
+
+      // Update local data
+      const orderIndex = orders.value.findIndex(o => o._id === order._id);
+      if (orderIndex !== -1) {
+        orders.value[orderIndex] = {
+          ...orders.value[orderIndex],
+          status: 'got_product',
+          updatedAt: new Date()
+        };
+      }
+
+      // Optionally show success message
+      alert('Thank you! Your product has been marked as received.');
+    }
+  } catch (error) {
+    console.error('❌ Error updating to got_product:', error);
+    alert('Something went wrong. Please try again.');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 
 // Animation event handlers
 const onAnimationComplete = () => {

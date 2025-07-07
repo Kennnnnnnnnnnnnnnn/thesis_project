@@ -1,8 +1,10 @@
 {
- "companyName" : "Tang Eang Hout",
- "logout": "Logout",
- 
- "nav": {
+  "companyName": "Tang Eang Hout",
+  "logout": "Logout",
+
+  "items": "Items",  
+
+  "nav": {
     "home": "Home",
     "products": "Products",
     "favorites": "Favorites",
@@ -41,10 +43,6 @@
     "stock": "Stock",
     "itemsTotal": "{count} products total"
   },
-
-
-  
-
   "home": {
     "searchPlaceholder": "Search products...",
     "newProductsTitle": "New Products",
@@ -114,24 +112,16 @@
     "officeAddressDetail": "No.1 Borey Honglay, Street Lu5, Stung Mean Chey 3, Mean Chey, Phnom Penh, Cambodia.",
     "emailUs": "Email Us"
   },
-
-
-
   "favorites": {
-  "title": "Your Favorites",
-  "loading": "Loading your favorites...",
-  "emptyTitle": "No favorites yet",
-  "emptyDescription": "Start adding products to your favorites to see them here!",
-  "browseProducts": "Browse Products",
-  "unknownProduct": "Unknown Product",
-  "premiumQuality": "Premium quality product",
-  "addToCart": "Add to Cart"
+    "title": "Your Favorites",
+    "loading": "Loading your favorites...",
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Start adding products to your favorites to see them here!",
+    "browseProducts": "Browse Products",
+    "unknownProduct": "Unknown Product",
+    "premiumQuality": "Premium quality product",
+    "addToCart": "Add to Cart"
   },
-
-
-
-
-
   "cart": {
     "clearAll": "Clear All",
     "itemsTitle": "Cart Items",
@@ -153,14 +143,11 @@
     "iHavePaid": "I'VE PAID",
     "loadingQR": "Loading QR code..."
   },
-
   "scanner": {
     "customer": "Customer",
     "bankBakong": "Bakong Bank",
     "webBrowser": "Web Browser"
   },
-
-
   "profile": {
     "noEmail": "No email provided",
     "personalInfo": "Personal Information",
@@ -173,9 +160,6 @@
     "postalCode": "Postal Code",
     "saveChanges": "Save Changes"
   },
-
-
-
   "history": {
     "yourOrderHistory": "Your Order History",
     "reviewPastPurchases": "Review your past purchases and order details",
@@ -193,8 +177,6 @@
     "itemAdded": "Item Added",
     "addedToCart": "{{item}} has been added to your cart!"
   },
-
-
   "contact": {
     "title": "Contact Us",
     "subtitle": "Get in touch with our support team",
@@ -220,9 +202,6 @@
       "message": "Message is required"
     }
   },
-
-
-
   "dashboard": {
     "title": "Dashboard Overview",
     "subtitle": "Monitor your store performance",
@@ -239,9 +218,7 @@
     "profile": "My Profile",
     "settings": "Settings"
   },
-
-
-   "order": {
+  "order": {
     "title": "Order Management",
     "searchPlaceholder": "Search Orders...",
     "allOrders": "All Orders",
@@ -267,10 +244,11 @@
     "shipping": "Shipping",
     "subtotal": "Subtotal",
     "close": "Close",
-    "updateOrder": "Update Order"
+    "updateOrder": "Update Order",
+    "confirmed": "Confirmed",
+    "rejected": "Rejected",
+    "confirmedAt": "Comfirm Date"
   },
-
-
   "register": {
     "title": "Register Account",
     "phone": "Phone Number",
@@ -284,9 +262,4 @@
     "confirmPassword": "Confirm Password",
     "passwordMismatch": "Passwords do not match"
   }
-
-
-
-
-
 }
