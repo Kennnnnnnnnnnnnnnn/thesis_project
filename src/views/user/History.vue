@@ -139,7 +139,7 @@ import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { DotLottie, DotLottieVue } from '@lottiefiles/dotlottie-vue'
+import { DotLottieVue } from '@lottiefiles/dotlottie-vue'
 
 const router = useRouter();
 const { t } = useI18n();

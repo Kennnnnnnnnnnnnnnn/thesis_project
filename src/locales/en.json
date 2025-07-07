@@ -1,6 +1,5 @@
 {
   "companyName": "Tang Eang Hout",
-  "logout": "Logout",
 
   "items": "Items",  
 
@@ -61,6 +60,7 @@
     "save": "Save",
     "na": "N/A",
     "product": "Product",
+    "loading": "Loading",
     "yes": "Yes",
     "no": "No",
     "confirm": "Confirm",
@@ -70,6 +70,12 @@
     "actions": "Actions",
     "logout": "Logout",
     "login": "Login",
+    "notAvailable": "N/A",
+    "clear": "Clear",
+    "saving": "Saving...",
+    "female": "Female",
+    "male": "Male",
+    "other": "Other",
     "register": "Register"
   },
   "alerts": {
@@ -161,29 +167,37 @@
     "saveChanges": "Save Changes"
   },
   "history": {
-    "yourOrderHistory": "Your Order History",
-    "reviewPastPurchases": "Review your past purchases and order details",
-    "clearAllHistory": "Clear All History",
-    "order": "Order",
-    "orders": "Orders",
-    "total": "Total",
-    "reorder": "Reorder",
-    "noHistoryYet": "No Order History Yet",
-    "completedOrdersAppear": "Your completed orders will appear here",
-    "startShopping": "Start Shopping",
-    "clearAllConfirmTitle": "Clear All Order History?",
-    "clearAllConfirmText": "This action cannot be undone. All your order history will be permanently deleted.",
-    "clearAll": "Clear All",
-    "itemAdded": "Item Added",
-    "addedToCart": "{{item}} has been added to your cart!"
-  },
+  "yourOrderHistory": "Your Order History",
+  "reviewPastPurchases": "Review your past purchases and order details",
+  "clearAllHistory": "Clear All History",
+  "order": "Order",
+  "orders": "Orders",
+  "total": "Total",
+  "reorder": "Reorder",
+  "noHistoryYet": "No Order History Yet",
+  "completedOrdersAppear": "Your completed orders will appear here",
+  "startShopping": "Start Shopping",
+  "clearAllConfirmTitle": "Clear All Order History?",
+  "clearAllConfirmText": "This action cannot be undone. All your order history will be permanently deleted.",
+  "clearAll": "Clear All",
+  "itemAdded": "Item Added",
+  "addedToCart": "{{item}} has been added to your cart!",
+  "pending": "Pending",
+  "confirmed": "Confirmed",
+  "got_product": "Got Product",
+  "paid": "Paid",
+  "delivering": "Delivering",
+  "completed": "Completed",
+  "cancelled": "Cancelled",
+  "confirmReceiptPrompt": "Are you sure you received your product?"
+}
+,
   "contact": {
     "title": "Contact Us",
     "subtitle": "Get in touch with our support team",
     "ourInfo": "Our Information",
     "address": "123 Main Street, City, Country",
     "phone": "+1 (555) 123-4567",
-    "email": "support@example.com",
     "hours": "Monday - Friday: 9:00 AM - 5:00 PM",
     "connect": "Connect With Us",
     "sendMessage": "Send Us a Message",
@@ -261,5 +275,58 @@
     "tryAgain": "Please try again",
     "confirmPassword": "Confirm Password",
     "passwordMismatch": "Passwords do not match"
+  },
+  "errors": {
+    "requiredFields": "All required fields must be filled",
+    "authRequired": "Authentication required. Please login again.",
+    "passwordRequired": "Password is required for new users",
+    "missingUserId": "Missing user ID for update operation",
+    "createFailed": "Failed to create user",
+    "updateFailed": "Failed to update user",
+    "saveFailed": "Failed to save user"
+  },
+  "roles": {
+    "superadmin": "Superadmin",
+    "admin": "Admin",
+    "delivery": "Delivery",
+    "customer": "Customer"
+  },
+  "user": {
+    "headerTitle": "User Management",
+    "items": "items",
+    "searchPlaceholder": "Search users...",
+    "allRoles": "All Roles",
+    "createUser": "Create User",
+    "updateUser": "Update User",
+    "directory": "User Directory",
+    "usersTotal": "users total",
+    "noUsersFound": "No Users Found",
+    "noUsersDescription": "Try adjusting your filters or adding new users.",
+    "columns": {
+      "index": "#",
+      "user": "User",
+      "gender": "Gender",
+      "phone": "Phone",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "fullName": "Full Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "gender": "Gender",
+    "selectGender": "Select gender",
+    "role": "Role",
+    "selectRole": "Select role",
+    "password": "Password",
+    "keepCurrentPassword": "Leave blank to keep current password",
+    "setPasswordPlaceholder": "Set a password",
+    "profileImage": "Profile Image",
+    "statusLabel": "User Status",
+    "statusDescription": "Enable or disable user account",
+    "statusToggleAria": "Toggle user status"
   }
+
+
 }

@@ -17,7 +17,7 @@
           </div>
           <div class="contact-item">
             <i class="fas fa-envelope"></i>
-            <p>{{ $t('contact.email') }}</p>
+            <p>{{ $t('support@example.com') }}</p>
           </div>
           <div class="contact-item">
             <i class="fas fa-clock"></i>

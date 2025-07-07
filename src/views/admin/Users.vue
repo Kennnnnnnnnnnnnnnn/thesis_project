@@ -13,8 +13,9 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">User Management</h1>
-            <!-- <p class="text-xs md:text-sm text-gray-600 mt-0.5 font-medium">Manage users and their information</p> -->
+            <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">
+              {{ $t('user.headerTitle') }}
+            </h1>
           </div>
         </div>
         
@@ -24,7 +25,7 @@
           <div class="relative">
             <button @click="toggleDropdownRow"
               class="flex items-center justify-between w-full sm:min-w-[110px] px-3 md:px-4 py-2 md:py-2.5 bg-white border border-gray-200 rounded-xl text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-              <span>{{ selectedItem }} items</span>
+                <span>{{ selectedItem }} {{ $t('user.items') }}</span>
               <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
             </button>
             <div v-show="isOpen"
@@ -38,7 +39,7 @@
 
           <!-- Search Input -->
           <div class="relative">
-            <input v-model="searchQuery" type="text" placeholder="Search users..."
+            <input v-model="searchQuery" type="text" :placeholder="$t('user.searchPlaceholder')"
               class="w-full sm:w-48 md:w-64 px-3 md:px-4 py-2 md:py-2.5 pl-8 md:pl-10 border border-gray-200 rounded-xl text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
             <i class="fas fa-search absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs md:text-sm"></i>
           </div>
@@ -46,7 +47,7 @@
           <!-- Role Filter -->
           <div class="relative">
             <select class="w-full sm:w-40 px-3 md:px-4 py-2 md:py-2.5 border border-gray-200 rounded-xl text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all bg-white">
-              <option value="">All Roles</option>
+              <option value="">{{ $t('user.allRoles') }}</option>
               <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
             </select>
           </div>
@@ -55,7 +56,7 @@
           <button @click="openModal"
             class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-xs md:text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 hover:scale-105 min-w-[120px]">
             <i class="fas fa-plus text-xs"></i>
-            <span>Create User</span>
+            <span>{{ $t('user.createUser') }}</span>
           </button>
         </div>
       </div>
@@ -65,16 +66,20 @@
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
       <!-- Table Header -->
       <div class="px-4 md:px-6 py-4 md:py-5 border-b border-gray-100 bg-gray-50/50">
-        <h3 class="text-base md:text-lg font-bold text-gray-900 tracking-tight">User Directory</h3>
-        <p class="text-xs md:text-sm text-gray-600 mt-1 font-medium">{{ userData.length }} users total</p>
+        <h3 class="text-base md:text-lg font-bold text-gray-900 tracking-tight">
+          {{ $t('user.directory') }}
+        </h3>
+        <p class="text-xs md:text-sm text-gray-600 mt-1 font-medium">
+          {{ userData.length }} {{ $t('user.usersTotal') }}
+        </p>
       </div>
 
       <!-- Table Container -->
       <div class="relative">
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
-        </div>
+      <div v-if="isLoading" class="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
+      </div>
 
         <!-- Mobile Card View -->
         <div class="block md:hidden">
@@ -123,7 +128,7 @@
                   <!-- Additional Info -->
                   <div class="mt-3 pt-3 border-t border-gray-100">
                     <div class="flex items-center justify-between text-xs text-gray-500">
-                      <span>Phone: {{ user.phoneNumber || 'N/A' }}</span>
+                      <span>{{ $t('user.columns.phone') }}: {{ user.phoneNumber || $t('common.notAvailable') }}</span>
                       <span class="capitalize">{{ user.gender || 'N/A' }}</span>
                     </div>
                   </div>
@@ -138,14 +143,14 @@
           <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/50 sticky top-0">
               <tr>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">User</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Gender</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Phone</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">Email</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Role</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
-                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.index') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.user') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.gender') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.phone') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider hidden lg:table-cell">{{ $t('user.columns.email') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.role') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.status') }}</th>
+                <th class="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('user.columns.actions') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
@@ -204,7 +209,7 @@
                   <span class="inline-flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg lg:rounded-xl text-xs font-bold"
                     :class="user.status ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'">
                     <i :class="user.status ? 'fas fa-circle-check' : 'fas fa-circle-xmark'" class="text-xs"></i>
-                    <span class="hidden lg:inline">{{ user.status ? 'Active' : 'Inactive' }}</span>
+                    <span class="hidden lg:inline">{{ user.status ? $t('common.active') : $t('common.inactive') }}</span>
                   </span>
                 </td>
                 
@@ -231,8 +236,8 @@
                       <i class="fas fa-users text-3xl lg:text-5xl text-amber-400"></i>
                     </div>
                     <div>
-                      <h3 class="text-base lg:text-lg font-bold text-gray-900">No users found</h3>
-                      <p class="text-xs lg:text-sm text-gray-600 mt-1 font-medium">Users will appear here when available</p>
+                      <h3 class="text-base lg:text-lg font-bold text-gray-900">{{ $t('user.noUsersFound') }}</h3>
+                      <p class="text-xs lg:text-sm text-gray-600 mt-1 font-medium">{{ $t('user.noUsersDescription') }}</p>
                     </div>
                   </div>
                 </td>
@@ -275,7 +280,7 @@
           <!-- Full Name -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Full Name <span class="text-red-500">*</span>
+              {{ $t('user.fullName') }} <span class="text-red-500">*</span>
             </label>
             <input v-model="name" type="text" required
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
@@ -284,7 +289,9 @@
 
           <!-- Email -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              {{ $t('user.email') }}
+            </label>
             <input v-model="email" type="email"
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
               placeholder="Enter email address" />
@@ -293,7 +300,7 @@
           <!-- Phone Number -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Phone Number <span class="text-red-500">*</span>
+              {{ $t('user.phoneNumber') }} <span class="text-red-500">*</span>
             </label>
             <input v-model="phoneNumber" type="text" required
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
@@ -302,10 +309,12 @@
 
           <!-- Gender -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              {{ $t('user.gender') }}
+            </label>
             <select v-model="gender"
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
-              <option value="" disabled>Select Gender</option>
+              <option value="" disabled>{{ $t('user.selectGender') }}</option>
               <option v-for="option in genderOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
@@ -315,25 +324,26 @@
           <!-- Role -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Role <span class="text-red-500">*</span>
+              {{ $t('user.role') }} <span class="text-red-500">*</span>
             </label>
             <select v-model="role" required
               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
-              <option value="" disabled>Select role</option>
-              <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
+              <option value="" disabled>{{ $t('user.selectRole') }}</option>
+              <option v-for="r in roles" :key="r.value" :value="r.value">{{ r.label }}</option>
             </select>
           </div>
+
 
           <!-- Password -->
           <div class="relative">
             <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Password {{ !showEditModal ? '*' : '' }}
+              {{ $t('user.password') }} {{ !showEditModal ? '*' : '' }}
             </label>
             <div class="relative">
               <input :type="showPassword ? 'text' : 'password'" v-model="password" 
                 :required="!showEditModal" minlength="6"
                 class="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
-                :placeholder="showEditModal ? 'Leave empty to keep current password' : 'Set a password (min 6 chars)'" />
+                :placeholder="showEditModal ? $t('user.keepCurrentPassword') : $t('user.setPasswordPlaceholder')" />
               <button type="button" @click="showPassword = !showPassword"
                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                 <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -341,9 +351,12 @@
             </div>
           </div>
 
+
           <!-- Profile Image Upload -->
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Profile Image</label>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              {{ $t('user.profileImage') }}
+            </label>
             <div class="flex items-center gap-4">
               <input type="file" accept="image/*" @change="onFileChange"
                 class="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all text-sm" />
@@ -353,20 +366,26 @@
             </div>
           </div>
 
+
           <!-- Status Toggle -->
           <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
             <div>
-              <label class="text-sm font-semibold text-gray-700">User Status</label>
-              <p class="text-xs text-gray-500 mt-1">Enable or disable user account</p>
+              <label class="text-sm font-semibold text-gray-700">
+                {{ $t('user.statusLabel') }}
+              </label>
+              <p class="text-xs text-gray-500 mt-1">
+                {{ $t('user.statusDescription') }}
+              </p>
             </div>
             <Switch v-model="enabled" 
               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
               :class="enabled ? 'bg-green-500' : 'bg-gray-300'">
-              <span class="sr-only">Enable status</span>
+              <span class="sr-only">{{ $t('user.statusToggleAria') }}</span>
               <span class="inline-block h-4 w-4 transform bg-white rounded-full transition-transform"
                 :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
             </Switch>
           </div>
+
 
           <!-- Error message -->
           <div v-if="error" class="p-4 bg-red-50 border border-red-200 rounded-xl">
@@ -377,11 +396,11 @@
           <div class="flex gap-3 pt-4">
             <button type="button" @click="resetForm"
               class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all">
-              Clear
+              {{ $t('common.clear') }}
             </button>
             <button type="submit" :disabled="isSubmitting"
               class="flex-1 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl font-semibold hover:from-amber-600 hover:to-orange-700 transition-all disabled:opacity-50">
-              {{ isSubmitting ? 'Saving...' : (showEditModal ? 'Update User' : 'Create User') }}
+              {{ isSubmitting ? $t('common.saving') : (showEditModal ? $t('user.updateUser') : $t('user.createUser')) }}
             </button>
           </div>
         </form>
@@ -402,7 +421,8 @@ import { Switch } from '@headlessui/vue';
 import axios from 'axios';
 import { onMounted, ref, watch, onUnmounted } from 'vue';
 const { sendToTelegram } = useTelegram();
-
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const showModal = ref(false);
 const showEditModal = ref(false);
@@ -427,12 +447,17 @@ const searchText = ref("");
 const searchQuery = ref('');
 const limitedPerPage = ref(1);
 const isOpen = ref(false);
-const roles = ref(['superadmin', 'admin', 'delivery', 'customer']);
+const roles = ref([
+  { value: 'superadmin', label: t('roles.superadmin') },
+  { value: 'admin', label: t('roles.admin') },
+  { value: 'delivery', label: t('roles.delivery') },
+  { value: 'customer', label: t('roles.customer') }
+]);
 const gender = ref('');
 const genderOptions = [
-  { value: 'female', label: 'Female' },
-  { value: 'male', label: 'Male' },
-  { value: 'other', label: 'Other' }
+  { value: 'female', label: t('common.female') },
+  { value: 'male', label: t('common.male') },
+  { value: 'other', label: t('common.other') }
 ];
 const phoneNumber = ref('')
 const showPassword = ref(false);
@@ -507,7 +532,7 @@ const resetForm = () => {
 
 const handleSubmit = async () => {
   if (!name.value || !role.value || !phoneNumber.value || (!showEditModal.value && !password.value)) {
-    error.value = 'All fields are required';
+    error.value = $t('errors.requiredFields');
     return;
   }
 
@@ -519,13 +544,13 @@ const handleSubmit = async () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
     if (!token || !userId) {
-      error.value = 'Authentication required. Please login again.';
+      error.value = $t('errors.authRequired');
       isSubmitting.value = false;
       isLoading.value = false;
       return;
     }
 
-    const timestamp = await fetchTimestamp()
+    const timestamp = await fetchTimestamp();
 
     const requestBody = {
       fields: {
@@ -540,9 +565,9 @@ const handleSubmit = async () => {
     };
 
     if (!showEditModal.value) {
-      // Create new user - password is required
+      // Creating new user: password required
       if (!password.value) {
-        error.value = 'Password is required for new users';
+        error.value = $t('errors.passwordRequired');
         isSubmitting.value = false;
         isLoading.value = false;
         return;
@@ -568,22 +593,20 @@ const handleSubmit = async () => {
           collection: 'User',
           data: response.data.data._id
         });
-        // Close modal immediately after successful creation
         resetForm();
         closeModal();
       } else {
-        throw new Error(response.data.message || 'Failed to create user');
+        throw new Error(response.data.message || $t('errors.createFailed'));
       }
     } else {
-      // Update existing user
+      // Updating existing user
       if (!id.value) {
-        error.value = 'Error: Missing user ID for update operation';
+        error.value = $t('errors.missingUserId');
         isSubmitting.value = false;
         isLoading.value = false;
         return;
       }
 
-      // Only include password in update if it's provided
       if (password.value) {
         requestBody.fields.password = password.value;
       }
@@ -610,17 +633,18 @@ const handleSubmit = async () => {
         });
         closeModal();
       } else {
-        throw new Error(response.data.message || 'Failed to update user');
+        throw new Error(response.data.message || $t('errors.updateFailed'));
       }
     }
   } catch (err) {
     console.error('Error saving user:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to save user';
+    error.value = err.response?.data?.message || err.message || $t('errors.saveFailed');
   } finally {
     isSubmitting.value = false;
     isLoading.value = false;
   }
-}
+};
+
 
 const editUser = (user) => {
   id.value = user._id;
