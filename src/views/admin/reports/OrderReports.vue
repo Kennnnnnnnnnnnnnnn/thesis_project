@@ -150,6 +150,9 @@ import axios from 'axios'
 import { ref } from 'vue'
 import * as XLSX from 'xlsx'
 import formatDate from '@/composables/formatDate';
+import socket from'@/services/socket';
+import { onMounted, onUnmounted } from 'vue';
+
 
 const startDate = ref('')
 const endDate = ref('')
@@ -252,6 +255,30 @@ const exportToExcel = () => {
 }
 
 
+onMounted(() => {
+  if (socket && socket.disconnected) {
+    socket.connect();
+  }
+
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'Order') {
+      console.log('🔄 Real-time Order update received:', update);
+      fetchOrders(startDate.value, endDate.value);
+    }
+  });
+
+  // Optional: debug connection events
+  socket.on('connect', () => console.log('✅ Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log('❌ Socket disconnected'));
+  socket.on('error', (error) => console.error('🚨 Socket error:', error));
+});
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
+});
 
 // Fetch orders on component mount
 fetchOrders()

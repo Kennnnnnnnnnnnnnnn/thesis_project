@@ -280,7 +280,7 @@ import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import formatDate from '@/composables/formatDate';
 
@@ -592,18 +592,32 @@ watch(selectedItem, (newValue) => {
 
 onMounted(() => {
   if (socket && socket.disconnected) {
-    socket.connect()
+    socket.connect();
   }
-  
-  // Listen for socket updates
-  socket.on('dataUpdated', (update) => {
+
+  // Listen for real-time updates on Category collection
+  socket.on('dataUpdate', (update) => {
     if (update.collection === 'Category') {
+      console.log('🔄 Real-time Category update received:', update);
       fetchCategories();
     }
   });
-  
+
+  // Optional: reconnect events
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
+
   fetchCategories();
-})
+});
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
+});
+
 </script>
 
 <style scoped>

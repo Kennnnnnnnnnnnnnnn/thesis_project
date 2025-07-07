@@ -158,9 +158,10 @@
 <script setup>
 import apiURL from '@/api/config'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import * as XLSX from 'xlsx'
 import formatDate from '@/composables/formatDate';
+import socket from '@/services/socket';
 
 const startDate = ref('')
 const endDate = ref('')
@@ -172,14 +173,10 @@ const suppliers = ref([])
 const fetchSuppliers = async () => {
   try {
     const token = localStorage.getItem('token')
-    if (!token) {
-      throw new Error('Authentication token not found')
-    }
+    if (!token) throw new Error('Authentication token not found')
 
     const response = await axios.get(`${apiURL}/api/getAllDocs/Supplier`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     })
 
     if (response.data.success) {
@@ -216,9 +213,7 @@ const fetchPurchases = async () => {
     }
 
     const token = localStorage.getItem('token')
-    if (!token) {
-      throw new Error('Authentication token not found')
-    }
+    if (!token) throw new Error('Authentication token not found')
 
     const response = await axios.get(`${apiURL}/api/getAllDocs/PurchaseProduct`, {
       params: {
@@ -227,9 +222,7 @@ const fetchPurchases = async () => {
         page: 1,
         limit: 100
       },
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     })
 
     if (response.data.success) {
@@ -242,15 +235,8 @@ const fetchPurchases = async () => {
   }
 }
 
-const handleRefresh = () => {
-  fetchPurchases()
-}
-
-const handleSearch = () => {
-  fetchPurchases()
-}
-
-
+const handleRefresh = () => fetchPurchases()
+const handleSearch = () => fetchPurchases()
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('km-KH', {
@@ -286,8 +272,31 @@ const exportToExcel = () => {
 onMounted(() => {
   fetchSuppliers()
   fetchPurchases()
+
+  if (socket && socket.disconnected) {
+    socket.connect()
+  }
+
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'PurchaseProduct') {
+      console.log('🔄 Real-time Purchase update received:', update)
+      fetchPurchases()
+    }
+  })
+
+  socket.on('connect', () => console.log('✅ Socket connected:', socket.id))
+  socket.on('disconnect', () => console.log('❌ Socket disconnected'))
+  socket.on('error', (error) => console.error('🚨 Socket error:', error))
+})
+
+onUnmounted(() => {
+  socket.off('dataUpdate')
+  socket.off('connect')
+  socket.off('disconnect')
+  socket.off('error')
 })
 </script>
+
 
 <style scoped>
 .overflow-x-auto::-webkit-scrollbar {

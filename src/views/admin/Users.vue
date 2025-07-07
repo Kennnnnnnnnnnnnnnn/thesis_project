@@ -400,7 +400,7 @@ import { useTelegram } from '@/composables/useTelegram';
 import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onUnmounted } from 'vue';
 const { sendToTelegram } = useTelegram();
 
 
@@ -724,9 +724,32 @@ watch(showModal, (val) => {
 
 onMounted(() => {
   if (socket && socket.disconnected) {
-    socket.connect()
+    socket.connect();
   }
-})
+
+  // Listen for real-time updates on User collection
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'User') {
+      console.log('🔄 Real-time User update received:', update);
+      fetchUsers();
+    }
+  });
+
+  // Optional: reconnect events
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
+
+  fetchUsers();
+});
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
+});
+
 
 
 </script>

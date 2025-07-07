@@ -321,7 +321,7 @@ import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onUnmounted } from 'vue';
 import formatDate from '@/composables/formatDate';
 
 const showModal = ref(false);
@@ -587,10 +587,33 @@ watch(selectedItem, (newValue) => {
 
 onMounted(() => {
   if (socket && socket.disconnected) {
-    socket.connect()
+    socket.connect();
   }
+
+  // Fetch suppliers initially
   fetchSuppliers();
-})
+
+  // Listen for supplier updates in real-time
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'Supplier') {
+      console.log('🔄 Real-time Supplier update:', update);
+      fetchSuppliers();
+    }
+  });
+
+  // Optional: reconnect events
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
+});
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
+});
+
 </script>
 
 <style scoped>

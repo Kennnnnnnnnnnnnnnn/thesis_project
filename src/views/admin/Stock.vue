@@ -602,23 +602,34 @@ watch(searchQuery, (newValue) => {
 
 // Initialize
 onMounted(() => {
+  // Ensure socket is connected
   if (socket && socket.disconnected) {
     socket.connect();
   }
 
-  // Listen for socket updates
+  //  Listen for real-time updates
   socket.on('dataUpdate', (update) => {
     if (update.collection === 'Stock' || update.collection === 'Product') {
+      console.log(' Real-time update received:', update);
       fetchStockData();
     }
   });
+
+  //  Optional: reconnect events
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
 
   fetchStockData();
 });
 
 onUnmounted(() => {
   socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
 });
+
 </script>
 
 <style scoped>

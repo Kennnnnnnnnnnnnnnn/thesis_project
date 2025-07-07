@@ -189,9 +189,11 @@
 <script setup>
 import apiURL from '@/api/config'
 import axios from 'axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onUnmounted } from 'vue'
 import * as XLSX from 'xlsx'
 import formatDate from '@/composables/formatDate';
+import socket from '@/services/socket';
+
 
 const selectedCategory = ref('')
 const stockLevel = ref('')
@@ -346,7 +348,33 @@ const exportToExcel = () => {
 onMounted(() => {
   fetchCategories()
   fetchStocks()
+
+  // Connect socket if needed
+  if (socket && socket.disconnected) {
+    socket.connect();
+  }
+
+  // Listen for real-time updates to stocks
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'Stock') {
+      console.log('🔄 Real-time Stock update received:', update);
+      fetchStocks();
+    }
+  });
+
+  // Debug connection events (optional)
+  socket.on('connect', () => console.log('✅ Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log('❌ Socket disconnected'));
+  socket.on('error', (error) => console.error('🚨 Socket error:', error));
 })
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
+})
+
 </script>
 
 <style scoped>

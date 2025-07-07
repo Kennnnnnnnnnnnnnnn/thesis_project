@@ -357,7 +357,7 @@ import PurchaseDetailModal from '@/components/PurchaseFormDetail.vue';
 import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import axios from 'axios';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, onUnmounted } from 'vue';
 import formatDate from '@/composables/formatDate';
 
 // State
@@ -1163,11 +1163,42 @@ onMounted(() => {
   if (socket && socket.disconnected) {
     socket.connect();
   }
+
+  // Fetch initial data
   fetchRestockOrders();
   fetchSuppliers();
   fetchProducts();
   fetchStockData();
+
+  // Real-time updates for restock management
+  socket.on('dataUpdate', (update) => {
+    if (update.collection === 'PurchaseProduct') {
+      console.log('🔄 Real-time PurchaseProduct update:', update);
+      fetchRestockOrders();
+    }
+    if (update.collection === 'Product') {
+      console.log('🔄 Real-time Product update:', update);
+      fetchProducts();
+      fetchStockData();
+    }
+    if (update.collection === 'Stock') {
+      console.log('🔄 Real-time Stock update:', update);
+      fetchStockData();
+    }
+  });
+
+  socket.on('connect', () => console.log(' Socket connected:', socket.id));
+  socket.on('disconnect', () => console.log(' Socket disconnected'));
+  socket.on('error', (error) => console.error(' Socket error:', error));
 });
+
+onUnmounted(() => {
+  socket.off('dataUpdate');
+  socket.off('connect');
+  socket.off('disconnect');
+  socket.off('error');
+});
+
 </script>
 
 <style scoped>
