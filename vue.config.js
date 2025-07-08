@@ -1,15 +1,14 @@
-const { defineConfig } = require('@vue/cli-service')
+const { defineConfig } = require('@vue/cli-service');
 
 module.exports = defineConfig({
+  publicPath: './',  
+
   transpileDependencies: true,
 
   devServer: {
     port: 8080,
     host: '0.0.0.0',
     https: false,
-    client: {
-      webSocketURL: 'auto://0.0.0.0:8080/ws',
-    },
   },
 
   pwa: {
@@ -18,7 +17,6 @@ module.exports = defineConfig({
     msTileColor: '#000000',
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'black',
-
     manifestOptions: {
       short_name: 'VuePWA',
       start_url: '.',
