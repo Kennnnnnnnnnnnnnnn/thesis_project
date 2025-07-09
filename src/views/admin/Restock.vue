@@ -222,6 +222,23 @@
               </div>
             </div>
 
+            <!-- New Currency Field -->
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Currency <span class="text-red-500">*</span></label>
+              <div class="relative">
+                <select v-model="selectedCurrencyId"
+                  class="w-full border border-gray-300 rounded-md p-2.5 pr-8 appearance-none focus:ring focus:ring-amber-500/30 focus:border-amber-400">
+                  <option value="" disabled>Select Currency</option>
+                  <option v-for="currency in currencies" :key="currency._id" :value="currency._id">
+                    {{ currency.name }} ({{ currency.symbol.symbol1.symbol }})
+                  </option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <i class="fas fa-chevron-down text-gray-400"></i>
+                </div>
+              </div>
+              <p v-if="error && !selectedCurrencyId" class="text-red-500 text-xs mt-1">Please select a currency</p>
+            </div>
 
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">Unit <span
@@ -332,7 +349,7 @@
                   <i class="fas fa-spinner fa-spin mr-2"></i> Processing...
                 </span>
                 <span v-else>
-                  Purchase <i class="fas fa-cart-shopping ml-2"></i>
+                  <i class="fas fa-check mr-2"></i> Submit Purchase
                 </span>
               </button>
             </div>
@@ -341,11 +358,107 @@
       </div>
     </div>
 
-    <PurchaseDetailModal :show="showPurchaseDetail" :purchaseId="selectedPurchaseId" @close="closePurchaseDetail" />
+    <!-- Purchase Detail Modal -->
+    <div v-if="showPurchaseDetail"
+      class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-4 border-b">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-800">Purchase Details</h2>
+          </div>
+          <button @click="closePurchaseDetail" class="text-red-600 hover:text-red-700">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
 
-    <!-- Confirmation Dialog -->
-    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
-      @confirm="handleDeleteConfirmation" />
+        <div class="p-4">
+          <!-- Purchase info -->
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Purchase Info</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <span class="text-sm font-medium text-gray-700">Supplier:</span>
+                <p class="text-sm text-gray-900">{{ getSupplierName(selectedPurchaseId) }}</p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-700">Status:</span>
+                <p class="text-sm text-gray-900">
+                  <span v-if="restockData.find(p => p._id === selectedPurchaseId).status"
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-check mr-1"></i> Completed
+                  </span>
+                  <span v-else
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <i class="fas fa-times mr-1"></i> Pending
+                  </span>
+                </p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-700">Created At:</span>
+                <p class="text-sm text-gray-900">
+                  {{ formatDate(restockData.find(p => p._id === selectedPurchaseId).createdAt) }}
+                </p>
+              </div>
+              <div>
+                <span class="text-sm font-medium text-gray-700">Total Items:</span>
+                <p class="text-sm text-gray-900">
+                  {{ restockData.find(p => p._id === selectedPurchaseId).products.length }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Products table -->
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Products</h3>
+            <div class="overflow-x-auto">
+              <table class="min-w-full bg-white border border-gray-300 text-sm">
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th class="border border-gray-300 p-2">ID</th>
+                    <th class="border border-gray-300 p-2">Name</th>
+                    <th class="border border-gray-300 p-2">Quantity</th>
+                    <th class="border border-gray-300 p-2">Price</th>
+                    <th class="border border-gray-300 p-2">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(item, index) in restockData.find(p => p._id === selectedPurchaseId).products" :key="item.id"
+                    class="hover:bg-gray-50">
+                    <td class="border border-gray-300 p-2 text-center">{{ index + 1 }}</td>
+                    <td class="border border-gray-300 p-2">{{ item.name }}</td>
+                    <td class="border border-gray-300 p-2 text-center">{{ item.quantity }} {{ item.unit }}</td>
+                    <td class="border border-gray-300 p-2 text-right">
+                      {{ formatPrice(item.unitPrice) }}
+                    </td>
+                    <td class="border border-gray-300 p-2 text-right">
+                      {{ formatPrice(item.totalPrice) }}
+                    </td>
+                  </tr>
+                  <tr v-if="restockData.find(p => p._id === selectedPurchaseId).products.length === 0">
+                    <td colspan="5" class="border border-gray-300 p-4 text-center text-gray-500">
+                      No products found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Notes</h3>
+            <p class="text-sm text-gray-900">
+              {{ restockData.find(p => p._id === selectedPurchaseId).description || '-' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <DeleteConfirmation v-if="showConfirmDialog" :onConfirm="handleDeleteConfirmation" :onCancel="handleCancelConfirmation"
+      message="Are you sure you want to delete this restock order? This action cannot be undone." />
   </div>
 </template>
 
@@ -353,12 +466,11 @@
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import Pagination from '@/components/Pagination.vue';
-import PurchaseDetailModal from '@/components/PurchaseFormDetail.vue';
+import formatDate from '@/composables/formatDate';
 import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import axios from 'axios';
-import { onMounted, ref, watch, onUnmounted } from 'vue';
-import formatDate from '@/composables/formatDate';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 // State
 const items = ref([10, 25, 50, 100]);
@@ -373,6 +485,8 @@ const limitedPerPage = ref(1);
 const restockData = ref([]);
 const suppliers = ref([]);
 const products = ref([]);
+const currencies = ref([]);
+const selectedCurrencyId = ref('');
 const error = ref('');
 const isSubmitting = ref(false);
 const enabled = ref(true);
@@ -649,6 +763,22 @@ const fetchStockData = async () => {
   }
 };
 
+// Fetch all currencies
+const fetchCurrencies = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Currency`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    currencies.value = response.data.data || [];
+  } catch (err) {
+    console.error('Error fetching currencies:', err);
+  }
+};
+
 
 
 const handleSubmit = async () => {
@@ -656,7 +786,10 @@ const handleSubmit = async () => {
     error.value = 'Please select a supplier';
     return;
   }
-
+  if (!selectedCurrencyId.value) {
+    error.value = 'Please select a currency';
+    return;
+  }
   if (cartItems.value.length === 0) {
     error.value = 'Please add at least one product to cart';
     return;
@@ -669,22 +802,22 @@ const handleSubmit = async () => {
     isLoading.value = true;
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
-
-    if (!token || !userId) {
-      error.value = 'Authentication required. Please login again.';
-      isSubmitting.value = false;
-      isLoading.value = false;
-      return;
-    }
-
     const timestamp = await fetchTimestamp();
-    const productIds = cartItems.value.map(item => item.id);
+
+    // Find the full currency object
+    const currencyObj = currencies.value.find(c => c._id === selectedCurrencyId.value);
+
+    // Add currency to each product in the cart
+    const productsWithCurrency = cartItems.value.map(item => ({
+      ...item,
+      currency: currencyObj
+    }));
 
     const requestBody = {
       fields: {
         supplierId: selectedSupplierId.value,
-        products: cartItems.value,
-        productIds: productIds,
+        products: productsWithCurrency, // <-- products now include currency
+        productIds: productsWithCurrency.map(item => item.id),
         description: description.value || '',
         status: status.value,
         createdAt: timestamp,
@@ -720,6 +853,7 @@ const handleSubmit = async () => {
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         unit: item.unit,
+        
 
       };
     });
@@ -1169,6 +1303,7 @@ onMounted(() => {
   fetchSuppliers();
   fetchProducts();
   fetchStockData();
+  fetchCurrencies();
 
   // Real-time updates for restock management
   socket.on('dataUpdate', (update) => {

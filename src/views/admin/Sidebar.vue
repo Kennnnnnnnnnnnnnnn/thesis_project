@@ -44,8 +44,18 @@
             route.path === '/admin/orders' ? 'bg-yellow-500 text-white' : ''
           ]">
             <ShoppingCart class="h-4 w-4 " />
-            <span class="text-sm">Order</span>
+            <span class="text-sm">Customer Order</span>
           </router-link>
+
+          <!-- Feedback -->
+          <router-link to="/admin/feedback" :class="[
+            'nav-link',
+            route.path === '/admin/feedback' ? 'bg-yellow-500 text-white' : ''
+          ]">
+            <ShoppingCart class="h-4 w-4 " />
+            <span class="text-sm">Customer Feedback</span>
+          </router-link>
+
 
 
         </nav>
@@ -93,13 +103,13 @@
         </nav>
       </div>
 
-      <!-- USER MANAGEMENT (Dropdown) -->
+      <!-- General MANAGEMENT (Dropdown) -->
       <div class="mt-5">
         <button
           @click="isUserManagementOpen = !isUserManagementOpen"
           class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition"
         >
-          <span class="flex-1 uppercase">User Management</span>
+          <span class="flex-1 uppercase">Management</span>
           <svg
             :class="['w-4 h-4 ml-2 transition-transform', isUserManagementOpen ? 'rotate-90' : '']"
             fill="none"
@@ -132,6 +142,22 @@
               <FileKey2 class="h-4 w-4" />
               <span class="text-sm">Set Permission</span>
             </router-link> -->
+
+             <router-link to="/admin/currency" :class="[
+              'nav-link',
+              route.path === '/admin/currency' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <FileKey2 class="h-4 w-4" />
+              <span class="text-sm">Create Currency</span>
+            </router-link>
+
+             <router-link to="/admin/symbol" :class="[
+              'nav-link',
+              route.path === '/admin/symbol' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <FileKey2 class="h-4 w-4" />
+              <span class="text-sm">Create Symbol</span>
+            </router-link>
           </nav>
         </transition>
       </div>

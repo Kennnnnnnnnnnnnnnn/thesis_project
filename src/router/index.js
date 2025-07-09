@@ -112,6 +112,27 @@ const routes = [
         path: "/admin/delivery",
         component: () => import("../views/admin/DeliveryTracking.vue"),
       },
+
+      // symbol
+      {
+        name: "symbol",
+        path: "/admin/symbol",
+        component: () => import("../views/admin/Symbol.vue"),
+      },
+
+      //currency
+      {
+        name: "currency",
+        path: "/admin/currency",
+        component: () => import("../views/admin/Currency.vue"),
+      },
+
+      //customer feedback
+      {
+        name: "feedback",
+        path: "/admin/feedback",
+        component: () => import("../views/admin/CustomerFeedback.vue"),
+      }
     ]
   }
 ];

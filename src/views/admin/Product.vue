@@ -77,24 +77,33 @@
       <!-- Table Container -->
       <div class="relative overflow-hidden">
         <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
-      </div>
+        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
+        </div>
 
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-100">
             <thead class="bg-gray-50/50">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('common.product') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('createdAt') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.category') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.description') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('price') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.discount') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.stock') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('products.status') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{ $t('common.actions') }}</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('common.product') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('createdAt') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('products.category') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('products.description') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('price') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('products.discount') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('products.stock') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('products.status') }}</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
+                  $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
@@ -281,7 +290,22 @@
           </div>
 
           <!-- Price and Discount -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+
+            <!-- Add this inside your form, e.g. after category select -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Currency <span class="text-red-500">*</span>
+              </label>
+              <select v-model="selectedCurrencyId" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
+                <option value="" disabled>Select Currency</option>
+                <option v-for="currency in currencies" :key="currency._id" :value="currency._id">
+                  {{ currency.name }} ({{ currency.symbol.symbol1.symbol }})
+                </option>
+              </select>
+            </div>
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
                 {{ $t('products.salePrice') }} <span class="text-red-500">*</span>
@@ -380,7 +404,9 @@
                 <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
                   :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
               </Switch>
-<span class="text-sm text-gray-700 font-medium">{{ enabled ? $t('common.active') : $t('common.inactive') }}</span>            </div>
+              <span class="text-sm text-gray-700 font-medium">{{ enabled ? $t('common.active') : $t('common.inactive')
+              }}</span>
+            </div>
           </div>
 
           <!-- Error Message -->
@@ -423,14 +449,14 @@
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import Pagination from '@/components/Pagination.vue';
+import formatDate from '@/composables/formatDate';
 import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import formatDate from '@/composables/formatDate';
-import Swal from 'sweetalert2';
 
 
 // State
@@ -504,6 +530,26 @@ const formatPrice = (price) => {
 const getCategoryName = (categoryId) => {
   const category = categories.value.find(cat => cat._id === categoryId);
   return category ? category.name : 'Unknown';
+};
+
+
+const currencies = ref([]);
+const selectedCurrencyId = ref('');
+
+// Fetch all currencies
+const fetchCurrencies = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Currency`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    currencies.value = response.data.data || [];
+  } catch (err) {
+    console.error('Error fetching currencies:', err);
+  }
 };
 
 
@@ -602,7 +648,7 @@ const closeModal = () => {
 };
 
 const handleSubmit = async () => {
-  if (!name.value || !categoryId.value || !salePrice.value) {
+  if (!name.value || !categoryId.value || !salePrice.value || !selectedCurrencyId.value) {
     error.value = 'Required fields cannot be empty';
     return;
   }
@@ -616,10 +662,8 @@ const handleSubmit = async () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
 
-    if (!token || !userId) {
-      error.value = 'Authentication required. Please login again.';
-      return;
-    }
+    // Find the full currency object
+    const currencyObj = currencies.value.find(c => c._id === selectedCurrencyId.value);
 
     if (imageFile.value) {
       uploadStatus.value = {
@@ -656,6 +700,7 @@ const handleSubmit = async () => {
         unit: unit.value || '',
         status: status.value,
         imageURL: imageURL.value || '',
+        currency: currencyObj, // <-- Store the full currency object here
       }
     };
 
@@ -982,6 +1027,7 @@ onMounted(() => {
 
   fetchProducts();
   fetchCategories();
+  fetchCurrencies();
 });
 
 socket.on('productCreated', (product) => {

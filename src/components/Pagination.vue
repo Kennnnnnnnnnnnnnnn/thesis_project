@@ -322,7 +322,17 @@ export default {
                 case '/admin/orders':
                     collectionName = 'Order';
                     // searchFieldsArray.value = 'name';
-                break;
+                    break;
+
+                case '/admin/currency':
+                    collectionName = 'Currency';
+                    // searchFieldsArray.value = 'name';
+                    break;
+
+                case '/admin/symbol':
+                    collectionName = 'SymbolCurrency';
+                    // searchFieldsArray.value = 'name';
+                    break;
 
             }
 

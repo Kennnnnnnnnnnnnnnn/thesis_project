@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start pt-2 z-50 font-khmer">
+  <div class="fixed inset-0 flex justify-center items-start bg-black/60 backdrop-blur-sm z-[1000] p-4 font-khmer">
     <!-- Wrapper -->
     <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-5xl mx-auto overflow-y-auto h-full">
       <!-- Header -->
@@ -195,10 +195,83 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from 'vue';
-import axios from 'axios';
 import apiURL from '@/api/config';
 import { useStore } from '@/store/useStore';
+import axios from 'axios';
+import { onMounted, reactive, ref, watch } from 'vue';
+
+// Permission mapping between UI and backend
+const permissionMap = {
+  product: {
+    create: 'create_product',
+    view: 'read_product',
+    edit: 'update_product',
+    delete: 'delete_product'
+  },
+  order: {
+    create: 'create_order',
+    view: 'read_order',
+    edit: 'update_order',
+    delete: 'delete_order'
+  },
+  stock: {
+    create: 'create_stock',
+    view: 'read_stock',
+    edit: 'update_stock',
+    delete: 'delete_stock'
+  },
+  tracking: {
+    create: 'create_delivery',
+    view: 'read_delivery',
+    edit: 'update_delivery',
+    delete: 'delete_delivery'
+  },
+  user: {
+    create: 'create_user',
+    view: 'read_user',
+    edit: 'update_user',
+    delete: 'delete_user'
+  },
+  report: {
+    show: 'read_log'
+  }
+};
+
+function permissionsArrayToUI(array) {
+  const obj = {
+    dashboard: { show: false },
+    product: { all: false, create: false, view: false, edit: false, delete: false },
+    order: { all: false, create: false, view: false, edit: false, delete: false },
+    stock: { all: false, create: false, view: false, edit: false, delete: false },
+    tracking: { all: false, create: false, view: false, edit: false, delete: false },
+    user: { all: false, create: false, view: false, edit: false, delete: false },
+    report: { show: false }
+  };
+  for (const section in permissionMap) {
+    for (const key in permissionMap[section]) {
+      if (array.includes(permissionMap[section][key])) {
+        obj[section][key] = true;
+      }
+    }
+    // Set "all" if all actions are true
+    if (section !== 'dashboard' && section !== 'report') {
+      const actions = Object.keys(permissionMap[section]);
+      obj[section].all = actions.every(k => obj[section][k]);
+    }
+  }
+  // Dashboard.show is not mapped, set as needed
+  return obj;
+}
+
+function permissionsUIToArray(obj) {
+  const arr = [];
+  for (const section in permissionMap) {
+    for (const key in permissionMap[section]) {
+      if (obj[section][key]) arr.push(permissionMap[section][key]);
+    }
+  }
+  return arr;
+}
 
 export default {
   props: {
@@ -215,48 +288,14 @@ export default {
     const selectedMainRole = ref('');
     const selectedRole = ref('');
     const roleAssignData = ref([]);
-    const permissions = ref({
-      dashboard: {
-        show: false
-      },
-      product: {
-        all: false,
-        create: false,
-        view: false,
-        edit: false,
-        delete: false
-      },
-      order: {
-        all: false,
-        create: false,
-        view: false,
-        edit: false,
-        delete: false
-      },
-      stock: {
-        all: false,
-        create: false,
-        view: false,
-        edit: false,
-        delete: false
-      },
-      tracking: {
-        all: false,
-        create: false,
-        view: false,
-        edit: false,
-        delete: false
-      },
-      user: {
-        all: false,
-        create: false,
-        view: false,
-        edit: false,
-        delete: false
-      },
-      report: {
-        show: false
-      }
+    const permissions = reactive({
+      dashboard: { show: false },
+      product: { all: false, create: false, view: false, edit: false, delete: false },
+      order: { all: false, create: false, view: false, edit: false, delete: false },
+      stock: { all: false, create: false, view: false, edit: false, delete: false },
+      tracking: { all: false, create: false, view: false, edit: false, delete: false },
+      user: { all: false, create: false, view: false, edit: false, delete: false },
+      report: { show: false }
     });
     const isLoading = ref(false);
 
@@ -274,122 +313,40 @@ export default {
 
     // Fetch user permissions
     const fetchUserPermissions = async () => {
-      if (!userId.value) return;
-      
-      try {
-        isLoading.value = true;
-        const response = await axios.get(`${apiURL}/loan/api/getAllDocs/Permission`, {
-          params: {
-            dynamicConditions: JSON.stringify([
-              {
-                field: 'userId',
-                operator: '==',
-                value: userId.value
-              }
-            ])
-          }
-        });
-
-        if (response.data.data.length > 0) {
-          const userPermissions = response.data.data[0];
-          // Map permissions from API to local state
-          if (userPermissions.permissions) {
-            permissions.value = userPermissions.permissions;
-          }
-          selectedRole.value = userPermissions.roleId || '';
-        }
-      } catch (error) {
-        console.error('Error fetching user permissions:', error);
-      } finally {
-        isLoading.value = false;
-      }
-    };
-
-    // Watch for changes in the "all" permission for each section
-    watch(() => permissions.value.product.all, (newVal) => {
-      if (newVal !== undefined) {
-        permissions.value.product.create = newVal;
-        permissions.value.product.view = newVal;
-        permissions.value.product.edit = newVal;
-        permissions.value.product.delete = newVal;
+  if (!userId.value) return;
+  try {
+    isLoading.value = true;
+    const response = await axios.get(`${apiURL}/loan/api/getAllDocs/User`, {
+      params: {
+        dynamicConditions: JSON.stringify([
+          { field: '_id', operator: '==', value: userId.value }
+        ])
       }
     });
-
-    watch(() => permissions.value.order.all, (newVal) => {
-      if (newVal !== undefined) {
-        permissions.value.order.create = newVal;
-        permissions.value.order.view = newVal;
-        permissions.value.order.edit = newVal;
-        permissions.value.order.delete = newVal;
+    if (response.data.data.length > 0) {
+      const user = response.data.data[0];
+      if (user.permissions) {
+        Object.assign(permissions, permissionsArrayToUI(user.permissions));
       }
-    });
-
-    watch(() => permissions.value.stock.all, (newVal) => {
-      if (newVal !== undefined) {
-        permissions.value.stock.create = newVal;
-        permissions.value.stock.view = newVal;
-        permissions.value.stock.edit = newVal;
-        permissions.value.stock.delete = newVal;
-      }
-    });
-
-    watch(() => permissions.value.tracking.all, (newVal) => {
-      if (newVal !== undefined) {
-        permissions.value.tracking.create = newVal;
-        permissions.value.tracking.view = newVal;
-        permissions.value.tracking.edit = newVal;
-        permissions.value.tracking.delete = newVal;
-      }
-    });
-
-    watch(() => permissions.value.user.all, (newVal) => {
-      if (newVal !== undefined) {
-        permissions.value.user.create = newVal;
-        permissions.value.user.view = newVal;
-        permissions.value.user.edit = newVal;
-        permissions.value.user.delete = newVal;
-      }
-    });
+      selectedRole.value = user.role || '';
+    }
+  } catch (error) {
+    console.error('Error fetching user permissions:', error);
+  } finally {
+    isLoading.value = false;
+  }
+};
 
     // Update permissions
     const updatePermissions = async () => {
       if (!userId.value) return;
-      
       try {
         isLoading.value = true;
-        
-        const permissionData = {
-          userId: userId.value,
-          roleId: selectedRole.value,
-          permissions: permissions.value
-        };
-
-        // Check if permission exists
-        const checkResponse = await axios.get(`${apiURL}/loan/api/getAllDocs/Permission`, {
-          params: {
-            dynamicConditions: JSON.stringify([
-              {
-                field: 'userId',
-                operator: '==',
-                value: userId.value
-              }
-            ])
-          }
-        });
-
-        if (checkResponse.data.data.length > 0) {
-          // Update existing permission
-          await axios.put(`${apiURL}/loan/api/updateDoc/Permission/${checkResponse.data.data[0]._id}`, permissionData);
-        } else {
-          // Create new permission
-          await axios.post(`${apiURL}/loan/api/createDoc/Permission`, permissionData);
-        }
-
-        // Also update user's role
+        const permissionArr = permissionsUIToArray(permissions);
         await axios.put(`${apiURL}/loan/api/updateDoc/User/${userId.value}`, {
-          roleId: selectedRole.value
+          permissions: permissionArr,
+          role: selectedRole.value
         });
-
         alert('Permissions updated successfully');
       } catch (error) {
         console.error('Error updating permissions:', error);
@@ -398,6 +355,52 @@ export default {
         isLoading.value = false;
       }
     };
+
+    // Watch for changes in the "all" permission for each section
+    watch(() => permissions.product.all, (newVal) => {
+      if (newVal !== undefined) {
+        permissions.product.create = newVal;
+        permissions.product.view = newVal;
+        permissions.product.edit = newVal;
+        permissions.product.delete = newVal;
+      }
+    });
+
+    watch(() => permissions.order.all, (newVal) => {
+      if (newVal !== undefined) {
+        permissions.order.create = newVal;
+        permissions.order.view = newVal;
+        permissions.order.edit = newVal;
+        permissions.order.delete = newVal;
+      }
+    });
+
+    watch(() => permissions.stock.all, (newVal) => {
+      if (newVal !== undefined) {
+        permissions.stock.create = newVal;
+        permissions.stock.view = newVal;
+        permissions.stock.edit = newVal;
+        permissions.stock.delete = newVal;
+      }
+    });
+
+    watch(() => permissions.tracking.all, (newVal) => {
+      if (newVal !== undefined) {
+        permissions.tracking.create = newVal;
+        permissions.tracking.view = newVal;
+        permissions.tracking.edit = newVal;
+        permissions.tracking.delete = newVal;
+      }
+    });
+
+    watch(() => permissions.user.all, (newVal) => {
+      if (newVal !== undefined) {
+        permissions.user.create = newVal;
+        permissions.user.view = newVal;
+        permissions.user.edit = newVal;
+        permissions.user.delete = newVal;
+      }
+    });
 
     // Watch for changes in selected user
     watch(() => props.selectedUser, (newUser) => {
