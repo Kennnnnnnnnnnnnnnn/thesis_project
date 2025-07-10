@@ -334,6 +334,14 @@ export default {
                     // searchFieldsArray.value = 'name';
                     break;
 
+                case '/admin/feedback':
+                    collectionName = 'CustomerFeedback';
+                    // searchFieldsArray.value = 'name';
+                    break;
+
+
+                   
+
             }
 
 

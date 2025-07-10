@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white min-h-screen mt-14">
     <div class="max-w-6xl mx-auto px-5">
-      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">❤️ {{ $t('favorites.title') }}</h1>
+      <!-- <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">❤️ {{ $t('favorites.title') }}</h1> -->
 
       <!-- Loading State -->
       <div v-if="loading" class="text-center py-12">

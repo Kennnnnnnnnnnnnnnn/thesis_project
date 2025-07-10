@@ -457,7 +457,7 @@
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <DeleteConfirmation v-if="showConfirmDialog" :onConfirm="handleDeleteConfirmation" :onCancel="handleCancelConfirmation"
+    <DeleteConfirmation v-if="showConfirmDialog" @confirm="handleDeleteConfirmation" @cancel="handleCancelConfirmation"
       message="Are you sure you want to delete this restock order? This action cannot be undone." />
   </div>
 </template>
@@ -1067,16 +1067,13 @@ const editRestock = (restock) => {
 };
 
 const deleteRestock = (restockId) => {
+  console.log('Delete button clicked for:', restockId);
   pendingRestockId.value = restockId;
   showConfirmDialog.value = true;
 };
 
-const handleCancelConfirmation = () => {
-  showConfirmDialog.value = false;
-  pendingRestockId.value = null;
-};
-
 const handleDeleteConfirmation = async () => {
+  console.log('Delete confirmed for:', pendingRestockId.value);
   if (!pendingRestockId.value) return;
 
   try {
@@ -1272,6 +1269,12 @@ const handleDeleteConfirmation = async () => {
     showConfirmDialog.value = false;
     pendingRestockId.value = null;
   }
+};
+
+const handleCancelConfirmation = () => {
+  console.log('Delete cancelled');
+  showConfirmDialog.value = false;
+  pendingRestockId.value = null;
 };
 
 // Watch for changes

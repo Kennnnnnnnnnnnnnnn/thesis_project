@@ -1,147 +1,146 @@
 <template>
-  <div class="profile-page">
-    <div class="profile-container contact-container">
-      <div class="profile-form contact-form">
-        <h2 class="contact-title">
-          {{ $t('contact.ourInfo') }}
-          <span class="title-underline"></span>
-        </h2>
-        <div class="contact-details">
-          <div class="contact-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <p>{{ $t('contact.address') }}</p>
+  <div class="min-h-screen bg-gradient-to-br from-white-50 to-white flex items-center justify-center p-6">
+    <div class="max-w-5xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row">
+      <!-- Contact Information Section -->
+      <div class="p-8 lg:w-1/2 bg-purple-900 text-white">
+        <h2 class="text-3xl font-bold mb-6">Contact Us</h2>
+        <p class="text-base mb-8">We’re here to assist with your shopping experience. Reach out for order inquiries or product support.</p>
+        <div class="space-y-6">
+          <div class="flex items-center">
+            <i class="fas fa-map-marker-alt text-purple-200 mr-4"></i>
+            <div>
+              <p class="font-semibold text-lg">Our Location</p>
+              <p class="text-base">99 S.T. Jomblo Park, Pekanbaru, 28292, Indonesia</p>
+            </div>
           </div>
-          <div class="contact-item">
-            <i class="fas fa-phone"></i>
-            <p>{{ $t('contact.phone') }}</p>
+          <div class="flex items-center">
+            <i class="fas fa-phone text-purple-200 mr-4"></i>
+            <div>
+              <p class="font-semibold text-lg">Phone Number</p>
+              <p class="text-base">+62(81) 414 257 9980</p>
+            </div>
           </div>
-          <div class="contact-item">
-            <i class="fas fa-envelope"></i>
-            <p>{{ $t('support@example.com') }}</p>
-          </div>
-          <div class="contact-item">
-            <i class="fas fa-clock"></i>
-            <p>{{ $t('contact.hours') }}</p>
-          </div>
-        </div>
-        <div class="social-media">
-          <h3>{{ $t('contact.connect') }}</h3>
-          <div class="social-icons">
-            <a href="https://facebook.com/yourpage" target="_blank" class="social-icon fa-facebook-f"></a>
-            <a href="https://instagram.com/yourprofile" target="_blank" class="social-icon fa-instagram"></a>
-            <a href="https://t.me/yourchannel" target="_blank" class="social-icon fa-telegram-plane"></a>
-            <a href="https://wa.me/15551234567" target="_blank" class="social-icon fa-whatsapp"></a>
+          <div class="flex items-center">
+            <i class="fas fa-envelope text-purple-200 mr-4"></i>
+            <div>
+              <p class="font-semibold text-lg">Email Address</p>
+              <p class="text-base">info@yourdoman.com</p>
+            </div>
           </div>
         </div>
+      </div>
+      <!-- Contact Form Section -->
+      <div class="p-8 lg:w-1/2 bg-white relative">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-purple-100 rounded-bl-full"></div>
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Customer Feedback</h2>
+        <form @submit.prevent="submitForm" class="space-y-5">
+          <div>
+            <input
+              v-model="form.name"
+              type="text"
+              placeholder="Your Name"
+              required
+              class="w-full p-4 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-700 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <input
+              v-model="form.email"
+              type="email"
+              placeholder="Your Email"
+ 
+              class="w-full p-4 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-700 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <input
+              v-model="form.phone"
+              type="tel"
+              placeholder="Your Phone"
+              required
+              class="w-full p-4 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-700 placeholder-gray-400"
+            />
+          </div>
+          <div>
+            <textarea
+              v-model="form.message"
+              placeholder="Your Message"
+              required
+              class="w-full p-4 border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 text-gray-700 placeholder-gray-400 h-32 resize-none"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-purple-700 text-white font-semibold py-3 rounded-xl hover:bg-purple-800 transition-colors duration-200"
+            :disabled="isSubmitting.value"
+          >
+            {{ isSubmitting.value ? 'Sending...' : 'Send Message' }}
+          </button>
+        </form>
+        <div class="absolute bottom-0 right-0 w-4 h-24 bg-purple-900 opacity-10 transform rotate-45"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import apiURL from '@/api/config';
+import axios from 'axios';
+import { reactive, ref } from 'vue';
+
 export default {
-  name: 'ContactView'
+  name: 'ContactView',
+  setup() {
+    const form = reactive({
+      name: '',
+      email: '',
+      phone: '',
+      message: ''
+    });
+    const isSubmitting = ref(false);
+
+    const submitForm = async () => {
+      
+      isSubmitting.value = true;
+      try {
+        // Map form fields to backend fields
+        const payload = {
+          fields: {
+            name: form.name,
+            email: form.email,
+            phoneNumber: form.phone,
+            feedback: form.message,
+            createdBy: form.email || form.name // fallback if not logged in
+          }
+        };
+        // Prepare headers
+        const headers = { 'Content-Type': 'application/json' };
+        const token = localStorage.getItem('token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        
+        const response = await axios.post(`${apiURL}/api/insertDoc/CustomerFeedback`, payload, { headers });
+        if (response.data && response.data.success) {
+          alert('Message sent successfully!');
+          form.name = '';
+          form.email = '';
+          form.phone = '';
+          form.message = '';
+        } else {
+          alert(response.data.message || 'An error occurred. Please try again.');
+        }
+      } catch (error) {
+        alert(error.response?.data?.message || 'An error occurred. Please try again.');
+      } finally {
+        isSubmitting.value = false;
+      }
+    };
+
+    return { form, isSubmitting, submitForm };
+  }
 };
 </script>
 
-<style scoped>
-.profile-page {
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  background: linear-gradient(to bottom right, #fffbea, #ffffff, #fffbea);
-  display: flex;
-  flex-direction: column;
-}
-.profile-container.contact-container {
-  flex-grow: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  margin-bottom: 60px;
-}
-.profile-form.contact-form {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  max-width: 800px;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  border: 1px solid #fcd34d;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-
-.contact-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #b7791f;
-  margin-bottom: 16px;
-  position: relative;
-}
-.title-underline {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 56px;
-  height: 4px;
-  background-color: #facc15;
-  border-radius: 9999px;
-}
-
-.contact-details {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 500;
-  color: #92400e;
-}
-.contact-item i {
-  font-size: 1.2rem;
-  color: #b7791f;
-}
-
-.social-media {
-  margin-top: 24px;
-  border-top: 1px solid #fcd34d;
-  padding-top: 16px;
-}
-.social-media h3 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #92400e;
-  margin-bottom: 12px;
-}
-.social-icons {
-  display: flex;
-  gap: 16px;
-}
-.social-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 18px;
-  text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
-.social-icon:hover {
-  transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-.fa-facebook-f { background: linear-gradient(135deg, #3b5998, #8b9dc3); }
-.fa-instagram { background: linear-gradient(135deg, #e1306c, #f77737); }
-.fa-telegram-plane { background: linear-gradient(135deg, #0088cc, #00cfff); }
-.fa-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
+<style>
+/* Custom Tailwind colors */
+.bg-purple-100 { background-color: #e0e7ff; }
 </style>

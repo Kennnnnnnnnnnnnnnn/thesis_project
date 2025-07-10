@@ -1,18 +1,19 @@
 <template>
-  <div class="product-page">
-    <h1 class="title">🍚 {{ $t('products.title') }}</h1>
+  <div class="product-page px-5 py-6 bg-white">
+    <h1 class="text-center mb-5 text-2xl font-bold">{{ $t('products.title') }}</h1>
 
     <!-- 🔍 Search -->
-    <div class="search-bar">
-      <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')" />
+    <div class="max-w-xl mx-auto mb-5">
+      <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
+        class="w-full py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300" />
     </div>
 
     <!-- 🏷️ Category Tabs -->
-    <div class="tabs">
+    <div class="flex justify-center gap-2 mb-5">
       <button
         v-for="cat in categories"
         :key="cat.value"
-        :class="{ active: activeCategory === cat.value }"
+        :class="[ 'px-4 py-2 rounded-full', activeCategory === cat.value ? 'bg-yellow-400 font-bold' : 'bg-gray-100 font-normal', 'transition-colors duration-200' ]"
         @click="activeCategory = cat.value"
       >
         {{ $t(cat.label) }}
@@ -20,29 +21,33 @@
     </div>
 
     <!-- 🛍️ Product Grid -->
-    <div class="product-grid">
-      <div class="card" v-for="product in filteredProducts" :key="product._id">
-        <img :src="product.imageURL || defaultImage" class="product-img" />
-        <div class="card-body">
-          <h2 class="product-name">{{ product.name }}</h2>
-          <p class="product-description">{{ product.description || $t('products.noDescription') }}</p>
-
-          <p class="product-category">🗂️ {{ $t('products.category') }}: {{ product.categoryName || $t('common.na') }}</p>
-
-
-          <div class="price-block">
-            <span v-if="product.discount > 0" class="original-price">${{ product.salePrice.toFixed(2) }}</span>
-            <span class="discounted-price">
-              ៛{{ discountedPrice(product).toFixed(2) }}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+      <div class="border border-gray-100 rounded-md overflow-hidden flex flex-col transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg bg-white" v-for="product in filteredProducts" :key="product._id">
+        <img :src="product.imageURL || defaultImage" class="h-40 object-contain p-3 bg-gray-50" />
+        <div class="p-4 flex-1 flex flex-col">
+          <!-- Star Rating -->
+          <div class="flex items-center justify-center mb-2">
+            <span v-for="i in 5" :key="i" class="text-xl"
+              :class="{ 'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0) }">
+              ★
             </span>
-            <span v-if="product.discount > 0" class="discount-tag">{{ $t('common.save') }} {{ product.discount }}%</span>
+            <span v-if="product.ratingCount" class="ml-2 text-xs text-gray-500">({{ product.ratingCount }})</span>
+          </div>
+          <h2 class="text-base font-bold mb-1">{{ product.name }}</h2>
+          <p class="text-xs text-gray-500 mb-1">{{ product.description || $t('products.noDescription') }}</p>
+          <p class="text-xs text-gray-400 mb-2">🗂️ {{ $t('products.category') }}: {{ product.categoryName || $t('common.na') }}</p>
+
+          <div class="flex items-center gap-2 text-sm mb-2">
+            <span v-if="product.discount > 0" class="line-through text-gray-400">${{ product.salePrice.toFixed(2) }}</span>
+            <span class="text-orange-600 font-bold text-lg">៛{{ discountedPrice(product).toFixed(2) }}</span>
+            <span v-if="product.discount > 0" class="bg-yellow-200 px-2 py-0.5 rounded text-xs text-gray-700">{{ $t('common.save') }} {{ product.discount }}%</span>
           </div>
 
-          <div class="actions">
+          <div class="flex justify-between items-center mt-auto">
             <button @click="toggleFavorite(product)">
-              <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
+              <span :class="[ 'text-2xl transition-all', product.isFavorite ? 'text-red-500 scale-110' : 'text-gray-300' ]">❤</span>
             </button>
-            <button class="add-cart" @click="addToCart(product)">{{ $t('products.addToCart') }}</button>
+            <button class="bg-yellow-400 hover:bg-yellow-300 border-none px-3 py-1.5 rounded font-bold text-sm" @click="addToCart(product)">{{ $t('products.addToCart') }}</button>
           </div>
         </div>
       </div>
@@ -62,12 +67,12 @@
 <script setup>
 import apiURL from '@/api/config.js';
 import CartDrawer from '@/components/CartDrawer.vue';
+import socket from '@/services/socket';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { computed, onMounted, ref, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import socket from '@/services/socket';
 
 
 const showCartDrawer = ref(false);
@@ -309,136 +314,3 @@ onUnmounted(() => {
 });
 
 </script>
-
-<style scoped>
-.product-page {
-  padding: 20px;
-  background: #fff;
-}
-.title {
-  text-align: center;
-  margin-bottom: 20px;
-  font-size: 28px;
-  font-weight: bold;
-}
-.search-bar {
-  max-width: 500px;
-  margin: 0 auto 20px;
-}
-.search-bar input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-.tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-.tabs button {
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: none;
-  background: #eee;
-  font-weight: normal;
-  cursor: pointer;
-}
-.tabs button.active {
-  background: #FFD700;
-  font-weight: bold;
-}
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
-  max-width: 1200px;
-  margin: auto;
-}
-.card {
-  border: 1px solid #eee;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease;
-}
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-.product-img {
-  height: 160px;
-  object-fit: contain;
-  padding: 10px;
-  background: #fafafa;
-}
-.card-body {
-  padding: 12px;
-  flex: 1;
-}
-.product-name {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
-.product-description {
-  font-size: 13px;
-  color: #777;
-  margin-bottom: 6px;
-}
-.product-category {
-  font-size: 13px;
-  color: #999;
-  margin-bottom: 8px;
-}
-.price-block {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  margin-bottom: 10px;
-}
-.original-price {
-  text-decoration: line-through;
-  color: #aaa;
-}
-.discounted-price {
-  color: #ff5722;
-  font-weight: bold;
-  font-size: 18px;
-}
-.discount-tag {
-  background: #ffeb3b;
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #333;
-}
-.actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.heart {
-  font-size: 20px;
-  color: #ccc;
-  transition: all 0.2s ease;
-}
-.heart.favorited {
-  color: red;
-  transform: scale(1.2);
-}
-.add-cart {
-  background: #FFD700;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.add-cart:hover {
-  background: #ffc107;
-}
-</style>

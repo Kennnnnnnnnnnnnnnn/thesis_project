@@ -3,7 +3,7 @@
     <!-- Search Section -->
     <section class="py-8 mt-8">
       <div class="max-w-6xl mx-auto px-5">
-          <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
+        <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
           class="w-full max-w-2xl px-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white mx-auto block focus:border-orange-400">
       </div>
     </section>
@@ -42,7 +42,7 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          <div v-for="product in newProducts" :key="product.id"
+          <div v-for="product in newProducts.slice(0, 4)" :key="product.id"
             class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
             <!-- Product Image -->
             <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
@@ -55,12 +55,13 @@
               <!-- Rating (average) -->
               <div class="flex items-center justify-center mb-2">
                 <span v-for="i in 5" :key="i" class="text-xl"
-                      :class="{'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0)}">
+                  :class="{ 'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0) }">
                   ★
                 </span>
-                <span class="ml-2 text-sm text-gray-500">({{ product.ratingCount || 0 }})</span>
+                <span v-if="product.ratingCount" class="ml-2 text-xs text-gray-500">({{ product.ratingCount }})</span>
               </div>
-              <button @click="openRatingModal(product)" class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{ $t('home.rateProduct') }}</button>
+              <button @click="openRatingModal(product)"
+                class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{ $t('home.rateProduct') }}</button>
 
               <!-- Product Name -->
               <h3 class="text-base font-bold text-center mb-2 text-gray-800">
@@ -81,7 +82,7 @@
                   ៛{{ formatPrice(calculateFinalPrice(product)) }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
-                   {{ $t('common.save') }} {{ product.discount }}%
+                  {{ $t('common.save') }} {{ product.discount }}%
                 </span>
               </div>
 
@@ -103,27 +104,27 @@
     </section>
 
     <!-- Best Sellers Section -->
-    <section class="py-10">
-      <div class="max-w-6xl mx-auto px-5">
+    <!-- <section class="py-10"> -->
+    <!-- <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.bestSellersTitle') }}</h2>
           <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
             {{ $t('common.viewAll') }}
           </router-link>
-        </div>
+        </div> -->
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+    <!-- <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           <div v-for="product in bestSellers" :key="product._id"
-            class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
-            <!-- Product Image -->
-            <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
+            class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full"> -->
+    <!-- Product Image -->
+    <!-- <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
               <img :src="product.imageURL || require('@/assets/image.png')" alt="Product Image"
                 class="max-w-full max-h-40 object-contain">
-            </div>
+            </div> -->
 
-            <!-- Product Info -->
-            <div class="p-4 flex flex-col flex-grow">
+    <!-- Product Info -->
+    <!-- <div class="p-4 flex flex-col flex-grow">
               <div class="flex items-center justify-center mb-2">
                 <span v-for="i in 5" :key="i" class="text-xl"
                   :class="{'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0)}">
@@ -165,7 +166,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
 
     <!-- All Products Section -->
@@ -181,8 +182,8 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           <!-- Loading/Error States (similar to above) -->
-          
-          <div v-for="product in filteredProducts.slice(0, 8)" :key="product._id"
+
+          <div v-for="product in filteredProducts.slice(0, 4)" :key="product._id"
             class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
             <!-- Product Image -->
             <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
@@ -193,9 +194,15 @@
             <!-- Product Info -->
             <div class="p-4 flex flex-col flex-grow">
               <!-- Rating -->
-              <div class="text-yellow-400 text-base mb-2">
-                ★★★★★
+              <div class="flex items-center justify-center mb-2">
+                <span v-for="i in 5" :key="i" class="text-xl"
+                  :class="{ 'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0) }">
+                  ★
+                </span>
+                <span v-if="product.ratingCount" class="ml-2 text-xs text-gray-500">({{ product.ratingCount }})</span>
               </div>
+              <button @click="openRatingModal(product)"
+                class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{ $t('home.rateProduct') }}</button>
 
               <!-- Product Name -->
               <h3 class="text-base font-bold text-center mb-2 text-gray-800">
@@ -298,7 +305,8 @@
     </footer>
 
     <!-- Cart Drawer -->
-    <div v-if="showCartDrawer" class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5">
+    <div v-if="showCartDrawer"
+      class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5">
       <div class="flex justify-between items-center mb-3 text-lg">
         <h3 class="font-medium">{{ $t('cart.title') }}</h3>
         <button @click="showCartDrawer = false" class="text-xl hover:text-red-500">✕</button>
@@ -308,24 +316,21 @@
 
       <div v-else class="flex-1 overflow-y-auto">
         <div v-for="item in cartItems" :key="item._id" class="flex items-center mb-4">
-          <img :src="item.productData?.imageURL || defaultImage" class="w-[70px] h-[70px] object-cover mr-3 rounded bg-gray-100" />
+          <img :src="item.productData?.imageURL || defaultImage"
+            class="w-[70px] h-[70px] object-cover mr-3 rounded bg-gray-100" />
           <div class="flex-1">
             <h4 class="m-0 text-sm font-semibold">{{ item.productData?.name || 'Product' }}</h4>
             <div class="flex items-center gap-2.5 my-1">
-              <button 
-                @click="updateCartQuantity(item, item.quantity - 1)" 
-                :disabled="item.quantity <= 1"
-                class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50"
-              >−</button>
+              <button @click="updateCartQuantity(item, item.quantity - 1)" :disabled="item.quantity <= 1"
+                class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50">−</button>
               <span>{{ item.quantity }}</span>
-              <button 
-                @click="updateCartQuantity(item, item.quantity + 1)"
-                class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer"
-              >+</button>
+              <button @click="updateCartQuantity(item, item.quantity + 1)"
+                class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer">+</button>
             </div>
             <p class="text-orange-600 font-bold">៛{{ calculateItemPrice(item) }}</p>
           </div>
-          <button @click="removeFromCart(item._id)" class="bg-transparent border-0 text-xl cursor-pointer text-red-700">×</button>
+          <button @click="removeFromCart(item._id)"
+            class="bg-transparent border-0 text-xl cursor-pointer text-red-700">×</button>
         </div>
       </div>
 
@@ -334,38 +339,42 @@
           <span>{{ $t('cart.subtotal') }}:</span>
           <span class="font-bold">៛{{ calculateCartTotal() }}</span>
         </div>
-        <router-link to="/cart" class="block w-full bg-yellow-400 text-center py-2 rounded font-bold hover:bg-orange-400 transition-colors">
+        <router-link to="/cart"
+          class="block w-full bg-yellow-400 text-center py-2 rounded font-bold hover:bg-orange-400 transition-colors">
           {{ $t('cart.viewCart') }}
         </router-link>
       </div>
     </div>
 
     <!-- Cart Button -->
-    <button @click="showCartDrawer = true" 
+    <button @click="showCartDrawer = true"
       class="fixed bottom-8 right-8 bg-yellow-400 text-gray-800 rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-orange-400 transition-colors z-50">
       <span class="text-2xl">🛒</span>
-      <span v-if="cartItems.length > 0" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+      <span v-if="cartItems.length > 0"
+        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
         {{ cartItems.length }}
       </span>
     </button>
 
     <!-- Rating Modal -->
     <transition name="fade">
-      <div v-if="showRatingModal" class="fixed inset-0 bg-gray-500 bg-opacity-40 flex items-center justify-center z-[999]">
+      <div v-if="showRatingModal"
+        class="fixed inset-0 bg-gray-500 bg-opacity-40 flex items-center justify-center z-[999]">
         <div class="bg-white rounded-lg p-6 w-full max-w-xs shadow-lg">
           <h3 class="text-lg font-bold mb-4">{{ $t('home.rateFor') }} {{ selectedProduct?.name }}</h3>
           <div class="flex justify-center mb-4">
-            <span v-for="i in 5" :key="i"
-                  @click="setRating(i)"
-                  class="text-3xl cursor-pointer"
-                  :class="{'text-yellow-400': i <= rating, 'text-gray-300': i > rating}">
+            <span v-for="i in 5" :key="i" @click="setRating(i)" class="text-3xl cursor-pointer"
+              :class="{ 'text-yellow-400': i <= rating, 'text-gray-300': i > rating }">
               ★
             </span>
           </div>
-          <textarea v-model="review" class="w-full border rounded p-2 mb-4" rows="2" :placeholder="$t('home.reviewPlaceholder')"></textarea>
+          <textarea v-model="review" class="w-full border rounded p-2 mb-4" rows="2"
+            :placeholder="$t('home.reviewPlaceholder')"></textarea>
           <div class="flex justify-end gap-2">
-            <button @click="showRatingModal = false" class="px-3 py-1 rounded bg-gray-200">{{ $t('common.cancel') }}</button>
-            <button @click="submitRating" class="px-3 py-1 rounded bg-yellow-400 text-white font-bold">{{ $t('common.submit') }}</button>
+            <button @click="showRatingModal = false" class="px-3 py-1 rounded bg-gray-200">{{ $t('common.cancel')
+              }}</button>
+            <button @click="submitRating" class="px-3 py-1 rounded bg-yellow-400 text-white font-bold">{{
+              $t('common.submit') }}</button>
           </div>
         </div>
       </div>
@@ -374,7 +383,6 @@
 </template>
 
 <script setup>
-import { useI18n } from 'vue-i18n';
 import apiURL from '@/api/config';
 import cover1 from '@/assets/cover1.png';
 import cover2 from '@/assets/cover2.png';
@@ -384,6 +392,7 @@ import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 // Reactive data
 const searchQuery = ref('')
@@ -428,7 +437,7 @@ async function fetchProducts() {
     isLoading.value = true
     error.value = null
     console.log('Fetching products from public API...')
-    
+
     // Use the public endpoint that doesn't require authentication
     const response = await axios.get(`${apiURL}/api/public/products`, {
       params: {
@@ -436,9 +445,9 @@ async function fetchProducts() {
         sortOrder: 'desc',
       }
     })
-    
+
     console.log('API response:', response.data)
-    
+
     if (response.data && response.data.success && response.data.data) {
       products.value = response.data.data
       console.log('Products loaded:', products.value.length)
@@ -476,10 +485,10 @@ async function fetchCartItems() {
 
     if (cartRes.data && cartRes.data.success) {
       cartItems.value = cartRes.data.data
-      
+
       // Extract product IDs from cart items
       const productIds = cartItems.value.map(item => item.productId)
-      
+
       // Fetch product details for all products in cart
       if (productIds.length > 0) {
         const token = localStorage.getItem('token');
@@ -492,7 +501,7 @@ async function fetchCartItems() {
           res.data.data.forEach(product => {
             productMap[product._id] = product;
           });
-          
+
           cartItems.value.forEach(item => {
             item.productData = productMap[item.productId] || null;
           });
@@ -557,7 +566,7 @@ function calculateFinalPrice(product) {
   if (!product.discount || product.discount === 0) {
     return product.salePrice
   }
-  
+
   const discountAmount = (product.salePrice * product.discount) / 100
   return product.salePrice - discountAmount
 }
@@ -571,13 +580,13 @@ function formatPrice(price) {
 function calculateItemPrice(item) {
   const product = item.productData
   if (!product) return '0.00'
-  
+
   let price = product.salePrice || 0
   if (product.discount && product.discount > 0) {
     const discountAmount = (price * product.discount) / 100
     price = price - discountAmount
   }
-  
+
   return (price * item.quantity).toFixed(2)
 }
 
@@ -586,13 +595,13 @@ function calculateCartTotal() {
   return cartItems.value.reduce((total, item) => {
     const product = item.productData
     if (!product) return total
-    
+
     let price = product.salePrice || 0
     if (product.discount && product.discount > 0) {
       const discountAmount = (price * product.discount) / 100
       price = price - discountAmount
     }
-    
+
     return total + (price * item.quantity)
   }, 0).toFixed(2)
 }
@@ -624,18 +633,18 @@ async function addToCart(product) {
   // Check if user is logged in
   const token = localStorage.getItem("token")
   const finalPrice = calculateFinalPrice(product)
-  
+
   // If user is logged in, add to cart in database
   if (token) {
     try {
-      const response = await axios.post(`${apiURL}/api/insertDoc/Cart`, 
+      const response = await axios.post(`${apiURL}/api/insertDoc/Cart`,
         {
           fields: {
             productId: product._id,
             quantity: 1,
             userId: store.getUserId,
             createdBy: store.getUserId,
-            
+
           }
         },
         {
@@ -645,7 +654,7 @@ async function addToCart(product) {
           }
         }
       )
-      
+
       if (response.data.success) {
         // Swal.fire({
         //   icon: 'success',
@@ -672,11 +681,11 @@ async function addToCart(product) {
     // If not logged in, store in localStorage (fallback)
     let cart = JSON.parse(localStorage.getItem("cart")) || []
     let existingItem = cart.find(item => item.productId === product._id)
-    
+
     if (existingItem) {
       existingItem.quantity += 1
     } else {
-      cart.push({ 
+      cart.push({
         productId: product._id,
         quantity: 1,
         productData: {
@@ -688,19 +697,19 @@ async function addToCart(product) {
         }
       })
     }
-    
+
     localStorage.setItem("cart", JSON.stringify(cart))
-    
+
     // Update local cart items
     cartItems.value = cart
-    
+
     Swal.fire({
       icon: 'success',
       title: t('alerts.addedToCart'),
       timer: 1000,
       showConfirmButton: false
     })
-    
+
     // Show cart drawer
     showCartDrawer.value = true
   }
@@ -709,12 +718,12 @@ async function addToCart(product) {
 // Update cart item quantity
 async function updateCartQuantity(item, newQuantity) {
   if (newQuantity < 1) return
-  
+
   const token = localStorage.getItem("token")
-  
+
   if (token) {
     try {
-      await axios.patch(`${apiURL}/api/updateDoc/Cart/${item._id}`, 
+      await axios.patch(`${apiURL}/api/updateDoc/Cart/${item._id}`,
         {
           fields: {
             quantity: newQuantity
@@ -727,7 +736,7 @@ async function updateCartQuantity(item, newQuantity) {
           }
         }
       )
-      
+
       // Update local state
       item.quantity = newQuantity
     } catch (err) {
@@ -743,11 +752,11 @@ async function updateCartQuantity(item, newQuantity) {
     // If not logged in, update in localStorage
     let cart = JSON.parse(localStorage.getItem("cart")) || []
     const existingItem = cart.find(cartItem => cartItem._id === item._id)
-    
+
     if (existingItem) {
       existingItem.quantity = newQuantity
       localStorage.setItem("cart", JSON.stringify(cart))
-      
+
       // Update local state
       item.quantity = newQuantity
     }
@@ -757,7 +766,7 @@ async function updateCartQuantity(item, newQuantity) {
 // Remove item from cart
 async function removeFromCart(itemId) {
   const token = localStorage.getItem("token")
-  
+
   if (token) {
     try {
       await axios.delete(`${apiURL}/api/deleteDoc/Cart/${itemId}`, {
@@ -765,10 +774,10 @@ async function removeFromCart(itemId) {
           Authorization: token ? `Bearer ${token}` : ''
         }
       })
-      
+
       // Remove from local state
       cartItems.value = cartItems.value.filter(item => item._id !== itemId)
-      
+
       // Swal.fire({
       //   icon: 'success',
       //   title: t('alerts.removedFromCart'),
@@ -789,7 +798,7 @@ async function removeFromCart(itemId) {
     let cart = JSON.parse(localStorage.getItem("cart")) || []
     cart = cart.filter(item => item._id !== itemId)
     localStorage.setItem("cart", JSON.stringify(cart))
-    
+
     // Update local state
     cartItems.value = cart
   }
@@ -803,66 +812,52 @@ function checkAuthStatus() {
   const storeAuth = store.isAuthenticated;
   const storeUserId = store.getUserId;
   const storeUserRole = store.getUserRole;
-  
-  console.log('🔐 Auth Status Check:');
-  console.log('  - localStorage token:', !!token);
-  console.log('  - localStorage user:', !!user);
-  console.log('  - store token:', !!storeToken);
-  console.log('  - store isAuthenticated:', storeAuth);
-  console.log('  - store userId:', storeUserId);
-  console.log('  - store userRole:', storeUserRole);
-  
+
+
+
   // User is authenticated if they have a token AND a userId (either from store or localStorage)
   const hasToken = !!(token || storeToken);
   const hasUserId = !!(storeUserId || user);
-  
-  console.log('  - Has token:', hasToken);
-  console.log('  - Has userId:', hasUserId);
-  
+
+
+
   return hasToken && hasUserId;
 }
 
 async function toggleFavorite(product) {
-  console.log('🔍 toggleFavorite called for product:', product._id, product.name);
-  console.log('🔍 Current favorite state:', product.isFavorite);
+
   const token = localStorage.getItem("token");
   // Check authentication status
   const isAuthenticated = checkAuthStatus();
-  
+
   try {
     if (isAuthenticated) {
       // Authenticated: use backend
-      console.log('🔍 Using backend for authenticated user');
       if (product.isFavorite) {
         // Remove favorite
-        console.log('🔍 Removing favorite from backend');
         const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
           headers: { Authorization: token ? `Bearer ${token}` : '' }
         });
-        
-        console.log('🔍 Favorites response:', res.data);
+
         const fav = res.data.data.find(f => f.productId?._id === product._id);
-        console.log('🔍 Found favorite to remove:', fav);
-        
+
         if (fav) {
           await axios.delete(`${apiURL}/api/deleteDoc/Favorite/${fav._id}`, {
             headers: { Authorization: `Bearer ${store.getToken}` }
           });
-          
+
           product.isFavorite = false;
-          console.log('🔍 Favorite removed successfully');
-          Swal.fire({ 
-            icon: 'success', 
-            title: t('alerts.removedFromFavorites'), 
-            timer: 1000, 
-            showConfirmButton: false 
+          Swal.fire({
+            icon: 'success',
+            title: t('alerts.removedFromFavorites'),
+            timer: 1000,
+            showConfirmButton: false
           });
         }
       } else {
         // Add favorite
-        console.log('🔍 Adding favorite to backend');
         const response = await axios.post(`${apiURL}/api/insertDoc/Favorite`, {
-          fields: { 
+          fields: {
             productId: product._id
           }
         }, {
@@ -871,32 +866,28 @@ async function toggleFavorite(product) {
             'Content-Type': 'application/json'
           }
         });
-        
-        console.log('🔍 Add favorite response:', response.data);
+
         product.isFavorite = true;
-        console.log('🔍 Favorite added successfully');
-        Swal.fire({ 
-          icon: 'success', 
-          title: t('alerts.addedToFavorites'), 
-          timer: 1000, 
-          showConfirmButton: false 
+        Swal.fire({
+          icon: 'success',
+          title: t('alerts.addedToFavorites'),
+          timer: 1000,
+          showConfirmButton: false
         });
       }
     } else {
       // Not logged in: use localStorage
-      console.log('🔍 Using localStorage for guest user');
       let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
       const isFavorited = favorites.some(item => item.id === product._id);
-      
+
       if (isFavorited) {
         favorites = favorites.filter(item => item.id !== product._id);
         product.isFavorite = false;
-        console.log('🔍 Favorite removed from localStorage');
-        Swal.fire({ 
-          icon: 'success', 
-          title: t('alerts.removedFromFavorites'), 
-          timer: 1000, 
-          showConfirmButton: false 
+        Swal.fire({
+          icon: 'success',
+          title: t('alerts.removedFromFavorites'),
+          timer: 1000,
+          showConfirmButton: false
         });
       } else {
         favorites.push({
@@ -907,11 +898,11 @@ async function toggleFavorite(product) {
         });
         product.isFavorite = true;
         console.log('🔍 Favorite added to localStorage');
-        Swal.fire({ 
-          icon: 'success', 
-          title: t('alerts.addedToFavorites'), 
-          timer: 1000, 
-          showConfirmButton: false 
+        Swal.fire({
+          icon: 'success',
+          title: t('alerts.addedToFavorites'),
+          timer: 1000,
+          showConfirmButton: false
         });
       }
       localStorage.setItem("favorites", JSON.stringify(favorites));
@@ -919,12 +910,12 @@ async function toggleFavorite(product) {
   } catch (err) {
     console.error('❌ Error toggling favorite:', err);
     console.error('❌ Error response:', err.response?.data);
-    Swal.fire({ 
-      icon: 'error', 
-      title: t('alerts.failedToUpdateFavorite'), 
+    Swal.fire({
+      icon: 'error',
+      title: t('alerts.failedToUpdateFavorite'),
       text: err.response?.data?.message || t('alerts.pleaseTryAgain'),
-      timer: 2000, 
-      showConfirmButton: false 
+      timer: 2000,
+      showConfirmButton: false
     });
   }
 }
@@ -952,7 +943,7 @@ function startCarousel() {
 
 function setupIntersectionObserver() {
   if (!footerRef.value) return
-  
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -963,7 +954,7 @@ function setupIntersectionObserver() {
     },
     { threshold: 0.1 }
   )
-  
+
   observer.observe(footerRef.value)
 }
 
@@ -977,12 +968,12 @@ function setupSocketConnection() {
   // Listen for product updates
   socket.on('dataUpdate', async (update) => {
     console.log('Socket update received:', update)
-    
+
     if (update.collection === 'Product') {
       console.log('Product collection updated, refreshing products...')
       await fetchProducts() // Refresh products when there's an update
     }
-    
+
     if (update.collection === 'Cart') {
       console.log('Cart collection updated, refreshing cart...')
       await fetchCartItems() // Refresh cart when there's an update
@@ -1003,30 +994,38 @@ function setRating(val) {
 
 async function submitRating() {
   if (!rating.value) {
-    Swal.fire({ icon: 'warning', title: $t('alerts.pleaseSelectRating') });
+    Swal.fire({ icon: 'warning', title: t('alerts.pleaseSelectRating') });
     return;
   }
   try {
     const token = localStorage.getItem('token');
+    const userId = store.getUserId || localStorage.getItem('userId');
+    console.log('Submitting rating:', {
+      productId: selectedProduct.value._id,
+      RTCTrackEvent: rating.value,
+      review: review.value,
+      userId,
+      createdBy: userId,
+    });
     await axios.post(`${apiURL}/api/insertDoc/Rate`, {
       fields: {
         productId: selectedProduct.value._id,
         RTCTrackEvent: rating.value,
         review: review.value,
-        userId: store.getUserId,
-        createdBy: store.getUserId,
+        userId,
+        createdBy: userId,
       }
     }, {
       headers: { Authorization: token ? `Bearer ${token}` : '' }
     });
-    Swal.fire({ icon: 'success', title: $t('alerts.thankYouForRating') });
+    Swal.fire({ icon: 'success', title: t('alerts.thankYouForRating') });
     showRatingModal.value = false;
     // Optionally: refresh product ratings here
   } catch (err) {
-    Swal.fire({ 
-      icon: 'error', 
-      title: $t('alerts.failedToSubmitRating'), 
-      text: err.response?.data?.message || $t('alerts.tryAgain') 
+    Swal.fire({
+      icon: 'error',
+      title: t('alerts.failedToSubmitRating'),
+      text: err.response?.data?.message || t('alerts.tryAgain')
     });
   }
 }
@@ -1044,7 +1043,7 @@ onUnmounted(() => {
   if (carouselInterval.value) {
     clearInterval(carouselInterval.value)
   }
-  
+
   // Clean up socket listeners to prevent memory leaks
   if (socket) {
     socket.off('dataUpdated')
@@ -1059,6 +1058,7 @@ onUnmounted(() => {
   color: #ccc;
   transition: all 0.2s ease;
 }
+
 .heart.favorited {
   color: red;
   transform: scale(1.2);

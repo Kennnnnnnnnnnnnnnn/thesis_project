@@ -2,13 +2,9 @@ import axios from "axios";
 
 export const useTelegram = () => {
 
-    // monthy
-    // const botToken = '7876712552:AAGl4DL9rJOvbcJVtJ-OqEH8_C-_gJ-qLw0';
-    // const chatId = '1088041386';
-
 
     // dalin
-    const botToken = '7598922370:AAEkpJuDNbqshQ-SklazfWwuZm8F7gqsDvc';
+    const botToken = '7523602076:AAE7jPxs7zOzdFNX_QzXZnhiIcW4EeOeRoc';
     const chatId = '1058951332';
 
 

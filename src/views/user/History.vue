@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-50 font-poppins">
-    <div class="max-w-4xl mx-auto p-4">
+    <div class="max-w-4xl mx-auto p-6">
       <!-- Header -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $t('history.yourOrderHistory') }}</h1>
-        <p class="text-gray-600 mb-4">{{ $t('history.reviewPastPurchases') }}</p>
-        <div v-if="orders.length > 0" class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+        <!-- <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $t('history.yourOrderHistory') }}</h1>
+        <p class="text-gray-600 mb-4">{{ $t('history.reviewPastPurchases') }}</p> -->
+        <!-- <div v-if="orders.length > 0" class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
           {{ orders.length }} {{ orders.length === 1 ? $t('history.order') : $t('history.orders') }}
-        </div>
+        </div> -->
       </div>
 
       <!-- Loading -->
@@ -119,11 +119,11 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-12">
+      <div v-else class="text-center item-center py-12">
         <i class="fas fa-shopping-basket text-4xl text-gray-400 mb-4"></i>
         <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ $t('history.noHistoryYet') }}</h3>
         <p class="text-gray-600 mb-6">{{ $t('history.completedOrdersAppear') }}</p>
-        <button @click="navigateToShop" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+        <button @click="navigateToShop" class="px-6 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
           {{ $t('history.startShopping') }}
         </button>
       </div>

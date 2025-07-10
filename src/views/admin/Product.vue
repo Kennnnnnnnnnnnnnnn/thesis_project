@@ -311,10 +311,9 @@
                 {{ $t('products.salePrice') }} <span class="text-red-500">*</span>
               </label>
               <div class="relative">
-                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">៛</span>
-                <input v-model="salePrice" type="number" step="100" min="0" required
+                <input v-model="salePrice" type="number" step="100"  required
                   class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                  placeholder="0" />
+                   />
               </div>
             </div>
 
@@ -494,7 +493,7 @@ const discount = ref(0);
 const totalStock = ref(0);
 const imageURL = ref('');
 const status = ref(false);
-const purchasePrice = ref(0);
+const purchasePrice = ref('');
 const unit = ref('');  // Default to empty string, matching your schema
 const totalPrice = ref(0);
 
@@ -662,8 +661,7 @@ const handleSubmit = async () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
 
-    // Find the full currency object
-    const currencyObj = currencies.value.find(c => c._id === selectedCurrencyId.value);
+
 
     if (imageFile.value) {
       uploadStatus.value = {
@@ -700,7 +698,7 @@ const handleSubmit = async () => {
         unit: unit.value || '',
         status: status.value,
         imageURL: imageURL.value || '',
-        currency: currencyObj, // <-- Store the full currency object here
+        currency: currencies.value.find(c => c._id === selectedCurrencyId.value),
       }
     };
 
@@ -787,6 +785,7 @@ const editProduct = (product) => {
   imageURL.value = product.imageURL || '';
   status.value = product.status || false;
   enabled.value = product.status || false;  // Make sure this line sets enabled based on product.status
+  selectedCurrencyId.value = product.currency?._id || product.currency || '';
 
   if (product.imageURL) {
     imagePreview.value = product.imageURL;
@@ -859,7 +858,7 @@ const resetForm = () => {
   name.value = '';
   description.value = '';
   categoryId.value = '';
-  salePrice.value = 0;
+  salePrice.value = '';
   purchasePrice.value = 0;
   discount.value = 0;
   totalStock.value = 0;
