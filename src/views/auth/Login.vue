@@ -5,7 +5,6 @@
     <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md border border-yellow-200 animate-fadeInUp">
       <div class="mb-8 text-center">
         <h2 class="text-yellow-800 text-2xl font-bold mb-2"> Welcome to our Website </h2>
-        <p class="text-yellow-700 text-base">Sign in to your account</p>
       </div>
 
       <form @submit.prevent="handleLogin">

@@ -1,45 +1,45 @@
 <template>
-  <div class="profile-page">
-    <div class="profile-container">
-      <div class="profile-header">
-        <h1>Profile Settings</h1>
-        <p>Update your personal information</p>
+  <div class="font-poppins min-h-screen bg-gray-100 py-5">
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-white px-8 py-8 text-center border-b border-gray-200">
+        <h1 class="text-gray-800 text-2xl font-semibold mb-2">Profile Settings</h1>
+        <p class="text-gray-500 text-base">Update your personal information</p>
       </div>
 
-      <form @submit.prevent="updateProfile" class="profile-form">
+      <form @submit.prevent="updateProfile" class="px-8 py-8">
         <!-- Profile Picture -->
-        <div class="profile-picture-section">
-          <div class="profile-picture">
-            <img :src="form.profilePicture || defaultImage" alt="Profile" />
-            <div class="upload-overlay">
-              <label for="profile-upload" class="upload-btn">Change Photo</label>
-              <input id="profile-upload" type="file" @change="handleImageUpload" accept="image/*" />
+        <div class="flex justify-center items-center mb-8">
+          <div class="relative w-32 h-32 rounded-full border-4 border-gray-200 overflow-hidden group cursor-pointer transition-colors duration-300 hover:border-blue-500">
+            <img :src="form.profilePicture || defaultImage" alt="Profile" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-black bg-opacity-60 rounded-full flex justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <label for="profile-upload" class="bg-blue-600 text-white px-3 py-1.5 rounded text-xs font-medium cursor-pointer hover:bg-blue-700 transition-colors">Change Photo</label>
+              <input id="profile-upload" type="file" @change="handleImageUpload" accept="image/*" class="hidden" />
             </div>
           </div>
         </div>
 
-        <div class="form-sections">
+        <div class="flex flex-col gap-8">
           <!-- Personal Information -->
-          <div class="form-section">
-            <h3>Personal Information</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Full Name</label>
-                <input v-model="form.name" type="text" required />
+          <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-gray-800 text-lg font-semibold mb-5 border-b-2 border-gray-100 pb-2">Personal Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Full Name</label>
+                <input v-model="form.name" type="text" required class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition" />
               </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input v-model="form.email" type="email" />
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Email</label>
+                <input v-model="form.email" type="email" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition" />
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Phone Number</label>
-                <input v-model="form.phoneNumber" type="text" required />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Phone Number</label>
+                <input v-model="form.phoneNumber" type="text" required class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition" />
               </div>
-              <div class="form-group">
-                <label>Gender</label>
-                <select v-model="form.gender">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Gender</label>
+                <select v-model="form.gender" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition">
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
@@ -49,52 +49,52 @@
           </div>
 
           <!-- Address Information -->
-          <div class="form-section">
-            <h3>Address Information</h3>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Country</label>
-                <input v-model="form.country" type="text" placeholder="Enter country" />
+          <div class="bg-white border border-gray-200 rounded-lg p-6">
+            <h3 class="text-gray-800 text-lg font-semibold mb-5 border-b-2 border-gray-100 pb-2">Address Information</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Country</label>
+                <input v-model="form.country" type="text" placeholder="Enter country" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition" />
               </div>
-              <div class="form-group">
-                <label>Province</label>
-                <select v-model="selectedProvince" @change="onProvinceChange">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Province</label>
+                <select v-model="selectedProvince" @change="onProvinceChange" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition">
                   <option value="">Select Province</option>
                   <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
                 </select>
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>District</label>
-                <select v-model="selectedDistrict" @change="onDistrictChange" :disabled="!selectedProvince">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">District</label>
+                <select v-model="selectedDistrict" @change="onDistrictChange" :disabled="!selectedProvince" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition disabled:bg-gray-100 disabled:text-gray-400">
                   <option value="">Select District</option>
                   <option v-for="district in filteredDistricts" :key="district" :value="district">{{ district }}</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label>Commune</label>
-                <select v-model="form.commune" :disabled="!selectedDistrict">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Commune</label>
+                <select v-model="form.commune" :disabled="!selectedDistrict" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition disabled:bg-gray-100 disabled:text-gray-400">
                   <option value="">Select Commune</option>
                   <option v-for="commune in filteredCommunes" :key="commune" :value="commune">{{ commune }}</option>
                 </select>
               </div>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Village</label>
-                <input v-model="form.village" type="text" placeholder="Enter village" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Village</label>
+                <input v-model="form.village" type="text" placeholder="Enter village" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-700 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition" />
               </div>
-              <div class="form-group">
-                <label>Role</label>
-                <input v-model="form.role" type="text" class="readonly" disabled />
+              <div class="flex flex-col">
+                <label class="font-medium text-gray-700 mb-1">Role</label>
+                <input v-model="form.role" type="text" class="border border-gray-300 rounded-md px-3 py-2 text-base text-gray-400 bg-gray-100 cursor-not-allowed" disabled />
               </div>
             </div>
           </div>
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-primary">Save Changes</button>
+        <div class="text-center mt-8 pt-6 border-t border-gray-200">
+          <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-md font-medium text-lg shadow hover:bg-blue-700 transition-colors min-w-[150px]">Save Changes</button>
         </div>
       </form>
     </div>
@@ -275,250 +275,3 @@ onMounted(async () => {
 });
 
 </script>
-
-
-<style scoped>
-.profile-page {
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  background: #f8f9fa;
-  padding: 20px;
-}
-
-.profile-container {
-  max-width: 800px;
-  margin: 0 auto;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.profile-header {
-  background: #ffffff;
-  padding: 30px;
-  text-align: center;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.profile-header h1 {
-  color: #333;
-  font-size: 2rem;
-  margin: 0 0 8px 0;
-  font-weight: 600;
-}
-
-.profile-header p {
-  color: #6c757d;
-  margin: 0;
-  font-size: 1rem;
-}
-
-.profile-form {
-  padding: 30px;
-}
-
-.profile-picture-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.profile-picture {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 3px solid #e9ecef;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-}
-
-.profile-picture:hover {
-  border-color: #007bff;
-}
-
-.profile-picture img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.upload-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.profile-picture:hover .upload-overlay {
-  opacity: 1;
-}
-
-.upload-btn {
-  background-color: #007bff;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 0.8rem;
-  cursor: pointer;
-  border: none;
-  transition: background-color 0.2s;
-}
-
-.upload-btn:hover {
-  background-color: #0056b3;
-}
-
-.upload-btn input[type="file"] {
-  display: none;
-}
-
-.form-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.form-section {
-  background: #ffffff;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 25px;
-}
-
-.form-section h3 {
-  color: #333;
-  font-size: 1.25rem;
-  margin-bottom: 20px;
-  font-weight: 600;
-  border-bottom: 2px solid #e9ecef;
-  padding-bottom: 10px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.form-row:last-child {
-  margin-bottom: 0;
-}
-
-@media (min-width: 640px) {
-  .form-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #495057;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-}
-
-.form-group input,
-.form-group select {
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  padding: 10px 12px;
-  font-size: 1rem;
-  color: #495057;
-  background-color: #ffffff;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.form-group input:disabled,
-.form-group select:disabled {
-  background-color: #f8f9fa;
-  color: #6c757d;
-  cursor: not-allowed;
-}
-
-.form-group .readonly {
-  background-color: #f8f9fa;
-  color: #6c757d;
-  cursor: not-allowed;
-}
-
-.form-actions {
-  text-align: center;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #e9ecef;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: #ffffff;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-  min-width: 150px;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .profile-page {
-    padding: 10px;
-  }
-  
-  .profile-container {
-    border-radius: 8px;
-  }
-  
-  .profile-form {
-    padding: 20px;
-  }
-  
-  .form-section {
-    padding: 20px;
-  }
-  
-  .profile-header {
-    padding: 20px;
-  }
-  
-  .profile-header h1 {
-    font-size: 1.5rem;
-  }
-}
-</style>

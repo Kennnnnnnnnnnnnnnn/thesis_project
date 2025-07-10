@@ -76,10 +76,10 @@
               <!-- Price -->
               <div class="text-center my-4">
                 <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
-                  ៛{{ formatPrice(product.salePrice) }}
+                  {{ formatPrice(product.salePrice) }}{{ product.currency?.symbol?.symbol1.symbol || '' }}
                 </p>
                 <p class="text-xl font-bold text-gray-800">
-                  ៛{{ formatPrice(calculateFinalPrice(product)) }}
+                 {{ formatPrice(calculateFinalPrice(product)) }} {{ product.currency?.symbol?.symbol1.symbol || '' }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
                   {{ $t('common.save') }} {{ product.discount }}%
@@ -217,10 +217,10 @@
               <!-- Price -->
               <div class="text-center my-4">
                 <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
-                  ៛{{ formatPrice(product.salePrice) }}
+                  {{ formatPrice(product.salePrice) }}
                 </p>
                 <p class="text-xl font-bold text-gray-800">
-                  ៛{{ formatPrice(calculateFinalPrice(product)) }}
+                  {{ formatPrice(calculateFinalPrice(product)) }} {{ product.currency?.symbol?.symbol1.symbol || '' }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
                   {{ $t('common.save') }} {{ product.discount }}%
@@ -327,7 +327,7 @@
               <button @click="updateCartQuantity(item, item.quantity + 1)"
                 class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer">+</button>
             </div>
-            <p class="text-orange-600 font-bold">៛{{ calculateItemPrice(item) }}</p>
+            <p class="text-orange-600 font-bold">{{ calculateItemPrice(item) }}</p>
           </div>
           <button @click="removeFromCart(item._id)"
             class="bg-transparent border-0 text-xl cursor-pointer text-red-700">×</button>
@@ -1029,6 +1029,9 @@ async function submitRating() {
     });
   }
 }
+
+
+
 
 // Lifecycle hooks
 onMounted(() => {

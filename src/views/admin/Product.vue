@@ -161,7 +161,7 @@
                 <!-- Price Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="text-sm font-bold text-gray-900">
-                    {{ formatPrice(product.salePrice) }}
+                    {{ formatPrice(product.salePrice) }}{{ product.currency?.symbol?.symbol1.symbol || '' }}
                   </div>
                 </td>
 
@@ -311,7 +311,7 @@
                 {{ $t('products.salePrice') }} <span class="text-red-500">*</span>
               </label>
               <div class="relative">
-                <input v-model="salePrice" type="number" step="100"  required
+                <input v-model="salePrice" type="number" step="0.01" required
                   class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
                    />
               </div>
@@ -523,7 +523,7 @@ const filteredProducts = computed(() => {
 
 // Helper functions
 const formatPrice = (price) => {
-  return new Intl.NumberFormat('km-KH').format(price || 0) + '៛';
+  return new Intl.NumberFormat('km-KH').format(price || 0) ;
 };
 
 const getCategoryName = (categoryId) => {
