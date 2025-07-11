@@ -167,6 +167,8 @@ const handleLogin = async () => {
         'create_transaction',
         'update_transaction',
         'update_product',
+        'read_user',
+        'update_user',
       ];
     } else if (userRole === 'superadmin') {
       // Superadmin gets all permissions

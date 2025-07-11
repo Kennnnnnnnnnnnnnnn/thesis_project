@@ -53,7 +53,7 @@
           </div>
 
           <!-- Pending Animation -->
-          <div v-if="order.status === 'pending'" class="flex justify-center p-4">
+          <!-- <div v-if="order.status === 'pending'" class="flex justify-center p-4">
             <DotLottieVue
               style="height: 120px; width: 120px"
               autoplay
@@ -63,10 +63,10 @@
               @error="onAnimationError"
               @ready="onAnimationReady"
             />
-          </div>
+          </div> -->
 
           <!-- Animation when status is confirm -->
-          <div v-if="order.status === 'confirmed'" class="flex justify-center p-4">
+          <!-- <div v-if="order.status === 'confirmed'" class="flex justify-center p-4">
             <DotLottieVue
               style="height: 120px; width: 120px"
               autoplay
@@ -77,7 +77,7 @@
               @error="onAnimationError"
               @ready="onAnimationReady"
             />
-          </div>
+          </div> -->
 
           <!-- Order Items -->
           <div class="p-4">

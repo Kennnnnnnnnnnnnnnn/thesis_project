@@ -25,7 +25,7 @@
 
 
       <!-- DASHBOARDS -->
-      <div >
+      <div>
         <h2 class="text-[#ca8a04] text-xs font-semibold  tracking-wider mb-2 uppercase">Dashboard</h2>
         <nav class="space-y-2 ">
           <!-- supplier -->
@@ -103,25 +103,11 @@
         </nav>
       </div>
 
-      <!-- General MANAGEMENT (Dropdown) -->
+      <!-- Management (No Dropdown) -->
       <div class="mt-5">
-        <button
-          @click="isUserManagementOpen = !isUserManagementOpen"
-          class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition"
-        >
-          <span class="flex-1 uppercase">Management</span>
-          <svg
-            :class="['w-4 h-4 ml-2 transition-transform', isUserManagementOpen ? 'rotate-90' : '']"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-        <transition name="fade">
-          <nav v-show="isUserManagementOpen" class="space-y-2 pl-4 mt-2">
-            <!-- <router-link to="/admin/delivery" :class="[
+        <h2 class="text-[#ca8a04] text-xs font-semibold tracking-wider uppercase">Management</h2>
+        <nav class="space-y-2 pl-0 mt-2">
+           <!-- <router-link to="/admin/delivery" :class="[
               'nav-link',
               route.path === '/admin/delivery' ? 'bg-yellow-500 text-white' : ''
             ]">
@@ -143,7 +129,7 @@
               <span class="text-sm">Set Permission</span>
             </router-link> -->
 
-             <router-link to="/admin/currency" :class="[
+            <router-link to="/admin/currency" :class="[
               'nav-link',
               route.path === '/admin/currency' ? 'bg-yellow-500 text-white' : ''
             ]">
@@ -151,7 +137,60 @@
               <span class="text-sm">Create Currency</span>
             </router-link>
 
-             <router-link to="/admin/symbol" :class="[
+            <router-link to="/admin/symbol" :class="[
+              'nav-link',
+              route.path === '/admin/symbol' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <FileKey2 class="h-4 w-4" />
+              <span class="text-sm">Create Symbol</span>
+            </router-link>
+        </nav>
+      </div>
+
+
+      <!-- General MANAGEMENT (Dropdown) -->
+      <!-- <div class="mt-5">
+        <button @click="isUserManagementOpen = !isUserManagementOpen"
+          class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition">
+          <span class="flex-1 uppercase">Management</span>
+          <svg :class="['w-4 h-4 ml-2 transition-transform', isUserManagementOpen ? 'rotate-90' : '']" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <transition name="fade">
+          <nav v-show="isUserManagementOpen" class="space-y-2 pl-4 mt-2"> -->
+            <!-- <router-link to="/admin/delivery" :class="[
+              'nav-link',
+              route.path === '/admin/delivery' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <MapPinned class="h-4 w-4" />
+              <span class="text-sm">Tracking</span>
+            </router-link> -->
+            <!-- <router-link to="/admin/users" :class="[
+              'nav-link',
+              route.path === '/admin/users' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <UserRoundPlus class="h-4 w-4" />
+              <span class="text-sm">Create User</span>
+            </router-link> -->
+            <!-- <router-link to="/admin/permission" :class="[
+              'nav-link',
+              route.path === '/admin/permission' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <FileKey2 class="h-4 w-4" />
+              <span class="text-sm">Set Permission</span>
+            </router-link> -->
+<!-- 
+            <router-link to="/admin/currency" :class="[
+              'nav-link',
+              route.path === '/admin/currency' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <FileKey2 class="h-4 w-4" />
+              <span class="text-sm">Create Currency</span>
+            </router-link>
+
+            <router-link to="/admin/symbol" :class="[
               'nav-link',
               route.path === '/admin/symbol' ? 'bg-yellow-500 text-white' : ''
             ]">
@@ -160,21 +199,15 @@
             </router-link>
           </nav>
         </transition>
-      </div>
+      </div> -->
 
       <!-- REPORT (Dropdown) -->
-      <div class="mt-5 mb-5">
-        <button
-          @click="isReportOpen = !isReportOpen"
-          class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition"
-        >
+      <!-- <div class="mt-5 mb-5">
+        <button @click="isReportOpen = !isReportOpen"
+          class="flex items-center w-full text-left text-[#ca8a04] text-sm font-semibold tracking-wider focus:outline-none transition">
           <span class="flex-1 uppercase">Report</span>
-          <svg
-            :class="['w-4 h-4 ml-2 transition-transform', isReportOpen ? 'rotate-90' : '']"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg :class="['w-4 h-4 ml-2 transition-transform', isReportOpen ? 'rotate-90' : '']" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -203,7 +236,37 @@
             </router-link>
           </nav>
         </transition>
+      </div> -->
+
+
+      <!-- Management (No Dropdown) -->
+      <div class="mt-5">
+        <h2 class="text-[#ca8a04] text-xs font-semibold tracking-wider uppercase">Management</h2>
+        <nav class="space-y-2 pl-0 mt-2">
+          <router-link to="/admin/reports/orders" :class="[
+              'nav-link',
+              route.path === '/admin/reports/orders' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <Book class="h-4 w-4" />
+              <span class="text-sm">Order Reports</span>
+            </router-link>
+            <router-link to="/admin/reports/stock" :class="[
+              'nav-link',
+              route.path === '/admin/reports/stock' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <Book class="h-4 w-4" />
+              <span class="text-sm">Stock Reports</span>
+            </router-link>
+            <router-link to="/admin/reports/purchase" :class="[
+              'nav-link',
+              route.path === '/admin/reports/purchase' ? 'bg-yellow-500 text-white' : ''
+            ]">
+              <Book class="h-4 w-4" />
+              <span class="text-sm">Purchase Reports</span>
+            </router-link>
+        </nav>
       </div>
+
 
 
 
@@ -305,6 +368,4 @@ aside {
     left: 100%;
   }
 }
-
-
 </style>

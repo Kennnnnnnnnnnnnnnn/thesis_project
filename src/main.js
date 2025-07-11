@@ -9,6 +9,10 @@ import { Vue3Lottie } from 'vue3-lottie';
 import App from './App.vue';
 import './assets/tailwind.css';
 import router from './router';
+import PrimeVue from 'primevue/config';
+import Aura from '@primeuix/themes/aura';
+import 'primeicons/primeicons.css';
+
 
 
 // 🗺️ Google Maps
@@ -56,6 +60,18 @@ const i18n = createI18n({
     zh
   },
 });
+
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+    options: {
+      prefix: "p",
+      darkModeSelector: "light",
+      cssLayer: false,
+    },
+  },
+});
+
 
 // 🔗 Use plugins
 app.component('KhqrGenerator', KhqrGenerator);

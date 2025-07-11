@@ -53,15 +53,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useStore } from '@/store/useStore';
-import { useI18n } from 'vue-i18n';
-import axios from 'axios';
 import apiURL from '@/api/config';
 import flagEN from '@/assets/flags/en.png';
 import flagKH from '@/assets/flags/kh.png';
 import flagZH from '@/assets/flags/zh.png';
+import { useStore } from '@/store/useStore';
+import axios from 'axios';
+import { computed, onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 const currentFlag = ref(flagEN);
 const router = useRouter();
@@ -81,13 +81,23 @@ const isAuthenticated = computed(() => {
 const fetchProfile = async () => {
   try {
     const token = localStorage.getItem('token');
-    if (!token) return;
-    const res = await axios.get(`${apiURL}/api/profile`, {
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) return;
+    
+    const res = await axios.get(`${apiURL}/api/getAllDocs/User`, {
       headers: { Authorization: `Bearer ${token}` },
+      params: {
+        dynamicConditions: JSON.stringify([
+          { field: '_id', operator: '==', value: userId }
+        ])
+      }
     });
-    if (res.data.success) {
-      profileName.value = res.data.data.name || 'User';
-      profileImage.value = res.data.data.profilePicture || require('@/assets/default-profile.png');
+    
+    if (res.data.success && res.data.data.length > 0) {
+      const userData = res.data.data[0];
+      profileName.value = userData.name || 'User';
+      profileImage.value = userData.profilePicture || require('@/assets/default-profile.png');
     } else {
       console.error('Failed to fetch profile:', res.data.message);
     }

@@ -11,13 +11,13 @@
     <!-- Filters Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
       <div class="flex flex-wrap gap-4 items-end">
-        <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-          <input v-model="startDate" type="date" class="w-full px-3 py-2 border rounded-lg" />
+        <div class="flex-1">
+          <label for="icondisplay" class="font-bold block mb-2">Start Date </label>
+          <DatePicker v-model="startDate" showIcon fluid iconDisplay="input" inputId="icondisplay" />
         </div>
-        <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-          <input v-model="endDate" type="date" class="w-full px-3 py-2 border rounded-lg" />
+        <div class="flex-1 ">
+          <label for="icondisplay" class="font-bold block mb-2"> End Date </label>
+          <DatePicker v-model="endDate" showIcon fluid iconDisplay="input" inputId="icondisplay" />
         </div>
         <div class="flex gap-2">
           <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
@@ -30,17 +30,33 @@
       </div>
     </div>
 
+
+
     <!-- Table Section -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden print-this" ref="printSection">
-       <!-- Loading Overlay -->
-       <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+      <!-- Loading Overlay -->
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
       </div>
 
+      <div class="text-center mb-8">
+        <!-- <img src="@/assets/logo-ambel.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" /> -->
+
+        <h3 class="text-2xl font-semibold tracking-wide text-black-600">Order Report</h3>
+
+        <p class="text-gray-600 text-sm mt-1 mb-3">
+          A summary of your recent orders, order statuses, and fulfillment activities.
+        </p>
+
+        <hr class="m-auto w-1/4 border border-slate rounded-full" />
+      </div>
+     
+
+
       <!-- Desktop Table -->
-      <div v-else-if="orders.length > 0" class="hidden md:block overflow-x-auto">
+      <div v-if="orders.length > 0" class="hidden md:block overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-gray-50 text-sm">
+          <thead class="bg-gray-100 text-sm">
             <tr>
               <th class="text-left p-4">#</th>
               <th class="text-left p-4">Items</th>
@@ -56,7 +72,8 @@
               <td class="p-4">
                 <div v-for="item in order.items" :key="item._id" class="flex items-center gap-2 mb-1 last:mb-0">
                   <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                    <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover rounded">
+                    <img v-if="item.image" :src="item.image" :alt="item.name"
+                      class="w-full h-full object-cover rounded">
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <i class="fas fa-box text-gray-400"></i>
                     </div>
@@ -71,8 +88,8 @@
               <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
-                  order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 
-                  'bg-yellow-100 text-yellow-700'
+                  order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' :
+                    'bg-yellow-100 text-yellow-700'
                 ]">
                   {{ order.paymentStatus }}
                 </span>
@@ -81,8 +98,8 @@
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
                   order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                  order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
+                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
                 ]">
                   {{ order.status }}
                 </span>
@@ -104,13 +121,13 @@
               <span :class="[
                 'px-2 py-1 rounded text-xs font-medium',
                 order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-red-100 text-red-700'
+                  order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-700'
               ]">{{ order.status }}</span>
               <span :class="[
                 'px-2 py-1 rounded text-xs font-medium',
-                order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 
-                'bg-yellow-100 text-yellow-700'
+                order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' :
+                  'bg-yellow-100 text-yellow-700'
               ]">{{ order.paymentStatus }}</span>
             </div>
           </div>
@@ -150,9 +167,12 @@ import axios from 'axios'
 import { ref } from 'vue'
 import * as XLSX from 'xlsx'
 import formatDate from '@/composables/formatDate';
-import socket from'@/services/socket';
+import socket from '@/services/socket';
 import { onMounted, onUnmounted } from 'vue';
 
+import DatePicker from 'primevue/datepicker';
+
+const icondisplay = ref();
 
 const startDate = ref('')
 const endDate = ref('')
@@ -163,7 +183,7 @@ const orders = ref([])
 const fetchOrders = async (start = null, end = null) => {
   try {
     isLoading.value = true
-    
+
     let dynamicConditions = []
     if (start && end) {
       dynamicConditions = [
@@ -238,11 +258,11 @@ const exportToExcel = () => {
 
   // Create worksheet
   const ws = XLSX.utils.json_to_sheet(excelData)
-  
+
   // Create workbook
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Orders')
-  
+
   // Generate file name with date range
   let fileName = 'orders'
   if (startDate.value && endDate.value) {

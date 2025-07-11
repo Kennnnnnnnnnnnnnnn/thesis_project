@@ -23,9 +23,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
           <select v-model="selectedSupplier" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Suppliers</option>
-            <option v-for="supplier in suppliers" 
-                    :key="supplier._id" 
-                    :value="supplier._id">
+            <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id">
               {{ supplier.name }}
             </option>
           </select>
@@ -49,8 +47,20 @@
         <p class="mt-2 text-gray-600">Loading purchases...</p>
       </div>
 
+      <div class="text-center mb-8">
+        <!-- <img src="@/assets/logo-ambel.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" /> -->
+
+        <h3 class="text-2xl font-semibold tracking-wide text-black-600">Purchase Report</h3>
+
+        <p class="text-gray-600 text-sm mt-1 mb-3">
+          A summary of your purchase transactions, supplier details, and received items.
+        </p>
+
+        <hr class="m-auto w-1/4 border border-slate rounded-full" />
+      </div>
+
       <!-- Desktop Table -->
-      <div v-else-if="purchases.length > 0" class="hidden md:block overflow-x-auto">
+      <div v-if="purchases.length > 0" class="hidden md:block overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50 text-sm">
             <tr>
@@ -75,23 +85,25 @@
                 <div class="flex flex-col gap-1">
                   <div v-for="product in purchase.products" :key="product.id" class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                      <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name" class="w-full h-full object-cover rounded">
+                      <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name"
+                        class="w-full h-full object-cover rounded">
                       <div v-else class="w-full h-full flex items-center justify-center">
                         <i class="fas fa-box text-gray-400"></i>
                       </div>
                     </div>
                     <div>
                       <p class="text-sm font-medium">{{ product.name }}</p>
-                      <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{ formatCurrency(product.unitPrice) }}</p>
+                      <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{
+                        formatCurrency(product.unitPrice) }}</p>
                     </div>
                   </div>
                 </div>
               </td>
               <td class="p-4 text-center">
-                {{ purchase.products.reduce((sum, p) => sum + p.quantity, 0) }}
+                {{purchase.products.reduce((sum, p) => sum + p.quantity, 0)}}
               </td>
               <td class="p-4 text-center font-medium">
-                {{ formatCurrency(purchase.products.reduce((sum, p) => sum + p.totalPrice, 0)) }}
+                {{formatCurrency(purchase.products.reduce((sum, p) => sum + p.totalPrice, 0))}}
               </td>
               <td class="p-4 text-center">
                 <span class="px-2 py-1 rounded text-xs font-medium" :class="{
@@ -126,14 +138,16 @@
           <div class="space-y-2">
             <div v-for="product in purchase.products" :key="product.id" class="flex items-center gap-2">
               <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name" class="w-full h-full object-cover rounded">
+                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name"
+                  class="w-full h-full object-cover rounded">
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <i class="fas fa-box text-gray-400"></i>
                 </div>
               </div>
               <div class="flex-1">
                 <p class="text-sm font-medium">{{ product.name }}</p>
-                <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{ formatCurrency(product.unitPrice) }}</p>
+                <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{
+                  formatCurrency(product.unitPrice) }}</p>
               </div>
               <div class="text-right">
                 <p class="text-sm font-medium">{{ formatCurrency(product.totalPrice) }}</p>
@@ -141,7 +155,7 @@
             </div>
           </div>
           <div class="mt-3 flex justify-between items-center text-sm ">
-           {{ formatDate(purchase.createdAt) }}
+            {{ formatDate(purchase.createdAt) }}
           </div>
         </div>
       </div>
@@ -190,7 +204,7 @@ const fetchSuppliers = async () => {
 const fetchPurchases = async () => {
   try {
     isLoading.value = true
-    
+
     let dynamicConditions = []
     if (selectedSupplier.value) {
       dynamicConditions.push({
@@ -199,7 +213,7 @@ const fetchPurchases = async () => {
         value: selectedSupplier.value
       })
     }
-    
+
     if (startDate.value && endDate.value) {
       dynamicConditions.push({
         field: 'createdAt',
@@ -246,7 +260,7 @@ const formatCurrency = (amount) => {
 }
 
 const exportToExcel = () => {
-  const excelData = purchases.value.flatMap((purchase, index) => 
+  const excelData = purchases.value.flatMap((purchase, index) =>
     purchase.products.map(product => ({
       'No.': index + 1,
       'Purchase ID': '#' + purchase._id.slice(-6).toUpperCase(),

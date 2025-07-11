@@ -15,9 +15,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select v-model="selectedCategory" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Categories</option>
-            <option v-for="category in categories" 
-                    :key="category._id" 
-                    :value="category._id">
+            <option v-for="category in categories" :key="category._id" :value="category._id">
               {{ category.name }}
             </option>
           </select>
@@ -50,8 +48,20 @@
         <p class="mt-2 text-gray-600">Loading stocks...</p>
       </div>
 
+      <div class="text-center mb-8">
+        <!-- <img src="@/assets/logo-ambel.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" /> -->
+
+        <h3 class="text-2xl font-semibold tracking-wide text-black-600">Stock Report</h3>
+
+        <p class="text-gray-600 text-sm mt-1 mb-3">
+          A summary of your inventory levels, stock movements, and product availability.
+        </p>
+
+        <hr class="m-auto w-1/4 border border-slate rounded-full" />
+      </div>
+
       <!-- Desktop Table -->
-      <div v-else-if="stocks.length > 0" class="hidden md:block overflow-x-auto">
+      <div v-if="stocks.length > 0" class="hidden md:block overflow-x-auto">
         <table class="w-full">
           <thead class="bg-gray-50 text-sm">
             <tr>
@@ -70,7 +80,8 @@
               <td class="p-4">
                 <div class="flex items-center gap-2">
                   <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                    <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name" class="w-full h-full object-cover rounded">
+                    <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
+                      class="w-full h-full object-cover rounded">
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <i class="fas fa-box text-gray-400"></i>
                     </div>
@@ -81,7 +92,7 @@
                   </div>
                 </div>
               </td>
-              
+
               <td class="p-4 text-center">
                 <p class="font-medium" :class="[
                   stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
@@ -100,14 +111,12 @@
               <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
-                  stock.isOutOfStock ? 'bg-red-100 text-red-700' : 
-                  stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-green-100 text-green-700'
+                  stock.isOutOfStock ? 'bg-red-100 text-red-700' :
+                    stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
                 ]">
-                  {{ stock.isOutOfStock ? 'Out of Stock' : 
-                     stock.quantity < stock.minThreshold ? 'Low Stock' : 
-                     'In Stock' }}
-                </span>
+                  {{ stock.isOutOfStock ? 'Out of Stock' :
+                    stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }} </span>
               </td>
               <td class="p-4 text-center">
                 <p class="text-sm">{{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
@@ -124,7 +133,8 @@
           <div class="flex justify-between items-start mb-3">
             <div class="flex items-center gap-2">
               <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0">
-                <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name" class="w-full h-full object-cover rounded">
+                <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
+                  class="w-full h-full object-cover rounded">
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <i class="fas fa-box text-gray-400"></i>
                 </div>
@@ -136,14 +146,12 @@
             </div>
             <span :class="[
               'px-2 py-1 rounded text-xs font-medium',
-              stock.isOutOfStock ? 'bg-red-100 text-red-700' : 
-              stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
-              'bg-green-100 text-green-700'
+              stock.isOutOfStock ? 'bg-red-100 text-red-700' :
+                stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-green-100 text-green-700'
             ]">
-              {{ stock.isOutOfStock ? 'Out of Stock' : 
-                 stock.quantity < stock.minThreshold ? 'Low Stock' : 
-                 'In Stock' }}
-            </span>
+              {{ stock.isOutOfStock ? 'Out of Stock' :
+                stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }} </span>
           </div>
           <div class="grid grid-cols-2 gap-4 mt-3">
             <div>
@@ -225,7 +233,7 @@ const fetchCategories = async () => {
 const fetchStocks = async () => {
   try {
     isLoading.value = true
-    
+
     let dynamicConditions = []
     if (selectedCategory.value) {
       dynamicConditions.push({
@@ -234,9 +242,9 @@ const fetchStocks = async () => {
         value: selectedCategory.value
       })
     }
-    
+
     if (stockLevel.value) {
-      switch(stockLevel.value) {
+      switch (stockLevel.value) {
         case 'low':
           dynamicConditions.push({
             field: 'quantity',
@@ -327,9 +335,9 @@ const exportToExcel = () => {
     'Unit': stock.purchaseProducts?.unit || '-',
     'Min Threshold': stock.minThreshold,
     'Max Capacity': stock.maxCapacity,
-    'Status': stock.isOutOfStock ? 'Out of Stock' : 
-             stock.quantity < stock.minThreshold ? 'Low Stock' : 
-             'In Stock',
+    'Status': stock.isOutOfStock ? 'Out of Stock' :
+      stock.quantity < stock.minThreshold ? 'Low Stock' :
+        'In Stock',
     'Last Purchase Quantity': stock.lastPurchase?.quantity || '-',
     'Last Purchase Price': stock.lastPurchase?.unitPrice ? `${formatCurrency(stock.lastPurchase.unitPrice)}` : '-',
     'Last Restocked': stock.lastRestockedAt ? formatDate(stock.lastRestockedAt) : '-',

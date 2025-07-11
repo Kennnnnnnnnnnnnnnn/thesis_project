@@ -131,31 +131,30 @@ const filteredDistricts = ref([]);
 const selectedDistrict = ref('');
 const filteredCommunes = ref([]);
 
-// Fetch all locations first
-const fetchLocations = async () => {
-  try {
-    const token = localStorage.getItem('token');
-    const res = await axios.get(`${apiURL}/api/locations`, {
-      headers: { Authorization: token ? `Bearer ${token}` : '' },
-    });
-    locations.value = res.data.data;
-    provinces.value = [...new Set(locations.value.map(l => l.provinceNameKh))].sort();
-  } catch (err) {
-    console.error(err);
-    Swal.fire({ icon: 'error', title: 'Failed to load locations' });
-  }
-};
-
 // Fetch user profile & restore data
 const fetchProfile = async () => {
   const token = localStorage.getItem('token');
   try {
     const token = localStorage.getItem('token');
-    const res = await axios.get(`${apiURL}/api/profile`, {
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      Swal.fire({ icon: 'error', title: 'Authentication required' });
+      return;
+    }
+
+    const res = await axios.get(`${apiURL}/api/getAllDocs/User`, {
       headers: { Authorization: token ? `Bearer ${token}` : '' },
+      params: {
+        dynamicConditions: JSON.stringify([
+          { field: '_id', operator: '==', value: userId }
+        ])
+      }
     });
-    if (res.data.success) {
-      Object.assign(form.value, res.data.data);
+    
+    if (res.data.success && res.data.data.length > 0) {
+      const userData = res.data.data[0];
+      Object.assign(form.value, userData);
 
       // Restore selected province/district
       selectedProvince.value = form.value.province || '';
@@ -186,12 +185,18 @@ const fetchProfile = async () => {
   }
 };
 
-
 // Update profile
 const updateProfile = async () => {
   try {
     const token = localStorage.getItem('token');
-    await axios.patch(`${apiURL}/api/profile`, form.value, {
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      Swal.fire({ icon: 'error', title: 'Authentication required' });
+      return;
+    }
+
+    await axios.patch(`${apiURL}/api/updateDoc/User/${userId}`, form.value, {
       headers: { Authorization: token ? `Bearer ${token}` : '' },
     });
     Swal.fire({ icon: 'success', title: 'Profile updated successfully' });
@@ -201,23 +206,41 @@ const updateProfile = async () => {
   }
 };
 
-// Profile picture upload
+// Profile picture upload - using dynamic route for user collection
 const handleImageUpload = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  const formData = new FormData();
-  formData.append('file', file);
+  
   try {
     const token = localStorage.getItem('token');
-    const res = await axios.post(`${apiURL}/api/profile/upload-picture`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data', Authorization: token ? `Bearer ${token}` : '' },
-    });
-    if (res.data.success) {
-      form.value.profilePicture = res.data.url;
-      Swal.fire({ icon: 'success', title: 'Profile picture updated' });
-    } else {
-      Swal.fire({ icon: 'error', title: 'Failed to upload image' });
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      Swal.fire({ icon: 'error', title: 'Authentication required' });
+      return;
     }
+
+    // Convert file to base64 for storage in user document
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64Image = event.target.result;
+      
+      try {
+        // Update the user document with the base64 image data
+        await axios.patch(`${apiURL}/api/updateDoc/User/${userId}`, 
+          { profilePicture: base64Image }, 
+          { headers: { Authorization: token ? `Bearer ${token}` : '' } }
+        );
+        
+        form.value.profilePicture = base64Image;
+        Swal.fire({ icon: 'success', title: 'Profile picture updated' });
+      } catch (err) {
+        console.error(err);
+        Swal.fire({ icon: 'error', title: 'Error updating profile picture' });
+      }
+    };
+    
+    reader.readAsDataURL(file);
   } catch (err) {
     console.error(err);
     Swal.fire({ icon: 'error', title: 'Error uploading image' });
@@ -248,10 +271,8 @@ const onDistrictChange = () => {
   filteredCommunes.value = [...new Set(communes)].sort();
 };
 
-// Ensure locations load BEFORE restoring profile
+// Load profile on mount
 onMounted(async () => {
-  await fetchLocations();
-
   const token = localStorage.getItem('token');
   if (token) {
     // Authenticated: fetch profile
