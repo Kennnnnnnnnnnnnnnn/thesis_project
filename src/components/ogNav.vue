@@ -1,11 +1,11 @@
 <template>
     <div >
-       <nav class="nav-menu hidden md:block" :class="{ 'mobile-menu-open': isMobileMenuOpen }">
+        <nav class="nav-menu" :class="{ 'mobile-menu-open': isMobileMenuOpen }">
             <div class="container">
                 <!-- Mobile menu toggle button -->
-                <!-- <button class="mobile-menu-toggle" @click="toggleMobileMenu" aria-label="Toggle navigation menu">
+                <button class="mobile-menu-toggle" @click="toggleMobileMenu" aria-label="Toggle navigation menu">
                     <span class="hamburger-icon"></span>
-                </button> -->
+                </button>
 
                 <ul class="nav-list" :class="{ 'show': isMobileMenuOpen }">
                     <li v-for="item in dynamicNavItems" :key="item.name">
@@ -69,9 +69,6 @@ const dynamicNavItems = computed(() => {
     });
 });
 </script>
-
-
-
 <style scoped>
 /* Base styles */
 .nav-menu {
@@ -194,7 +191,7 @@ const dynamicNavItems = computed(() => {
     opacity: 1;
 }
 
-/* Mobile menu toggle
+/* Mobile menu toggle */
 .mobile-menu-toggle {
     display: none;
     background: none;
@@ -232,9 +229,9 @@ const dynamicNavItems = computed(() => {
 
 .hamburger-icon:after {
     top: 8px;
-} */
+}
 
-/* Hamburger animation
+/* Hamburger animation */
 .mobile-menu-open .hamburger-icon {
     background-color: transparent;
 }
@@ -249,7 +246,7 @@ const dynamicNavItems = computed(() => {
     top: 0;
 }
 
-Responsive styles
+/* Responsive styles */
 @media (max-width: 992px) {
     .nav-link {
         padding: 14px 16px;
@@ -307,17 +304,17 @@ Responsive styles
     .router-link-exact-active {
         box-shadow: none;
         background-color: rgba(66, 184, 131, 0.1);
-    } */
+    }
 
     /* Adjust badge position for mobile */
-    /* .nav-badge {
+    .nav-badge {
         position: static;
         margin-left: 8px;
     }
-} */
+}
 
 /* Animation for mobile menu */
-/* @keyframes slideDown {
+@keyframes slideDown {
     from {
         transform: translateY(-20px);
         opacity: 0;
@@ -332,9 +329,9 @@ Responsive styles
 .mobile-menu-open .nav-list.show li {
     animation: slideDown 0.3s ease forwards;
     opacity: 0;
-} */
+}
 
-/* Stagger animation for each menu item
+/* Stagger animation for each menu item */
 .mobile-menu-open .nav-list.show li:nth-child(1) {
     animation-delay: 0.05s;
 }
@@ -361,5 +358,5 @@ Responsive styles
 
 .mobile-menu-open .nav-list.show li:nth-child(7) {
     animation-delay: 0.35s;
-} */
+}
 </style>

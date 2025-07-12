@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
     <div class="max-w-4xl w-full bg-white rounded-lg shadow-md flex flex-col md:flex-row">
-      <!-- Contact Information Section -->
+   
       <div class="p-6 md:w-1/2 bg-gray-100">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4">Get in Touch</h2>
         <p class="text-gray-600 mb-6">We're here to help with any questions or support you need. Reach out to us!</p>
@@ -29,7 +29,7 @@
           </div>
         </div>
       </div>
-      <!-- Contact Form Section -->
+
       <div class="p-6 md:w-1/2 bg-white">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4">Send Us a Feedback</h2>
         <form @submit.prevent="submitForm" class="space-y-4">
