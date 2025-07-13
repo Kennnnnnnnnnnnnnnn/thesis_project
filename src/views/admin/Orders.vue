@@ -292,7 +292,7 @@
           <div class="border-t border-gray-200 pt-6">
             <h3 class="font-bold text-gray-700 mb-4">{{ $t('order.status') }}</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button @click="updateOrderStatus('confirmed')" :disabled="isLoading"
+              <button @click="updateOrderStatus('delivering')" :disabled="isLoading"
                 class="px-4 py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="fas fa-check-circle mr-2"></i> Confirm
               </button>

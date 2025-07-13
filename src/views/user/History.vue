@@ -39,7 +39,7 @@
                 <span :class="`px-2 py-1 rounded text-xs font-medium ${getStatusClass(order.status)}`">
                   {{ $t(order.status) }}
                 </span>
-                <button 
+                <!-- <button 
                   v-if="order.status === 'delivering'"
                   @click="confirmReceipt(order)"
                   :disabled="isLoading"
@@ -47,7 +47,7 @@
                 >
                   <i class="fas fa-check-circle text-xs"></i>
                   {{ isLoading ? 'Confirming...' : 'Confirm' }}
-                </button>
+                </button> -->
               </div>
             </div>
           </div>
@@ -104,14 +104,14 @@
               </div>
             </div>
           </div>
-          <!-- Get Product Button -->
-          <div v-if="normalizeStatus(order.status) === 'confirmed'" class="flex justify-center p-4">
+          <!-- Confirm Received Button (show only if status is delivering) -->
+          <div v-if="normalizeStatus(order.status) === 'delivering'" class="flex justify-center p-4">
             <button 
-              class="mt-4 px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
+              class="mt-4 px-4 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition"
               :disabled="isLoading"
-              @click="confirmGotProduct(order)"
+              @click="confirmReceipt(order)"
             >
-              <i class="fas fa-box-open mr-1"></i> Get Product
+              <i class="fas fa-check-circle mr-1"></i> Confirm Received
             </button>
           </div>
 
@@ -139,7 +139,6 @@ import axios from 'axios';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import { DotLottieVue } from '@lottiefiles/dotlottie-vue'
 
 const router = useRouter();
 const { t } = useI18n();
@@ -269,11 +268,11 @@ const confirmGotProduct = async (order) => {
 
   try {
     isLoading.value = true;
-    console.log('📤 Updating order status to got_product...');
+    console.log('📤 Updating order status to received');
 
     const updateData = {
       fields: {
-        status: 'got_product',
+        status: 'received',
         updatedAt: new Date()
       }
     };
@@ -287,14 +286,14 @@ const confirmGotProduct = async (order) => {
     );
 
     if (response.data.success) {
-      console.log('✅ Order status updated to got_product');
+      console.log('✅ Order status updated to received');
 
       // Update local data
       const orderIndex = orders.value.findIndex(o => o._id === order._id);
       if (orderIndex !== -1) {
         orders.value[orderIndex] = {
           ...orders.value[orderIndex],
-          status: 'got_product',
+          status: 'received',
           updatedAt: new Date()
         };
       }
@@ -303,7 +302,7 @@ const confirmGotProduct = async (order) => {
       alert('Thank you! Your product has been marked as received.');
     }
   } catch (error) {
-    console.error('❌ Error updating to got_product:', error);
+    console.error('❌ Error updating to received:', error);
     alert('Something went wrong. Please try again.');
   } finally {
     isLoading.value = false;

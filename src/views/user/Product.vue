@@ -1,6 +1,6 @@
 <template>
   <div class="product-page px-5 py-6 bg-white">
-    <h1 class="text-center mb-5 text-2xl font-bold">{{ $t('products.title') }}</h1>
+    <h1 class="text-center p-8 text-2xl font-bold">{{ $t('products.title') }}</h1>
 
     <!-- 🔍 Search -->
     <div class="max-w-xl mx-auto mb-5">

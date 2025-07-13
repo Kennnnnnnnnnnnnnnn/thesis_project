@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white py-8">
     <!-- Header -->
-    <div class="max-w-6xl mx-auto px-2 mt-2">
+    <div class="max-w-6xl mx-auto p-7">
       <div class="text-start mb-8">
         <h1 class="text-2xl font-bold text-gray-800 mb-2 flex items-start justify-start">
           <span class="mr-3 text-xl">🛒</span>
@@ -37,7 +37,7 @@
         <div class="flex-1">
           <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
             <div class="flex items-center justify-between mb-6">
-              <h2 class="text-2xl font-bold text-gray-800">{{ $t('cart.itemsTitle') }}</h2>
+              <!-- <h2 class="text-2xl font-bold text-gray-800">{{ $t('cart.itemsTitle') }}</h2> -->
               <button
                 v-if="cartItems.length > 0"
                 @click="clearCart"

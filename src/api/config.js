@@ -2,6 +2,8 @@
 
 const apiURL = "http://localhost:4000";
 
-// const apiURL = "http://157.245.59.122:4000";
+// const apiURL = "http://192.168.18.26:4000";
+
+
 
 export default apiURL;

@@ -56,7 +56,7 @@
             class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
             @click="openModal">
             <i class="fas fa-plus text-xs"></i>
-            Create Restock
+            Purchase
           </button>
         </div>
       </div>
