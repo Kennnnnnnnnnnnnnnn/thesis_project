@@ -4,13 +4,13 @@
     <SplashScreen :isSplashVisible="isSplashVisible" />
     <div class="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md border border-yellow-200 animate-fadeInUp">
       <div class="mb-8 text-center">
-        <h2 class="text-yellow-800 text-2xl font-bold mb-2"> Dashboard Admin</h2>
+        <h2 class="text-yellow-800 text-2xl font-bold mb-2"> Welcome To Our Website </h2>
       </div>
 
       <form @submit.prevent="handleLogin">
         <div class="mb-5">
           <label class="block font-medium mb-2 text-yellow-800 text-sm">Phone Number</label>
-          <input type="text" v-model="phoneNumber"
+          <input type="text" v-model="displayPhoneNumber"
             class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60"
             placeholder="phone number" required>
         </div>
@@ -20,10 +20,15 @@
           <input type="password" v-model="password"
             class="w-full py-3 px-4 border border-yellow-200 rounded-xl text-base bg-yellow-50 text-yellow-900 transition-all focus:outline-none focus:border-yellow-400 focus:bg-white placeholder-yellow-700 placeholder-opacity-60"
             placeholder="password" required>
+          <div class="flex justify-end mt-2">
+            <router-link to="/forgot-password" class="text-xs text-yellow-700 hover:text-yellow-800 hover:underline">
+              Forgot Password?
+            </router-link>
+          </div>
         </div>
 
         <button type="submit"
-          class=" w-full bg-yellow-400 text-yellow-900 border-none py-4 font-semibold cursor-pointer rounded-xl text-base transition-all mt-2 flex items-center justify-center gap-2 hover:bg-yellow-300 active:translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+          class="w-full bg-yellow-400 text-yellow-900 border-none py-4 font-semibold cursor-pointer rounded-xl text-base transition-all mt-2 flex items-center justify-center gap-2 hover:bg-yellow-300 active:translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
           :class="{ 'pointer-events-none': isLoading }" :disabled="isLoading">
           <span v-if="!isLoading">Login</span>
         </button>
@@ -34,9 +39,14 @@
         </p>
       </form>
 
-      <footer class="mt-10 text-center text-sm text-gray-500 animate-fade-in delay-300">
-        <p>Powered© by Development Team - version-0.1</p>
-      </footer>
+
+
+
+      <div class="mt-6 text-center text-sm text-yellow-800">
+        <p>Don't have an account? <router-link to="/register"
+            class="text-yellow-700 font-medium hover:text-yellow-800 underline transition">Register</router-link></p>
+
+      </div>
 
 
     </div>
@@ -49,7 +59,6 @@ import { decodeJwt } from '@/composables/jwt';
 import { useStore } from '@/store/useStore';
 import { getDeviceDetails } from '@/utils/getDeviceDetails';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -62,7 +71,7 @@ const isSplashVisible = ref(false);
 const store = useStore();
 const router = useRouter();
 
-const phoneNumber = ref('');
+const displayPhoneNumber = ref('');
 const password = ref('');
 const isErrorLogin = ref(false);
 const isPermissionLogin = ref(false);
@@ -73,25 +82,21 @@ const isLoading = ref(false);
 // Login handler
 const handleLogin = async () => {
   try {
-    isLoading.value = true;
-    isPermissionLogin.value = false;
-    errorMessage.value = '';
-
-    const deviceDetails = getDeviceDetails();
-    const deviceUUID = uuidv4();
-
-    // Login request
-    const responseLogin = await axios.post(`${apiURL}/api/auth/login`, {
-      phoneNumber: phoneNumber.value,
-      password: password.value,
-      device: { ...deviceDetails, uuid: deviceUUID },
+    console.log('Sending login request with:', {
+      displayPhoneNumber: displayPhoneNumber.value,
+      passwordLength: password.value.length
     });
 
-    if (!responseLogin.data.token) {
+    const response = await axios.post(`${apiURL}/api/customer-auth/login`, {
+      displayPhoneNumber: displayPhoneNumber.value,
+      password: password.value
+    });
+
+    if (!response.data.token) {
       throw new Error('No token received from server');
     }
 
-    const tokenLogin = responseLogin.data.token;
+    const tokenLogin = response.data.token;
     const decodedToken = await decodeJwt(tokenLogin);
 
     // Get user details using the token
@@ -115,9 +120,9 @@ const handleLogin = async () => {
             },
             params: {
               dynamicConditions: JSON.stringify([{
-                field: 'phoneNumber',
+                field: 'displayPhoneNumber',
                 operator: '==',
-                value: phoneNumber.value,
+                value: displayPhoneNumber.value,
               }]),
             }
           }
@@ -165,6 +170,7 @@ const handleLogin = async () => {
         'update_product',
         'read_user',
         'update_user',
+        'update_stock'
       ];
     } else if (userRole === 'superadmin') {
       // Superadmin gets all permissions
@@ -249,6 +255,8 @@ const handleLogin = async () => {
     try {
       // Gather additional information for the log
       const currentDate = new Date();
+      const deviceDetails = getDeviceDetails();
+      const deviceUUID = deviceDetails.deviceId || 'unknown-device';
       // const locationInfo = await fetchUserLocation();
 
       const logData = {
@@ -301,11 +309,11 @@ const handleLogin = async () => {
     }, 2000);
     isSplashVisible.value = true;
   } catch (err) {
-    console.error("Failed to login:", err);
+    console.error('Login error details:', err.response?.data);
     isLoading.value = false;
     isErrorLogin.value = true;
     errorMessage.value = err.response?.data?.message || err.message || 'Login failed. Please try again.';
-    phoneNumber.value = "";
+    displayPhoneNumber.value = "";
     password.value = "";
   } finally {
     isLoading.value = false;

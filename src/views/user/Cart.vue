@@ -241,12 +241,17 @@
 import apiURL from '@/api/config.js';
 import { useTelegram } from '@/composables/useTelegram';
 import socket from '@/services/socket';
+import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+
+
+
 const { sendToTelegram } = useTelegram();
+const store = useStore();
 
 const router = useRouter();
 const token = localStorage.getItem('token');
@@ -600,6 +605,7 @@ const createOrders = async () => {
     }));
     const orderPayload = {
       fields: {
+        userId: store.getUserId,
         items: orderItems,
         totalCost: finalAmount.value,
         deliveryMethod: 'home',
@@ -631,8 +637,7 @@ const createOrders = async () => {
     }
 
     // Update product stock quantities
-    try {
-      // Process each item to update product stock
+    try {        // Process each item to update product stock
       for (const item of cartItems.value) {
         const productId = item.productId || item._id;
         
@@ -644,8 +649,12 @@ const createOrders = async () => {
         if (productResponse.data && productResponse.data.success && productResponse.data.data.length > 0) {
           const product = productResponse.data.data[0];
           
-          // Calculate new stock amount
-          const newStockAmount = Math.max(0, (product.totalStock || 0) - item.quantity);
+          // Calculate new stock amount - ensure it's properly calculated for the last item
+          const currentStock = parseInt(product.totalStock) || 0;
+          const quantityToDeduct = parseInt(item.quantity) || 0;
+          const newStockAmount = Math.max(0, currentStock - quantityToDeduct);
+          
+          console.log(`Stock update for ${product.name}: Current=${currentStock}, Deducting=${quantityToDeduct}, New=${newStockAmount}`);
           
           // Update the product with new stock amount
           const updateResponse = await axios.patch(

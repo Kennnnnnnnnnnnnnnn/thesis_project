@@ -93,13 +93,15 @@
 
 <script setup>
 import apiURL from '@/api/config';
+import socket from '@/services/socket';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { onMounted, ref , onUnmounted} from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import socket from '@/services/socket';
+import { useRouter } from 'vue-router';
 const { t } = useI18n();
+const router = useRouter();
 // Reactive data
 const favorites = ref([]);
 const loading = ref(true);
@@ -107,33 +109,70 @@ const store = useStore();
 
 // Methods
 async function fetchFavorites() {
-  const token = store.getToken;
-  const userId = store.getUserId;
-  
-  if (!token || !userId) {
-    console.warn('Not authenticated');
-    loading.value = false;
-    return;
-  }
-
   try {
-    console.log('Fetching favorites for user:', userId);
-    const res = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
-      headers: { Authorization: `Bearer ${token}` }
+    loading.value = true;
+    
+    // Check if user is logged in
+    if (!isAuthenticated()) {
+      console.log('User not logged in, fetching favorites from localStorage');
+      
+      // Check if localStorage is available
+      if (!isLocalStorageAvailable()) {
+        console.error('localStorage is not available');
+        favorites.value = [];
+        loading.value = false;
+        return;
+      }
+      
+      // Get favorites from localStorage for guest users
+      const localFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      
+      if (localFavorites.length > 0) {
+        // Transform localStorage favorites to match the structure from the API
+        favorites.value = localFavorites.map(item => ({
+          _id: item.id, // Use the ID as both the favorite ID and productId
+          productId: {
+            _id: item.id,
+            name: item.name,
+            description: item.description || '',
+            imageURL: item.image,
+            salePrice: parseFloat(item.price) || 0,
+            discount: item.discount || 0
+          }
+        }));
+        console.log('Local favorites loaded:', favorites.value.length);
+      } else {
+        favorites.value = [];
+        console.log('No local favorites found');
+      }
+      loading.value = false;
+      return;
+    }
+    
+    // Get the token for authenticated users
+    const token = localStorage.getItem('token');
+    
+    // Log authentication state before making request
+    console.log('Token present:', !!token);
+    console.log('Auth header:', axios.defaults.headers.common['Authorization']?.substring(0, 20) + '...');
+    
+    // Make sure to use apiURL, not api, and explicitly pass the authorization header
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Favorite`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
     
-    console.log('Favorites response:', res.data);
-    favorites.value = res.data.data || [];
-    console.log('Favorites loaded:', favorites.value.length);
-  } catch (err) {
-    console.error('Failed to load favorites:', err);
-    Swal.fire({
-      icon: 'error',
-      title: t('alerts.failedToLoadFavorites'),
-      text: err.response?.data?.message || t('alerts.tryAgain'),
-      timer: 2000,
-      showConfirmButton: false
-    });
+    favorites.value = response.data.data || [];
+    console.log('Backend favorites loaded:', favorites.value.length);
+  } catch (error) {
+    console.error('❌ Failed to fetch favorites:', error);
+    // Add more detailed logging
+    if (error.response) {
+      console.error('Error status:', error.response.status);
+      console.error('Error data:', error.response.data);
+    }
   } finally {
     loading.value = false;
   }
@@ -141,18 +180,51 @@ async function fetchFavorites() {
 
 async function removeFavorite(favoriteId) {
   try {
-    await axios.delete(`${apiURL}/api/deleteDoc/Favorite/${favoriteId}`, {
-  headers: { Authorization: `Bearer ${store.getToken}` }
-});
-
-  // Emit update for real-time
-  socket.emit('dataUpdate', {
-    action: 'delete',
-    collection: 'Favorite',
-    data: favoriteId
-  });
-
+    // Check if user is logged in
+    if (!isAuthenticated()) {
+      console.log('Guest user removing favorite from localStorage');
+      
+      // Get current favorites from localStorage
+      let localFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      
+      // Find the favorite item to remove
+      const favoriteToRemove = favorites.value.find(f => f._id === favoriteId);
+      if (favoriteToRemove) {
+        // Filter out the favorite from localStorage
+        localFavorites = localFavorites.filter(item => item.id !== favoriteToRemove.productId._id);
+        
+        // Update localStorage
+        localStorage.setItem('favorites', JSON.stringify(localFavorites));
+        
+        // Update UI
+        favorites.value = favorites.value.filter(f => f._id !== favoriteId);
+        
+        Swal.fire({
+          icon: 'success',
+          title: t('alerts.removedFromFavorites'),
+          timer: 1000,
+          showConfirmButton: false
+        });
+        
+        console.log('Local favorite removed');
+      }
+      return;
+    }
     
+    // For authenticated users, remove from backend
+    const token = localStorage.getItem('token');
+    await axios.delete(`${apiURL}/api/deleteDoc/Favorite/${favoriteId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // Emit update for real-time
+    socket.emit('dataUpdate', {
+      action: 'delete',
+      collection: 'Favorite',
+      data: favoriteId
+    });
+
+    // Update UI
     favorites.value = favorites.value.filter(f => f._id !== favoriteId);
     
     Swal.fire({
@@ -162,7 +234,7 @@ async function removeFavorite(favoriteId) {
       showConfirmButton: false
     });
     
-    console.log('Favorite removed');
+    console.log('Backend favorite removed');
   } catch (err) {
     console.error('Failed to remove favorite:', err);
     Swal.fire({
@@ -179,18 +251,68 @@ async function addToCart(product) {
   if (!product) return;
   
   try {
+    // Check if user is logged in
+    if (!isAuthenticated()) {
+      console.log('Guest user adding to cart, using localStorage');
+      
+      // Get current cart from localStorage
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      
+      // Check if product already exists in cart
+      const existingItem = cart.find(item => item.productId === product._id);
+      
+      if (existingItem) {
+        // Increment quantity if product already exists
+        existingItem.quantity += 1;
+      } else {
+        // Add new product to cart
+        cart.push({
+          productId: product._id,
+          quantity: 1,
+          productData: {
+            _id: product._id,
+            name: product.name,
+            salePrice: product.salePrice,
+            discount: product.discount,
+            imageURL: product.imageURL
+          }
+        });
+      }
+      
+      // Save updated cart to localStorage
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      Swal.fire({
+        icon: 'success',
+        title: t('alerts.addedToCart'),
+        timer: 1000,
+        showConfirmButton: false
+      });
+      
+      return;
+    }
+    
+    // For authenticated users, add to backend cart
+    const userId = store.getUserId || localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    
+    if (!userId) {
+      console.error('User ID not found in store or localStorage');
+      return;
+    }
+    
     const response = await axios.post(`${apiURL}/api/insertDoc/Cart`, 
       {
         fields: {
           productId: product._id,
           quantity: 1,
-          userId: store.getUserId,
-          createdBy: store.getUserId
+          userId: userId,
+          createdBy: userId
         }
       },
       {
         headers: {
-          'Authorization': `Bearer ${store.getToken}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       }
@@ -232,31 +354,140 @@ function calculateFinalPrice(product) {
   return (product.salePrice || 0) - discountAmount;
 }
 
+// Check if user is authenticated
+function isAuthenticated() {
+  try {
+    const token = localStorage.getItem('token');
+    const userId = store.getUserId || localStorage.getItem('userId');
+    return !!token && !!userId; // User must have both token and userId
+  } catch (error) {
+    console.error('Error checking authentication status:', error);
+    return false;
+  }
+}
+
+// Check if localStorage is available
+function isLocalStorageAvailable() {
+  try {
+    const testKey = '__test_key__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Lifecycle
 onMounted(() => {
+  console.log('Favorite component mounted');
+  
+  // Always fetch favorites (will use localStorage for guests)
   fetchFavorites();
-
-  if (!socket.connected) {
-    socket.connect();
-  }
-
-  socket.on('dataUpdate', (update) => {
-    if (update.collection === 'Favorite') {
-      console.log('🔄 Real-time Favorite update received:', update);
-      fetchFavorites();
+  
+  // Set up socket connection for authenticated users only
+  if (isAuthenticated()) {
+    console.log('Setting up socket connection for authenticated user');
+    
+    if (!socket.connected) {
+      socket.connect();
     }
-  });
 
-  socket.on('connect', () => console.log(' Socket connected:', socket.id));
-  socket.on('disconnect', () => console.log(' Socket disconnected'));
-  socket.on('error', (error) => console.error(' Socket error:', error));
+    socket.on('dataUpdate', (update) => {
+      if (update.collection === 'Favorite') {
+        console.log('🔄 Real-time Favorite update received:', update);
+        fetchFavorites();
+      }
+    });
+
+    socket.on('connect', () => console.log('Socket connected:', socket.id));
+    socket.on('disconnect', () => console.log('Socket disconnected'));
+    socket.on('error', (error) => console.error('Socket error:', error));
+  }
 });
 
+// Function to add a product to favorites
+async function addToFavorite(product) {
+  if (!product) return;
+
+  try {
+    if (!isAuthenticated()) {
+      // For guest users, save to localStorage
+      console.log('Guest user adding favorite to localStorage');
+      let localFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      
+      // Check if already favorited
+      if (localFavorites.some(item => item.id === product._id)) {
+        console.log('Product already in favorites');
+        return;
+      }
+      
+      // Add to localStorage
+      localFavorites.push({
+        id: product._id,
+        name: product.name,
+        price: calculateFinalPrice(product),
+        image: product.imageURL,
+        description: product.description,
+        discount: product.discount
+      });
+      
+      localStorage.setItem('favorites', JSON.stringify(localFavorites));
+      
+      // Refresh the favorites display
+      fetchFavorites();
+      
+      Swal.fire({
+        icon: 'success',
+        title: t('alerts.addedToFavorites'),
+        timer: 1000,
+        showConfirmButton: false
+      });
+    } else {
+      // For authenticated users, save to backend
+      const token = localStorage.getItem('token');
+      
+      const response = await axios.post(`${apiURL}/api/insertDoc/Favorite`, {
+        fields: {
+          productId: product._id
+        }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      // Refresh the favorites display
+      fetchFavorites();
+      
+      Swal.fire({
+        icon: 'success',
+        title: t('alerts.addedToFavorites'),
+        timer: 1000,
+        showConfirmButton: false
+      });
+    }
+  } catch (err) {
+    console.error('Error adding favorite:', err);
+    Swal.fire({
+      icon: 'error',
+      title: t('alerts.failedToUpdateFavorite'),
+      text: err.response?.data?.message || t('alerts.tryAgain'),
+      timer: 2000,
+      showConfirmButton: false
+    });
+  }
+}
+
 onUnmounted(() => {
-  socket.off('dataUpdate');
-  socket.off('connect');
-  socket.off('disconnect');
-  socket.off('error');
+  // Only clean up socket events if authenticated
+  if (isAuthenticated()) {
+    socket.off('dataUpdate');
+    socket.off('connect');
+    socket.off('disconnect');
+    socket.off('error');
+  }
 });
 </script>
 

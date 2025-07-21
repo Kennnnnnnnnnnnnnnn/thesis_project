@@ -12,7 +12,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $t('order.title') }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Customer FeedBack</h1>
           </div>
         </div>
 

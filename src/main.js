@@ -1,17 +1,17 @@
 import '@fortawesome/fontawesome-free/css/all.css';
+import Aura from '@primeuix/themes/aura';
 import 'leaflet/dist/leaflet.css';
 import { KhqrGenerator } from 'phorsz-vue-khqr-generator';
 import 'phorsz-vue-khqr-generator/src/components/KhqrGenerator.css';
 import { createPinia } from 'pinia';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import 'primeicons/primeicons.css';
+import PrimeVue from 'primevue/config';
 import { createApp } from 'vue';
 import { Vue3Lottie } from 'vue3-lottie';
 import App from './App.vue';
 import './assets/tailwind.css';
 import router from './router';
-import PrimeVue from 'primevue/config';
-import Aura from '@primeuix/themes/aura';
-import 'primeicons/primeicons.css';
 
 
 

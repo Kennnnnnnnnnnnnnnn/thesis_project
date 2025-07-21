@@ -6,6 +6,21 @@
         <h1 class="text-lg sm:text-xl font-semibold text-gray-800">{{ $t('companyName') }}</h1>
       </div>
 
+      <!-- Location Display -->
+      <div v-if="locationName" class="flex items-center gap-2">
+        <div 
+          @click="openInMaps"
+          class="flex items-center px-2 sm:px-3 py-1 bg-gray-100 rounded-full cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+          title="Click to view in Google Maps"
+        >
+          <svg class="w-4 h-4 text-gray-600 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span class="text-xs sm:text-sm font-medium text-gray-700 truncate max-w-[100px] sm:max-w-none">{{ formattedLocation }}</span>
+        </div>
+      </div>
+
       <!-- Right Controls -->
       <div class="flex items-center gap-2 sm:gap-4 md:gap-6">
         <!-- Language Switcher -->
@@ -20,11 +35,16 @@
         </template>
 
         <template v-else>
-          <router-link to="/profile" class="hidden sm:flex items-center gap-2 px-3 py-1 rounded bg-slate-200 text-gray-800 hover:bg-slate-300">
-            <img :src="profileImage" alt="Profile" class="w-8 h-8 rounded-full object-cover" />
-            <span>{{ profileName }}</span>
-          </router-link>
-          <button @click="logout" class="hidden sm:block bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">{{ $t('common.logout') }}</button>
+          <!-- Profile and Logout for Desktop -->
+          <div class="hidden md:flex items-center gap-3">
+            <router-link to="/profile" class="flex items-center gap-2 px-3 py-1 rounded bg-slate-200 text-gray-800 hover:bg-slate-300">
+              <img :src="profileImage" alt="Profile" class="w-8 h-8 rounded-full object-cover" />
+              <span>{{ profileName }}</span>
+            </router-link>
+            <button @click="logout" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+              {{ $t('common.logout') }}
+            </button>
+          </div>
         </template>
 
         <!-- Hamburger Icon for Mobile Only -->
@@ -81,6 +101,18 @@
           >{{ item.badge }}</span>
         </router-link>
       </li>
+      <!-- Logout Button -->
+      <li>
+        <button
+          @click="logout"
+          class="flex items-center gap-3 w-full text-left text-red-600 font-medium text-base hover:text-red-700"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          {{ $t('common.logout') }}
+        </button>
+      </li>
     </ul>
   </div>
 
@@ -119,25 +151,56 @@
   </template>
   <script setup>
   import apiURL from '@/api/config'
-  import flagEN from '@/assets/flags/en.png'
-  import flagKH from '@/assets/flags/kh.png'
-  import flagZH from '@/assets/flags/zh.png'
-  import { useStore } from '@/store/useStore'
-  import axios from 'axios'
-  import { computed, onMounted, ref } from 'vue'
-  import { useI18n } from 'vue-i18n'
-  import { useRouter } from 'vue-router'
+import flagEN from '@/assets/flags/en.png'
+import flagKH from '@/assets/flags/kh.png'
+import flagZH from '@/assets/flags/zh.png'
+import { useStore } from '@/store/useStore'
+import axios from 'axios'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
   const router = useRouter()
   const store = useStore()
   const { locale } = useI18n()
 
   const currentFlag = ref(flagEN)
-  const profileName = ref('User')
+  const profileName = ref('')
   const profileImage = ref(require('@/assets/default-profile.png'))
+  const userLocation = ref({ latitude: null, longitude: null })
+  const locationName = ref('')
+  const formattedLocation = computed(() => {
+    return locationName.value || ''
+  })
 
   const isMobileMenuOpen = ref(false)
   const isMobile = ref(false)
+
+  const getLocationName = async (latitude, longitude) => {
+    try {
+      // Replace YOUR_GOOGLE_API_KEY with your actual Google Maps API key
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyDApUy7BfllnejZYnnUWEK3OOPR4gcj1tU&language=en&result_type=administrative_area_level_1|locality`
+      );
+
+      if (response.data.results && response.data.results.length > 0) {
+        const result = response.data.results[0];
+        const addressComponents = result.address_components;
+
+        // Try to find city name
+        for (const component of addressComponents) {
+          if (component.types.includes('locality')) {
+            return component.long_name;  // Return just the city name
+          }
+        }
+      }
+      
+      return 'Cambodia';
+    } catch (error) {
+      console.error('Error getting location name:', error);
+      return 'Cambodia';
+    }
+  }
 
   const toggleMobileMenu = () => {
     isMobileMenuOpen.value = true
@@ -150,6 +213,28 @@
     const token = localStorage.getItem('token')
     return !!(token || store.isAuthenticated)
   })
+
+  const getUserLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported'))
+        return
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          })
+        },
+        (error) => {
+          reject(error)
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      )
+    })
+  }
 
   const fetchProfile = async () => {
     try {
@@ -168,9 +253,47 @@
         const user = res.data.data[0]
         profileName.value = user.name || 'User'
         profileImage.value = user.profilePicture || require('@/assets/default-profile.png')
+        
+        // Set location if available in user data
+        if (user.latitude && user.longitude) {
+          userLocation.value = {
+            latitude: user.latitude,
+            longitude: user.longitude
+          }
+          // Get location name from coordinates
+          locationName.value = await getLocationName(user.latitude, user.longitude)
+        } else {
+          // Try to get current location if not in user data
+          try {
+            const location = await getUserLocation()
+            userLocation.value = location
+            
+            // Get location name from coordinates
+            locationName.value = await getLocationName(location.latitude, location.longitude)
+            
+            // Update user location in backend
+            await axios.patch(`${apiURL}/api/updateDoc/User/${userId}`, {
+              latitude: location.latitude,
+              longitude: location.longitude
+            }, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          } catch (locError) {
+            console.error('Failed to get location:', locError)
+          }
+        }
       }
     } catch (err) {
       console.error(err)
+    }
+  }
+
+  const openInMaps = () => {
+    if (userLocation.value.latitude && userLocation.value.longitude) {
+      // Create Google Maps URL with the location
+      const mapsUrl = `https://www.google.com/maps?q=${userLocation.value.latitude},${userLocation.value.longitude}`
+      // Open in a new tab
+      window.open(mapsUrl, '_blank')
     }
   }
 
@@ -191,7 +314,7 @@
   const logout = () => {
     localStorage.clear()
     store.clearAuth()
-    router.push('/login')
+    router.push('/user-login')
   }
 
   // Setup nav items

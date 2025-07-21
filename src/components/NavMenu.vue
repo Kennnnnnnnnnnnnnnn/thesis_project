@@ -23,7 +23,7 @@
 
 </template>
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const isMobileMenuOpen = ref(false);
 
@@ -52,10 +52,12 @@ watch(() => localStorage.getItem("cart"), () => {
 const navItems = ref([
     { name: 'nav.home', route: '/home', icon: 'icon-home' },
     { name: 'nav.products', route: '/product', icon: 'icon-products' },
+    // { name: 'Promotion', route: '/promotion', icon: 'icon-promotion' },
     { name: 'nav.favorites', route: '/favorite', icon: 'icon-heart' },
     { name: 'nav.cart', route: '/cart', icon: 'icon-cart' },
     { name: 'nav.profile', route: '/profile', icon: 'icon-user' },
     { name: 'nav.history', route: '/history', icon: 'icon-history' },
+    // { name: 'Tracking', route: '/tracking', icon: 'icon-tracking' },
     { name: 'nav.contact', route: '/contact', icon: 'icon-envelope' }
 ]);
 
@@ -156,6 +158,14 @@ const dynamicNavItems = computed(() => {
 
 .icon-envelope {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'%3E%3C/path%3E%3Cpolyline points='22,6 12,13 2,6'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.icon-promotion {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 17a2 2 0 1 0 2 2 2 2 0 0 0-2-2zm-9 0a2 2 0 1 0 2 2 2 2 0 0 0-2-2zm13-7V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4m16 0-3.34 6.68A2 2 0 0 1 14.82 18H9.18a2 2 0 0 1-1.84-1.32L4 10m16 0H4'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.icon-tracking {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpolygon points='1 6 1 22 8 20 16 22 23 18 23 2 16 4 8 2 1 6'/%3E%3Cline x1='8' y1='2' x2='8' y2='20'/%3E%3Cline x1='16' y1='4' x2='16' y2='22'/%3E%3C/svg%3E");
 }
 
 /* Badge styles */

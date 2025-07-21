@@ -110,9 +110,9 @@
             <h1 class="text-3xl font-bold mb-1">Profile Settings</h1>
             <p class="text-yellow-100 font-medium">Manage your personal information</p>
           </div>
-          <div class="w-16 h-16 rounded-full border-4 border-white/30 overflow-hidden shadow-lg">
+          <!-- <div class="w-16 h-16 rounded-full border-4 border-white/30 overflow-hidden shadow-lg">
             <img :src="form.profilePicture || defaultImage" alt="Profile" class="w-full h-full object-cover" />
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -327,7 +327,7 @@ const form = ref({
   commune: '',
   village: '',
   status: true,
-  role: 'customer',
+  role: 'customer'
 });
 
 // Location dropdown state
@@ -361,7 +361,12 @@ const fetchProfile = async () => {
     
     if (res.data.success && res.data.data.length > 0) {
       const userData = res.data.data[0];
-      Object.assign(form.value, userData);
+      // Only assign necessary fields for display and update
+      const { name, email, phoneNumber, gender, profilePicture, country, province, district, commune, village, role } = userData;
+      Object.assign(form.value, { 
+        name, email, phoneNumber, gender, profilePicture, 
+        country, province, district, commune, village, role
+      });
 
       // Restore selected province/district
       selectedProvince.value = form.value.province || '';
@@ -403,7 +408,15 @@ const updateProfile = async () => {
       return;
     }
 
-    await axios.patch(`${apiURL}/api/updateDoc/User/${userId}`, form.value, {
+    // Only send necessary fields for update
+    const { name, email, phoneNumber, gender, country, province, district, commune, village } = form.value;
+    const updateData = { 
+      fields: {
+        name, email, phoneNumber, gender, country, province, district, commune, village
+      }
+    };
+    
+    await axios.patch(`${apiURL}/api/updateDoc/User/${userId}`, updateData, {
       headers: { Authorization: token ? `Bearer ${token}` : '' },
     });
     Swal.fire({ icon: 'success', title: 'Profile updated successfully' });
@@ -435,7 +448,7 @@ const handleImageUpload = async (e) => {
       try {
         // Update the user document with the base64 image data
         await axios.patch(`${apiURL}/api/updateDoc/User/${userId}`, 
-          { profilePicture: base64Image }, 
+          { fields: { profilePicture: base64Image } }, 
           { headers: { Authorization: token ? `Bearer ${token}` : '' } }
         );
         

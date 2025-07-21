@@ -84,6 +84,16 @@ const API = `${apiURL}/api`;
 
 const products = ref([]);
 const favorites = ref([]);
+
+// Helper function to redirect to registration page
+const redirectToRegister = () => {
+  window.location.href = '/register';
+};
+
+// Helper function to redirect to login page
+const redirectToLogin = () => {
+  window.location.href = '/login';
+};
 const searchQuery = ref('');
 const activeCategory = ref('all');
 
@@ -109,6 +119,30 @@ function checkAuthStatus() {
 }
 
 const addToCart = async (product) => {
+  // Check authentication status before adding to cart
+  const isAuthenticated = checkAuthStatus();
+  
+  if (!isAuthenticated) {
+    // Show registration/login prompt if user is not logged in
+    Swal.fire({
+      icon: 'info',
+      title: t('alerts.authenticationRequired'),
+      text: t('alerts.loginToAddCart'),
+      showCancelButton: true,
+      confirmButtonText: t('common.register'),
+      cancelButtonText: t('common.login'),
+      showCloseButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        redirectToRegister();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        redirectToLogin();
+      }
+    });
+    return;
+  }
+  
+  // If user is authenticated, proceed with adding to cart
   const exists = cartItems.value.find(i => i._id === product._id);
   if (exists) exists.quantity += 1;
   else cartItems.value.push({ ...product, quantity: 1 });
@@ -177,86 +211,72 @@ const fetchFavorites = async () => {
 };
 
 const toggleFavorite = async (product) => {
- 
   // Check authentication status
   const isAuthenticated = checkAuthStatus();
   
-  try {
-    if (isAuthenticated) {
-      // Authenticated: use backend
-      if (product.isFavorite) {
-        // Remove favorite
-        const fav = favorites.value.find(f => f.productId?._id === product._id);
-        
-        if (fav) {
-          await axios.delete(`${API}/deleteDoc/Favorite/${fav._id}`, {
-            headers: { Authorization: `Bearer ${store.getToken}` }
-          });
-          
-          favorites.value = favorites.value.filter(f => f._id !== fav._id);
-          product.isFavorite = false;
-          console.log('🔍 Favorite removed successfully');
-          Swal.fire({ 
-            icon: 'success', 
-            title: t('alerts.removedFromFavorites'), 
-            timer: 1000, 
-            showConfirmButton: false 
-          });
-        }
-      } else {
-        // Add favorite
-        console.log('🔍 Adding favorite to backend');
-        const response = await axios.post(`${API}/insertDoc/Favorite`, {
-          fields: { 
-            productId: product._id
-          }
-        }, {
-          headers: { 
-            Authorization: `Bearer ${store.getToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        favorites.value.push(response.data.data);
-        product.isFavorite = true;
-        Swal.fire({ 
-          icon: 'success', 
-          title: t('alerts.addedToFavorites'), 
-          timer: 1000, 
-          showConfirmButton: false 
-        });
+  // If not authenticated, prompt user to register/login instead of using localStorage
+  if (!isAuthenticated) {
+    Swal.fire({
+      icon: 'info',
+      title: t('alerts.authenticationRequired'),
+      text: t('alerts.loginToSaveFavorites'),
+      showCancelButton: true,
+      confirmButtonText: t('common.register'),
+      cancelButtonText: t('common.login'),
+      showCloseButton: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        redirectToRegister();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        redirectToLogin();
       }
-    } else {
-      // Not logged in: use localStorage
-      let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      const isFavorited = favorites.some(item => item.id === product._id);
+    });
+    return;
+  }
+  
+  try {
+    // User is authenticated, proceed with backend operations
+    if (product.isFavorite) {
+      // Remove favorite
+      const fav = favorites.value.find(f => f.productId?._id === product._id);
       
-      if (isFavorited) {
-        favorites = favorites.filter(item => item.id !== product._id);
+      if (fav) {
+        await axios.delete(`${API}/deleteDoc/Favorite/${fav._id}`, {
+          headers: { Authorization: `Bearer ${store.getToken}` }
+        });
+        
+        favorites.value = favorites.value.filter(f => f._id !== fav._id);
         product.isFavorite = false;
+        console.log('🔍 Favorite removed successfully');
         Swal.fire({ 
           icon: 'success', 
           title: t('alerts.removedFromFavorites'), 
           timer: 1000, 
           showConfirmButton: false 
         });
-      } else {
-        favorites.push({
-          id: product._id,
-          name: product.name,
-          price: discountedPrice(product),
-          image: product.imageURL
-        });
-        product.isFavorite = true;
-        console.log('🔍 Favorite added to localStorage');
-        Swal.fire({ 
-          icon: 'success', 
-          title: t('alerts.addedToFavorites'), 
-          timer: 1000, 
-          showConfirmButton: false 
-        });
       }
-      localStorage.setItem("favorites", JSON.stringify(favorites));
+    } else {
+      // Add favorite
+      console.log('🔍 Adding favorite to backend');
+      const response = await axios.post(`${API}/insertDoc/Favorite`, {
+        fields: { 
+          productId: product._id
+        }
+      }, {
+        headers: { 
+          Authorization: `Bearer ${store.getToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      favorites.value.push(response.data.data);
+      product.isFavorite = true;
+      Swal.fire({ 
+        icon: 'success', 
+        title: t('alerts.addedToFavorites'), 
+        timer: 1000, 
+        showConfirmButton: false 
+      });
     }
   } catch (err) {
     console.error('❌ Error toggling favorite:', err);
@@ -289,9 +309,29 @@ const filteredProducts = computed(() => {
 });
 
 onMounted(async () => {
-  await fetchProducts();
-  await fetchFavorites();
+  console.log('Product component mounted');
+  try {
+    // Always fetch products
+    await fetchProducts();
+    
+    // Check authentication status for features requiring auth
+    const isAuthenticated = checkAuthStatus();
+    if (isAuthenticated) {
+      console.log('User is authenticated, fetching favorites');
+      await fetchFavorites();
+      
+      // Setup socket connections for authenticated users
+      setupSocketListeners();
+    } else {
+      console.log('User is not authenticated, skipping auth-required features');
+    }
+  } catch (error) {
+    console.error('Error during component initialization:', error);
+  }
+});
 
+// Separate function to set up socket listeners
+const setupSocketListeners = () => {
   // 📡 Real-time product events
   socket.on('productCreated', (product) => {
     console.log('🆕 Real-time productCreated:', product);
@@ -305,12 +345,16 @@ onMounted(async () => {
     console.log('🗑️ Real-time productDeleted:', productId);
     fetchProducts();
   });
-});
+};
 
 onUnmounted(() => {
-  socket.off('productCreated');
-  socket.off('productUpdated');
-  socket.off('productDeleted');
+  // Clean up socket listeners only if they were set up
+  if (checkAuthStatus()) {
+    console.log('Cleaning up socket listeners');
+    socket.off('productCreated');
+    socket.off('productUpdated');
+    socket.off('productDeleted');
+  }
 });
 
 </script>

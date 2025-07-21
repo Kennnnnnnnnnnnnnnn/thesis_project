@@ -8,12 +8,11 @@
           <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2">
-              <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              <path d="M16 6l4 4-4 4M8 18l-4-4 4-4"></path>
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h1>
-            <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your product catalog and inventory</p> -->
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Promotions</h1>
           </div>
         </div>
 
@@ -23,7 +22,7 @@
           <div class="relative">
             <button @click="toggleDropdownRow"
               class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-              <span>{{ selectedItem }} {{ $t('items') }}</span>
+              <span>{{ selectedItem }} </span>
               <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
                 :class="{ 'rotate-180': isOpen }"></i>
             </button>
@@ -31,33 +30,32 @@
               class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
               <div v-for="item in items" :key="item" @click="selectItem(item)"
                 class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                {{ item }} {{ $t('items') }}
+                {{ item }}
               </div>
             </div>
           </div>
 
           <!-- Search Input -->
           <div class="relative">
-            <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
+            <input v-model="searchQuery" type="text" placeholder="Search products"
               class="w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
           </div>
 
-          <!-- Category Filter -->
-          <select v-model="categoryFilter"
+          <!-- Promotion Type Filter -->
+          <select v-model="promotionTypeFilter"
             class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
-            <option value="all">{{ $t('products.categories.all') }}</option>
-            <option v-for="category in categories" :key="category._id" :value="category._id">
-              {{ category.name }}
-            </option>
+            <option value="all">All Types</option>
+            <option value="discount">Discount</option>
+            <option value="freeDelivery">Free Delivery</option>
+            <option value="other">Other</option>
           </select>
 
-          <!-- Add Button -->
           <button
             class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
             @click="openModal">
             <i class="fas fa-plus text-xs"></i>
-            {{ $t('products.addToCart') }}
+            Add Promotion
           </button>
         </div>
 
@@ -66,12 +64,9 @@
 
     <!-- Main Table Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
-      <!-- Table Header -->
       <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50">
-        <h3 class="text-lg font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h3>
-        <p class="text-sm text-gray-600 mt-1 font-medium">
-          {{ filteredProducts.length }} {{ $t('products.itemsTotal') }}
-        </p>
+        <h3 class="text-lg font-bold text-gray-900 tracking-tight">Promotions</h3>
+
       </div>
 
       <!-- Table Container -->
@@ -86,116 +81,51 @@
             <thead class="bg-gray-50/50">
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
-                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('common.product') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('createdAt') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('products.category') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('products.description') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('price') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('products.discount') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('products.stock') }}</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
-                  $t('products.status') }}</th>
+                <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Qty Limit
+                </th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
                   $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-100">
-              <tr v-for="(product, index) in filteredProducts" :key="product._id"
-                class="hover:bg-amber-50/50 transition-colors duration-200">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+              <tr v-for="(promotion, index) in filteredPromotions" :key="promotion._id"
+                class="hover:bg-gray-50/50 transition-colors duration-150">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {{ index + 1 }}
                 </td>
 
                 <!-- Product Column -->
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="flex items-center gap-4">
-                    <div class="flex-shrink-0">
-                      <div v-if="product.imageURL"
-                        class="h-12 w-12 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200">
-                        <img :src="product.imageURL" :alt="product.name" class="h-full w-full object-cover" />
-                      </div>
-                      <div v-else
-                        class="h-12 w-12 rounded-2xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                        <i class="fas fa-image text-gray-400"></i>
-                      </div>
-                    </div>
-                    <div>
-                      <div class="text-sm font-bold text-gray-900">
-                        {{ product.name }}
-                      </div>
-                      <div class="text-xs text-gray-500 font-medium mt-0.5">
-                        ID: {{ product.idCustom || 'N/A' }}
-                      </div>
-                    </div>
-                  </div>
+                  <div class="text-sm font-medium text-gray-900">{{ getProductName(promotion.productId) }}</div>
                 </td>
 
+                <!-- Promotion Type Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="max-w-32 text-sm text-gray-600 truncate">
-                    {{ formatDate(product.createdAt) || '-' }}
-                  </div>
-                </td>
-
-                <!-- Category Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center font-khmer">
-                  <span
-                    class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                    {{ getCategoryName(product.categoryId) }}
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold" :class="{
+                    'bg-green-100 text-green-800 border border-green-200': promotion.promotionType === 'discount',
+                    'bg-blue-100 text-blue-800 border border-blue-200': promotion.promotionType === 'freeDelivery',
+                    'bg-amber-100 text-amber-800 border border-amber-200': promotion.promotionType === 'other'
+                  }">
+                    {{ promotion.promotionType }}
                   </span>
                 </td>
 
-                <!-- Description Column -->
+                <!-- Qty Limit Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="max-w-32 text-sm text-gray-600 truncate">
-                    {{ product.description || '-' }}
-                  </div>
-                </td>
-
-                <!-- Price Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="text-sm font-bold text-gray-900">
-                    {{ formatPrice(product.salePrice) }}{{ product.currency?.symbol?.symbol1.symbol || '' }}
-                  </div>
-                </td>
-
-                <!-- Discount Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <span v-if="product.discount > 0"
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                    {{ product.discount }}%
-                  </span>
-                  <span v-else class="text-gray-400 font-medium">-</span>
-                </td>
-
-
-                <!-- Stock Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="flex flex-col items-center gap-1">
-                    <div class="text-sm font-bold text-gray-900">
-                      {{ product.totalStock || 0 }}
-                    </div>
-                   
+                  <div class="text-sm text-gray-700 font-medium">
+                    {{ promotion.promotionQtyLimit || 'No limit' }}
                   </div>
                 </td>
 
                 <!-- Status Column -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <span v-if="product.totalStock === 0"
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-100 text-red-700 border-red-200">
-                    <i class="fas fa-circle-xmark text-xs"></i>
-                    Out of Stock
-                  </span>
-                  <span v-else
-                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-green-100 text-green-700 border-green-200">
-                    <i class="fas fa-circle-check text-xs"></i>
-                    In Stock
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold"
+                    :class="promotion.isActive ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-700 border border-red-200'">
+                    <i :class="promotion.isActive ? 'fas fa-circle-check text-xs' : 'fas fa-circle-xmark text-xs'"></i>
+                    {{ promotion.isActive ? 'Active' : 'Inactive' }}
                   </span>
                 </td>
 
@@ -205,14 +135,14 @@
                     <!-- Edit Button -->
                     <button
                       class="p-2.5 rounded-xl hover:bg-amber-50 text-amber-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-amber-200"
-                      @click="editProduct(product)" title="Edit product">
+                      @click="editPromotion(promotion)" title="Edit promotion">
                       <i class="fas fa-edit text-sm"></i>
                     </button>
 
                     <!-- Delete Button -->
                     <button
                       class="p-2.5 rounded-xl hover:bg-red-50 text-red-600 transition-all duration-200 hover:scale-110 border border-transparent hover:border-red-200"
-                      @click="deleteProduct(product._id)" title="Delete product">
+                      @click="deletePromotion(promotion._id)" title="Delete promotion">
                       <i class="fas fa-trash text-sm"></i>
                     </button>
                   </div>
@@ -220,20 +150,20 @@
               </tr>
 
               <!-- Empty State -->
-              <tr v-if="filteredProducts.length === 0 && !isLoading">
+              <tr v-if="filteredPromotions.length === 0 && !isLoading">
                 <td colspan="9" class="px-6 py-20 text-center">
                   <div class="flex flex-col items-center gap-4">
                     <div class="p-6 rounded-2xl bg-amber-50 border border-amber-200">
-                      <i class="fas fa-shopping-bag text-5xl text-amber-400"></i>
+                      <i class="fas fa-tags text-5xl text-amber-400"></i>
                     </div>
                     <div>
-                      <h3 class="text-lg font-bold text-gray-900">{{ $t('products.emptyTitle') }}</h3>
-                      <p class="text-sm text-gray-600 mt-1 font-medium">{{ $t('products.emptyDescription') }}</p>
+                      <h3 class="text-lg font-bold text-gray-900">No Promotions Found</h3>
+                      <p class="text-sm text-gray-600 mt-1 font-medium">Create your first promotion to get started</p>
                     </div>
                     <button @click="openModal"
                       class="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
                       <i class="fas fa-plus text-xs"></i>
-                      {{ $t('products.addProduct') }}
+                      Add Promotion
                     </button>
                   </div>
                 </td>
@@ -259,10 +189,10 @@
         <div class="flex items-center justify-between p-6 border-b border-gray-100">
           <div>
             <h2 class="text-xl font-bold text-gray-900 tracking-tight">
-              {{ showEditModal ? 'Update Product' : 'Create New Product' }}
+              {{ showEditModal ? 'Update Promotion' : 'Create New Promotion' }}
             </h2>
             <p class="text-sm text-gray-600 mt-1 font-medium">
-              {{ showEditModal ? 'Modify existing product details' : 'Add a new product to your catalog' }}
+              {{ showEditModal ? 'Modify existing promotion details' : 'Add a new promotion to your campaigns' }}
             </p>
           </div>
           <button class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
@@ -273,147 +203,106 @@
 
         <!-- Modal Body -->
         <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
-          <!-- Product Name and Category -->
+          <!-- Product and Promotion Type -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                {{ $t('products.productName') }} <span class="text-red-500">*</span>
+                Product <span class="text-red-500">*</span>
               </label>
-              <input v-model="name" type="text" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                :placeholder="$t('products.productNamePlaceholder')" />
+              <select v-model="productId" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
+                <option value="" disabled>Choose product</option>
+                <option v-for="product in products" :key="product._id" :value="product._id">
+                  {{ product.name }}
+                </option>
+              </select>
             </div>
 
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                {{ $t('products.category') }} <span class="text-red-500">*</span>
+                Promotion Type <span class="text-red-500">*</span>
               </label>
-              <select v-model="categoryId" required
+              <select v-model="promotionType" required
                 class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
-                <option value="" disabled>{{ $t('products.selectCategory') }}</option>
-                <option v-for="category in categories" :key="category._id" :value="category._id">
-                  {{ category.name }}
-                </option>
+                <option value="" disabled>Choose type</option>
+                <option value="discount">Discount</option>
+                <option value="freeDelivery">Free Delivery</option>
+                <option value="other">Other</option>
               </select>
             </div>
           </div>
 
-          <!-- Price and Discount -->
+          <!-- Start and End Date Pickers -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Start Date <span class="text-red-500">*</span>
+              </label>
+              <DatePicker v-model="startDate" :min-date="new Date()"
+                input-class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-medium" :show-icon="true"
+                dateFormat="dd/mm/yy" placeholder="Start date" />
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                End Date <span class="text-red-500">*</span>
+              </label>
+              <DatePicker v-model="endDate" :min-date="startDate || new Date()"
+                input-class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-medium" :show-icon="true"
+                dateFormat="dd/mm/yy" placeholder="End date" />
+            </div>
+          </div>
+
+          <!-- Promotion Quantity Limit and Unit -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-
-            <!-- Add this inside your form, e.g. after category select -->
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                Currency <span class="text-red-500">*</span>
+                Quantity for Discount <span class="text-red-500">*</span>
               </label>
-              <select v-model="selectedCurrencyId" required
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
-                <option value="" disabled>Select Currency</option>
-                <option v-for="currency in currencies" :key="currency._id" :value="currency._id">
-                  {{ currency.name }} ({{ currency.symbol.symbol1.symbol }})
-                </option>
-              </select>
+              <input v-model="promotionQtyLimit" type="number" min="0" step="1"
+                class="flex px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Input qty" />
             </div>
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                {{ $t('products.salePrice') }} <span class="text-red-500">*</span>
+                Quantity <span class="text-red-500">*</span>
               </label>
-              <div class="relative">
-                <input v-model="salePrice" type="number" step="0.01" required
-                  class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                   />
-              </div>
+              <input v-model="promotionQtyStartFrom" type="number" min="0" step="1"
+                class="flex px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Start from qty" />
             </div>
-
             <div>
               <label class="block text-sm font-bold text-gray-700 mb-3">
-                {{ $t('products.discount') }} %
+                Unit <span class="text-red-500">*</span>
               </label>
-              <div class="relative">
-                <input v-model="discount" type="number" min="0" max="100" step="1"
-                  class="w-full pr-8 pl-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                  placeholder="0" />
-                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">%</span>
-              </div>
+              <input v-model="promotionQtyUnit" type="text"
+                class=" px-3 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Unit (e.g. kg, pcs)" />
             </div>
-          </div>
-
-          <!-- New fields for Purchase Price and Unit -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Purchase Price
-              </label>
-              <div class="relative">
-                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">៛</span>
-                <input v-model="purchasePrice" type="number" step="100" min="0"
-                  class="w-full pl-8 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                  placeholder="0" />
-              </div>
-            </div> -->
-
-
-
-            <!-- <div>
-              <label class="block text-sm font-bold text-gray-700 mb-3">
-                Unit
-              </label>
-              <input v-model="unit" type="text"
-                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
-                placeholder="Enter unit (e.g. pcs, kg)" />
-            </div> -->
           </div>
 
           <!-- Description -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-3">
-              {{ $t('products.description') }}
+              Description
             </label>
             <textarea v-model="description" rows="3"
               class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all resize-none font-medium"
-              :placeholder="$t('products.descriptionPlaceholder')"></textarea>
-          </div>
-
-          <!-- Product Image -->
-          <div>
-            <label class="block text-sm font-bold text-gray-700 mb-3">
-              {{ $t('products.productImage') }}
-            </label>
-            <div
-              class="border-2 border-dashed border-gray-200 rounded-2xl p-8 hover:bg-amber-50/30 hover:border-amber-300 transition-all cursor-pointer"
-              @click="$refs.fileInput.click()">
-              <div v-if="imagePreview" class="mb-4 flex justify-center">
-                <img :src="imagePreview" class="max-h-48 rounded-2xl object-contain shadow-lg" alt="Product preview" />
-              </div>
-              <div class="flex flex-col items-center justify-center">
-                <div class="bg-amber-100 rounded-full p-4 mb-3 border border-amber-200">
-                  <i class="fas fa-cloud-upload-alt text-amber-600 text-2xl"></i>
-                </div>
-                <p class="text-sm text-gray-700 font-bold">{{ $t('products.clickUpload') }}</p>
-                <p class="text-xs text-gray-500 mt-1 font-medium">{{ $t('products.uploadHint') }}</p>
-                <input ref="fileInput" type="file" class="hidden" @change="handleImageUpload" accept="image/*" />
-              </div>
-              <p v-if="uploadStatus" class="mt-4 text-xs text-center font-semibold" :class="uploadStatus.color">
-                {{ uploadStatus.message }}
-              </p>
-            </div>
+              placeholder="Description (optional)"></textarea>
           </div>
 
           <!-- Status Toggle -->
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-3">
-              {{ $t('products.status') }}
+              Status
             </label>
             <div class="flex items-center space-x-3">
               <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
                 :class="enabled ? 'bg-amber-500' : 'bg-gray-300'">
-                <span class="sr-only">{{ $t('products.toggleStatus') }}</span>
+                <span class="sr-only">Toggle Status</span>
                 <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
                   :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
               </Switch>
-              <span class="text-sm text-gray-700 font-medium">{{ enabled ? $t('common.active') : $t('common.inactive')
-              }}</span>
+              <span class="text-sm text-gray-700 font-medium">{{ enabled ? 'Active' : 'Inactive' }}</span>
             </div>
           </div>
 
@@ -436,28 +325,27 @@
               class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
               <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
                 <i class="fas fa-spinner fa-spin"></i>
-                {{ showEditModal ? $t('products.updating') : $t('products.creating') }}
+                {{ showEditModal ? 'Updating Promotion...' : 'Creating Promotion...' }}
               </span>
               <span v-else>
-                {{ showEditModal ? $t('products.updateProduct') : $t('products.createProduct') }}
+                {{ showEditModal ? 'Update Promotion' : 'Create Promotion' }}
               </span>
             </button>
           </div>
         </form>
       </div>
     </div>
-
-    <!-- Confirmation Dialog -->
-    <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
-      @confirm="handleDeleteConfirmation" />
   </div>
+
+  <!-- Confirmation Dialog -->
+  <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
+    @confirm="handleDeleteConfirmation" />
 </template>
 
 <script setup>
 import apiURL from '@/api/config';
 import DeleteConfirmation from '@/components/DeleteConfirmation.vue';
 import Pagination from '@/components/Pagination.vue';
-import formatDate from '@/composables/formatDate';
 import { fetchTimestamp } from '@/composables/timestamp';
 import socket from '@/services/socket';
 import { Switch } from '@headlessui/vue';
@@ -465,6 +353,9 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+
+import DatePicker from 'primevue/datepicker';
+
 
 
 // State
@@ -477,34 +368,32 @@ const currentPageIsLastRecord = ref(null);
 const searchText = ref("");
 const searchQuery = ref('');
 const limitedPerPage = ref(1);
-const productData = ref([]);
-const categories = ref([]);
+const promotionData = ref([]);
+const products = ref([]);
 const error = ref('');
 const isSubmitting = ref(false);
-const enabled = ref(false);
+const enabled = ref(true);
 const showModal = ref(false);
 const showEditModal = ref(false);
 const isOpen = ref(false);
-const categoryFilter = ref('all');
+const promotionTypeFilter = ref('all');
+const startDate = ref(null);
+const endDate = ref(null);
+
 
 // State for delete confirmation
 const showConfirmDialog = ref(false);
-const pendingProductId = ref(null);
+const pendingPromotionId = ref(null);
 
 // Form fields
 const id = ref('');
-const idCustom = ref('');
-const name = ref('');
+const productId = ref('');
+const promotionQtyLimit = ref('');
+const promotionQtyStartFrom = ref('');
+const promotionQtyUnit = ref('');
+const promotionType = ref('');
 const description = ref('');
-const categoryId = ref('');
-const salePrice = ref('');
-const discount = ref(0);
-const totalStock = ref(0);
-const imageURL = ref('');
-const status = ref(false);
-const purchasePrice = ref('');
-const unit = ref('');  // Default to empty string, matching your schema
-const totalPrice = ref(0);
+const isActive = ref(true);
 
 // New refs for image upload
 const imagePreview = ref('');
@@ -518,12 +407,12 @@ const router = useRouter();
 const fileInput = ref(null);
 
 // Computed properties
-const filteredProducts = computed(() => {
-  let filtered = productData.value;
+const filteredPromotions = computed(() => {
+  let filtered = promotionData.value;
 
-  // Filter by category
-  if (categoryFilter.value !== 'all') {
-    filtered = filtered.filter(product => product.categoryId === categoryFilter.value);
+  // Filter by promotion type
+  if (promotionTypeFilter.value !== 'all') {
+    filtered = filtered.filter(promotion => promotion.promotionType === promotionTypeFilter.value);
   }
 
   // Search filter would be handled by pagination component
@@ -531,32 +420,28 @@ const filteredProducts = computed(() => {
 });
 
 // Helper functions
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('km-KH').format(price || 0) ;
-};
-
-const getCategoryName = (categoryId) => {
-  const category = categories.value.find(cat => cat._id === categoryId);
-  return category ? category.name : 'Unknown';
+const getProductName = (productId) => {
+  const product = products.value.find(prod => prod._id === productId);
+  return product ? product.name : 'Unknown Product';
 };
 
 
 const currencies = ref([]);
 const selectedCurrencyId = ref('');
 
-// Fetch all currencies
-const fetchCurrencies = async () => {
+// Fetch all products for dropdown
+const fetchProducts = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`${apiURL}/api/getAllDocs/Currency`, {
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
-    currencies.value = response.data.data || [];
+    products.value = response.data.data || [];
   } catch (err) {
-    console.error('Error fetching currencies:', err);
+    console.error('Error fetching products:', err);
   }
 };
 
@@ -567,9 +452,9 @@ const generateCustomId = async () => {
   try {
     const token = localStorage.getItem('token');
 
-    // Get ALL products instead of just the most recent one
+    // Get ALL promotions instead of just the most recent one
     const response = await axios.get(
-      `${apiURL}/api/getAllDocs/Product`,
+      `${apiURL}/api/getAllDocs/Promotion`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -581,10 +466,10 @@ const generateCustomId = async () => {
     let highestNumber = 0;
 
     if (response.data?.data?.length > 0) {
-      // Loop through all products to find the highest ID number
-      response.data.data.forEach(product => {
-        if (product.idCustom) {
-          const matches = product.idCustom.match(/Pro-(\d+)$/);
+      // Loop through all promotions to find the highest ID number
+      response.data.data.forEach(promotion => {
+        if (promotion.idCustom) {
+          const matches = promotion.idCustom.match(/Promo-(\d+)$/);
           if (matches && matches[1]) {
             const currentNumber = parseInt(matches[1], 10);
             if (!isNaN(currentNumber) && currentNumber > highestNumber) {
@@ -597,21 +482,21 @@ const generateCustomId = async () => {
 
     // Increment the highest number by 1 and format with leading zeros
     const nextNumber = (highestNumber + 1).toString().padStart(6, '0');
-    console.log(`Generated next ID: Pro-${nextNumber} (from highest existing ID: ${highestNumber})`);
+    console.log(`Generated next ID: Promo-${nextNumber} (from highest existing ID: ${highestNumber})`);
 
-    return `Pro-${nextNumber}`;
+    return `Promo-${nextNumber}`;
   } catch (error) {
     console.error("Error in generateCustomId:", error);
     // Fallback with timestamp-based ID to ensure uniqueness
     const timestamp = new Date().getTime();
     const randomNum = Math.floor(1000 + Math.random() * 9000);
-    return `Pro-${timestamp % 100000}-${randomNum}`;
+    return `Promo-${timestamp % 100000}-${randomNum}`;
   }
 };
 
 // pagination
 const handleListenToPagination = async (items) => {
-  productData.value = items || [];
+  promotionData.value = items || [];
 };
 
 const handleListenIsLoading = (status) => {
@@ -656,7 +541,7 @@ const closeModal = () => {
 };
 
 const handleSubmit = async () => {
-  if (!name.value || !categoryId.value || !salePrice.value || !selectedCurrencyId.value) {
+  if (!productId.value || !promotionType.value) {
     error.value = 'Required fields cannot be empty';
     return;
   }
@@ -670,44 +555,19 @@ const handleSubmit = async () => {
     const token = localStorage.getItem('token');
     const userId = localStorage.getItem('userId');
 
-
-
-    if (imageFile.value) {
-      uploadStatus.value = {
-        message: 'Processing image...',
-        color: 'text-blue-500'
-      };
-
-      if (!imagePreview.value.startsWith('data:image')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          imageURL.value = e.target.result;
-        };
-        reader.readAsDataURL(imageFile.value);
-      } else {
-        imageURL.value = imagePreview.value;
-      }
-    }
-
-    let customId = idCustom.value;
-    if (!customId) {
-      customId = await generateCustomId();
-    }
-
     const requestBody = {
       fields: {
-        idCustom: customId,
-        name: name.value,
+        productId: productId.value,
+        promotionQtyLimit: promotionQtyLimit.value || '',
+        promotionQtyStartFrom: promotionQtyStartFrom.value || 0,
+        promotionQtyUnit: promotionQtyUnit.value || '',
+        promotionType: promotionType.value,
         description: description.value || '',
-        categoryId: categoryId.value,
-        salePrice: parseFloat(salePrice.value),
-        purchasePrice: parseFloat(purchasePrice.value) || 0,
-        discount: parseFloat(discount.value) || 0,
-        totalStock: parseInt(totalStock.value) || 0,
-        unit: unit.value || '',
-        status: status.value,
-        imageURL: imageURL.value || '',
-        currency: currencies.value.find(c => c._id === selectedCurrencyId.value),
+        isActive: isActive.value,
+        userId: userId,
+        startDate: startDate.value,
+        endDate: endDate.value,
+
       }
     };
 
@@ -716,7 +576,7 @@ const handleSubmit = async () => {
       requestBody.fields.createdBy = userId;
 
       const response = await axios.post(
-        `${apiURL}/api/insertDoc/Product`,
+        `${apiURL}/api/insertDoc/Promotion`,
         requestBody,
         {
           headers: {
@@ -729,18 +589,18 @@ const handleSubmit = async () => {
       if (response.data.success) {
         socket.emit('dataUpdate', {
           action: 'insert',
-          collection: 'Product',
+          collection: 'Promotion',
           data: response.data.data._id
         });
 
         isSubmitting.value = false;
         closeModal();
       } else {
-        throw new Error(response.data.message || 'Failed to create product');
+        throw new Error(response.data.message || 'Failed to create promotion');
       }
     } else {
       if (!id.value) {
-        error.value = 'Error: Missing product ID for update operation';
+        error.value = 'Error: Missing promotion ID for update operation';
         return;
       }
 
@@ -748,7 +608,7 @@ const handleSubmit = async () => {
       requestBody.fields.updatedBy = userId;
 
       const response = await axios.patch(
-        `${apiURL}/api/updateDoc/Product/${id.value}`,
+        `${apiURL}/api/updateDoc/Promotion/${id.value}`,
         requestBody,
         {
           headers: {
@@ -758,60 +618,54 @@ const handleSubmit = async () => {
         }
       );
 
-      if (response.data.success || response.data.message === 'Product updated') {
+      if (response.data.success || response.data.message === 'Promotion updated') {
         socket.emit('dataUpdate', {
           action: 'update',
-          collection: 'Product',
+          collection: 'Promotion',
           data: response.data.data ? response.data.data._id : id.value
         });
 
         isSubmitting.value = false;
         closeModal();
       } else {
-        throw new Error(response.data.message || 'Failed to update product');
+        throw new Error(response.data.message || 'Failed to update promotion');
       }
     }
   } catch (err) {
-    console.error('Error saving product:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to save product';
+    console.error('Error saving promotion:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to save promotion';
   } finally {
     isSubmitting.value = false;
     isLoading.value = false;
   }
 };
 
-const editProduct = (product) => {
-  id.value = product._id;
-  idCustom.value = product.idCustom;
-  name.value = product.name;
-  description.value = product.description || '';
-  categoryId.value = product.categoryId;
-  salePrice.value = product.salePrice;
-  purchasePrice.value = product.purchasePrice || 0;
-  discount.value = product.discount || 0;
-  totalStock.value = product.totalStock || 0;
-  unit.value = product.unit || '';
-  imageURL.value = product.imageURL || '';
-  status.value = product.status || false;
-  enabled.value = product.status || false;  // Make sure this line sets enabled based on product.status
-  selectedCurrencyId.value = product.currency?._id || product.currency || '';
+const editPromotion = (promotion) => {
+  id.value = promotion._id;
+  productId.value = promotion.productId;
+  promotionQtyLimit.value = promotion.promotionQtyLimit || '';
+  promotionQtyStartFrom.value = promotion.promotionQtyStartFrom || 0;
+  promotionQtyUnit.value = promotion.promotionQtyUnit || '';
+  promotionType.value = promotion.promotionType;
+  description.value = promotion.description || '';
+  isActive.value = promotion.isActive || false;
+  enabled.value = promotion.isActive || false;
+  startDate.value = promotion.startDate ? new Date(promotion.startDate) : null;
+  endDate.value = promotion.endDate ? new Date(promotion.endDate) : null;
 
-  if (product.imageURL) {
-    imagePreview.value = product.imageURL;
-  }
 
   showModal.value = true;
   showEditModal.value = true;
 };
 
-const deleteProduct = (productId) => {
-  pendingProductId.value = productId;
+const deletePromotion = (promotionId) => {
+  pendingPromotionId.value = promotionId;
   showConfirmDialog.value = true;
 };
 
 const handleDeleteConfirmation = async () => {
   showConfirmDialog.value = false;
-  if (!pendingProductId.value) return;
+  if (!pendingPromotionId.value) return;
 
   try {
     isLoading.value = true;
@@ -825,7 +679,7 @@ const handleDeleteConfirmation = async () => {
     }
 
     const response = await axios.delete(
-      `${apiURL}/api/deleteDoc/Product/${pendingProductId.value}`,
+      `${apiURL}/api/deleteDoc/Promotion/${pendingPromotionId.value}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -837,53 +691,47 @@ const handleDeleteConfirmation = async () => {
     if (response.data.success) {
       socket.emit('dataUpdate', {
         action: 'delete',
-        collection: 'Product',
-        data: pendingProductId.value
+        collection: 'Promotion',
+        data: pendingPromotionId.value
       });
     } else {
-      throw new Error(response.data.message || 'Failed to delete product');
+      throw new Error(response.data.message || 'Failed to delete promotion');
     }
   } catch (err) {
-    console.error('Error deleting product:', err);
-    error.value = err.response?.data?.message || err.message || 'Failed to delete product';
+    console.error('Error deleting promotion:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to delete promotion';
   } finally {
     isLoading.value = false;
-    pendingProductId.value = null;
+    pendingPromotionId.value = null;
   }
 };
 
 const handleCancelConfirmation = () => {
   showConfirmDialog.value = false;
-  pendingProductId.value = null;
+  pendingPromotionId.value = null;
 };
 
 watch(enabled, (newValue) => {
-  status.value = newValue;
+  isActive.value = newValue;
 });
 
 const resetForm = () => {
   id.value = '';
-  idCustom.value = '';
-  name.value = '';
+  productId.value = '';
+  promotionQtyLimit.value = '';
+  promotionQtyStartFrom.value = '';
+  promotionQtyUnit.value = '';
+  promotionType.value = '';
   description.value = '';
-  categoryId.value = '';
-  salePrice.value = '';
-  purchasePrice.value = 0;
-  discount.value = 0;
-  totalStock.value = 0;
-  unit.value = '';
-  totalPrice.value = 0;
-  imageURL.value = '';
-  status.value = false;
-  enabled.value = false;
+  isActive.value = true;
+  enabled.value = true;
   error.value = null;
-  imagePreview.value = '';
-  uploadStatus.value = null;
-  imageFile.value = null;
+  startDate.value = null;
+  endDate.value = null;
 };
 
-// Fetch products
-const fetchProducts = async () => {
+// Fetch promotions
+const fetchPromotions = async () => {
   try {
     isLoading.value = true;
     const token = localStorage.getItem('token');
@@ -894,6 +742,41 @@ const fetchProducts = async () => {
       return;
     }
 
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Promotion`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.data && response.data.data) {
+      promotionData.value = response.data.data;
+    } else {
+      promotionData.value = [];
+    }
+
+    error.value = '';
+  } catch (err) {
+    console.error('Error fetching promotions:', err);
+    if (err.response?.status === 401) {
+      error.value = 'Session expired. Please login again.';
+      router.push('/login');
+    } else {
+      error.value = err.response?.data?.message || err.message || 'Failed to fetch promotions';
+    }
+    promotionData.value = [];
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Fetch products for dropdown
+const fetchProductsForDropdown = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    if (!token) return;
+
     const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -902,56 +785,21 @@ const fetchProducts = async () => {
     });
 
     if (response.data && response.data.data) {
-      productData.value = response.data.data;
-    } else {
-      productData.value = [];
+      products.value = response.data.data;
     }
-
-    error.value = '';
   } catch (err) {
     console.error('Error fetching products:', err);
-    if (err.response?.status === 401) {
-      error.value = 'Session expired. Please login again.';
-      router.push('/login');
-    } else {
-      error.value = err.response?.data?.message || err.message || 'Failed to fetch products';
-    }
-    productData.value = [];
-  } finally {
-    isLoading.value = false;
   }
 };
 
-// Fetch categories for dropdown
-const fetchCategories = async () => {
-  try {
-    const token = localStorage.getItem('token');
-
-    if (!token) return;
-
-    const response = await axios.get(`${apiURL}/api/getAllDocs/Category`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.data && response.data.data) {
-      categories.value = response.data.data;
-    }
-  } catch (err) {
-    console.error('Error fetching categories:', err);
-  }
-};
-
-watch(categoryFilter, (newValue) => {
+watch(promotionTypeFilter, (newValue) => {
   if (newValue !== 'all') {
-    // Category filtering is handled by computed property
+    // Promotion type filtering is handled by computed property
   }
 });
 
 watch(enabled, (newValue) => {
-  status.value = newValue;
+  isActive.value = newValue;
 });
 
 watch(selectedItem, (newValue) => {
@@ -999,9 +847,9 @@ const handleImageUpload = async (e) => {
 
 onBeforeUnmount(() => {
   socket.off('dataUpdate');
-  socket.off('productCreated');
-  socket.off('productUpdated');
-  socket.off('productDeleted');
+  socket.off('promotionCreated');
+  socket.off('promotionUpdated');
+  socket.off('promotionDeleted');
 });
 
 
@@ -1012,60 +860,59 @@ onMounted(() => {
   socket.on('connect', () => console.log('✅ Socket.IO connected:', socket.id));
 
   socket.on('dataUpdate', (update) => {
-    if (update.collection === 'Product') {
-      console.log('🔔 dataUpdate for Product received:', update);
-      fetchProducts();
+    if (update.collection === 'Promotion') {
+      console.log('🔔 dataUpdate for Promotion received:', update);
+      fetchPromotions();
     }
   });
 
-  socket.on('productCreated', (product) => {
-    console.log('🆕 Product created (real-time):', product);
-    fetchProducts();
+  socket.on('promotionCreated', (promotion) => {
+    console.log('🆕 Promotion created (real-time):', promotion);
+    fetchPromotions();
   });
 
-  socket.on('productUpdated', (product) => {
-    console.log('🔄 Product updated (real-time):', product);
-    fetchProducts();
+  socket.on('promotionUpdated', (promotion) => {
+    console.log('🔄 Promotion updated (real-time):', promotion);
+    fetchPromotions();
   });
 
-  socket.on('productDeleted', (productId) => {
-    console.log('🗑️ Product deleted (real-time):', productId);
-    fetchProducts();
+  socket.on('promotionDeleted', (promotionId) => {
+    console.log('🗑️ Promotion deleted (real-time):', promotionId);
+    fetchPromotions();
   });
 
-  fetchProducts();
-  fetchCategories();
-  fetchCurrencies();
+  fetchPromotions();
+  fetchProductsForDropdown();
 });
 
-socket.on('productCreated', (product) => {
-  fetchProducts();
+socket.on('promotionCreated', (promotion) => {
+  fetchPromotions();
   Swal.fire({
     icon: 'success',
-    title: 'Product Added!',
-    text: `Product "${product.name}" was created.`,
+    title: 'Promotion Added!',
+    text: `Promotion was created successfully.`,
     timer: 2500,
     showConfirmButton: false
   });
 });
 
-socket.on('productUpdated', (product) => {
-  fetchProducts();
+socket.on('promotionUpdated', (promotion) => {
+  fetchPromotions();
   Swal.fire({
     icon: 'info',
-    title: 'Product Updated!',
-    text: `Product "${product.name}" was updated.`,
+    title: 'Promotion Updated!',
+    text: `Promotion was updated successfully.`,
     timer: 2500,
     showConfirmButton: false
   });
 });
 
-socket.on('productDeleted', (productId) => {
-  fetchProducts();
+socket.on('promotionDeleted', (promotionId) => {
+  fetchPromotions();
   Swal.fire({
     icon: 'warning',
-    title: 'Product Deleted!',
-    text: `Product with ID ${productId} was deleted.`,
+    title: 'Promotion Deleted!',
+    text: `Promotion with ID ${promotionId} was deleted.`,
     timer: 2500,
     showConfirmButton: false
   });

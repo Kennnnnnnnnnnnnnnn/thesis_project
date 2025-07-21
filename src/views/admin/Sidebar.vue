@@ -84,7 +84,7 @@
             ]">
               <FileKey2 class="h-4 w-4 mr-2" />
               <span class="sidebar-label">Create Symbol</span>
-            </router-link>
+            </router-link> 
 
             <router-link to="/admin/currency" :class="[
               'nav-link',
@@ -152,6 +152,15 @@
           </router-link>
 
 
+           <router-link to="/admin/promotion" :class="[
+            'nav-link',
+            route.path === '/admin/promotion' ? 'bg-yellow-500 text-white' : ''
+          ]">
+            <TagsIcon class="h-4 w-4 mr-2" />
+            <span class="sidebar-label">Promotion</span>
+          </router-link>
+
+
           
 
 
@@ -171,8 +180,8 @@
               'nav-link',
               route.path === '/admin/delivery' ? 'bg-yellow-500 text-white' : ''
             ]">
-              <MapPinned class="h-4 w-4" />
-              <span class="text-sm">Tracking</span>
+              <MapPinned class="h-4 w-4 mr-2" />
+              <span class="sidebar-label">Tracking</span>
             </router-link> -->
             <router-link to="/admin/users" :class="[
               'nav-link',
@@ -329,6 +338,7 @@ import {
   FileTextIcon,
   Layers,
   LayoutDashboardIcon,
+  MapPinned,
   PackageIcon,
   ShoppingCart,
   TagsIcon,

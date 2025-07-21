@@ -338,9 +338,14 @@ export default {
                     collectionName = 'CustomerFeedback';
                     // searchFieldsArray.value = 'name';
                     break;
+                    
+                case '/admin/promotion':
+                    collectionName = 'Promotion';
+                    // searchFieldsArray.value = 'name';
+                    break;
 
 
-                   
+
 
             }
 

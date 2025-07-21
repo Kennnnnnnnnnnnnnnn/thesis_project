@@ -1,33 +1,22 @@
 <template>
   <div class="bg-white text-center">
     <!-- Search Section -->
-<section class="py-8 mt-8">
-  <div class="max-w-6xl mx-auto px-5">
-    <div class="relative max-w-2xl mx-auto">
-      <input
-        type="text"
-        v-model="searchQuery"
-        :placeholder="$t('home.searchPlaceholder')"
-        class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400"
-      />
-      <!-- Search Icon on right -->
-      <svg
-        class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z"
-        />
-      </svg>
-    </div>
-  </div>
-</section>
+
+
+    <section class="py-8 mt-8">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="relative max-w-2xl mx-auto">
+          <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
+            class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400" />
+          <!-- Search Icon on right -->
+          <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z" />
+          </svg>
+        </div>
+      </div>
+    </section>
 
     <!-- Image Carousel -->
     <section class="my-8">
@@ -51,6 +40,98 @@
       </div>
     </section>
 
+    <!-- Promotion Event Banner Section -->
+    <section class="py-10">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl font-bold text-gray-800">Special Offer</h2>
+          <router-link to="/product"
+            class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
+            {{ $t('common.viewAll') }}
+          </router-link>
+        </div>
+        <div
+          class="w-full max-w-3xl relative overflow-hidden rounded-3xl shadow-lg border border-yellow-300 bg-gradient-to-r from-gray-50 via-gray-50 to-gray-50 p-0">
+          <div class="absolute -top-10 -left-10 w-40 h-40 bg-green rounded-full opacity-30 animate-pulse"></div>
+         
+          <div class="flex flex-col md:flex-row items-center justify-between relative z-10 p-8 md:p-12">
+            <div class="flex-1 min-w-0 text-left">
+              <div class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2 tracking-tight flex items-center gap-2">
+                <span class="text-green-600 animate-bounce">🔥</span>
+                <template v-if="currentPromotion">
+                  <span v-if="currentPromotion.promotionQtyLimit">{{ currentPromotion.promotionQtyLimit }}%
+                    Discount</span>
+                  <span v-else>Special Discount</span>
+                </template>
+                <template v-else>
+                  <span>No Active Promotion</span>
+                </template>
+              </div>
+
+              <!-- Product Name and ID -->
+              <div v-if="currentPromotion?.product" class="mb-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-1">
+                  {{ currentPromotion.product.name }}
+                </h3>
+                <p class="text-sm text-gray-600">ID: {{ currentPromotion.product.idCustom }}</p>
+              </div>
+
+              <!-- Product Price Information -->
+              <div v-if="currentPromotion?.product" class="mb-4 space-y-1">
+                <p class="text-lg font-semibold text-gray-900">
+                  {{ formatPrice(currentPromotion.product.salePrice) }} 
+                  {{ currentPromotion.product?.currency?.symbol?.symbol1?.symbol || '' }}/{{ currentPromotion.product.unit }}
+                </p>
+                <p class="text-sm text-gray-600">
+                  Available Stock: {{ currentPromotion.product.totalStock }} {{ currentPromotion.product.unit }}
+                </p>
+              </div>
+
+              <!-- Promotion Details -->
+              <div class="flex flex-wrap items-center gap-3">
+                <span v-if="currentPromotion?.promotionQtyStartFrom"
+                  class="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  Buy from: {{ currentPromotion.promotionQtyStartFrom }} {{ currentPromotion.promotionQtyUnit }}
+                </span>
+              
+                <span v-if="currentPromotion?.startDate && currentPromotion?.endDate"
+                  class="inline-block bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  Valid: {{ new Date(currentPromotion.startDate).toLocaleDateString() }} - 
+                  {{ new Date(currentPromotion.endDate).toLocaleDateString() }}
+                </span>
+              </div>
+
+              <!-- Discount Calculation Example -->
+              <div v-if="currentPromotion?.product" class="bg-green-50 p-3 rounded-lg mb-4">
+                <p class="text-sm text-green-800 font-medium">
+                  Buy {{ currentPromotion.promotionQtyStartFrom }}{{ currentPromotion.promotionQtyUnit }} or more and save 
+                  {{ currentPromotion.promotionQtyLimit }}% per {{ currentPromotion.product.unit }}!
+                </p>
+              </div>
+
+              <router-link to="/product">
+                <button
+                  class="bg-gradient-to-r from-green-500 to-lime-400 hover:from-green-600 hover:to-lime-500 text-white font-bold px-8 py-3 rounded-full shadow-lg text-lg transition-all duration-200 mt-2">
+                  Shop Now
+                </button>
+              </router-link>
+            </div>
+
+            <!-- Product Image -->
+            <div class="flex-shrink-0 mt-8 md:mt-0 md:ml-10 flex flex-col items-center">
+              <img 
+                :src="currentPromotion?.product?.imageURL || fallbackImage" 
+                :alt="currentPromotion?.product?.name || 'Product Image'"
+                class="w-36 h-36 md:w-44 md:h-44 object-contain drop-shadow-xl rounded-lg bg-white p-2" 
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
     <!-- New Products Section -->
     <section class="py-10">
       <div class="max-w-6xl mx-auto px-5">
@@ -63,7 +144,7 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          <div v-for="product in newProducts.slice(0, 4)" :key="product.id"
+          <div v-for="product in filteredProducts.slice(0, 4)" :key="product._id"
             class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full">
             <!-- Product Image -->
             <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
@@ -82,7 +163,8 @@
                 <span v-if="product.ratingCount" class="ml-2 text-xs text-gray-500">({{ product.ratingCount }})</span>
               </div>
               <button @click="openRatingModal(product)"
-                class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{ $t('home.rateProduct') }}</button>
+                class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{
+                  $t('home.rateProduct') }}</button>
 
               <!-- Product Name -->
               <h3 class="text-base font-bold text-center mb-2 text-gray-800">
@@ -100,7 +182,7 @@
                   {{ formatPrice(product.salePrice) }}{{ product.currency?.symbol?.symbol1.symbol || '' }}
                 </p>
                 <p class="text-xl font-bold text-gray-800">
-                 {{ formatPrice(calculateFinalPrice(product)) }} {{ product.currency?.symbol?.symbol1.symbol || '' }}
+                  {{ formatPrice(calculateFinalPrice(product)) }} {{ product.currency?.symbol?.symbol1.symbol || '' }}
                 </p>
                 <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
                   {{ $t('common.save') }} {{ product.discount }}%
@@ -223,7 +305,8 @@
                 <span v-if="product.ratingCount" class="ml-2 text-xs text-gray-500">({{ product.ratingCount }})</span>
               </div>
               <button @click="openRatingModal(product)"
-                class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{ $t('home.rateProduct') }}</button>
+                class="text-xs text-blue-500 underline hover:text-blue-700 mb-2">{{
+                  $t('home.rateProduct') }}</button>
 
               <!-- Product Name -->
               <h3 class="text-base font-bold text-center mb-2 text-gray-800">
@@ -393,7 +476,7 @@
             :placeholder="$t('home.reviewPlaceholder')"></textarea>
           <div class="flex justify-end gap-2">
             <button @click="showRatingModal = false" class="px-3 py-1 rounded bg-gray-200">{{ $t('common.cancel')
-              }}</button>
+            }}</button>
             <button @click="submitRating" class="px-3 py-1 rounded bg-yellow-400 text-white font-bold">{{
               $t('common.submit') }}</button>
           </div>
@@ -448,6 +531,109 @@ const slides = ref([
     alt: 'cover4'
   }
 ])
+
+
+
+
+const promotion = ref(null);
+
+// Fetch promotion from API
+async function fetchPromotion() {
+  try {
+    console.log('Fetching promotion data...');
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    // First get the active promotion
+    const response = await axios.get(`${apiURL}/api/public/promotion`, {
+      params: {
+        isActive: true,
+        sortField: 'createdAt',
+        sortOrder: 'desc',
+        limit: 1
+      }
+    });
+    
+    if (response.data && response.data.success && response.data.data) {
+      const promotionData = response.data.data;
+      console.log('Promotion data:', promotionData);
+      
+      if (!promotionData.productId) {
+        console.warn('No product ID in promotion data');
+        return;
+      }
+
+      // Then fetch the related product details
+      try {
+        const productResponse = await axios.get(`${apiURL}/api/public/products`, {
+          params: {
+            _id: promotionData.productId
+          }
+        });
+        console.log('Product response:', productResponse.data);
+        
+        if (productResponse.data && productResponse.data.success && productResponse.data.data && productResponse.data.data.length > 0) {
+          promotionData.product = productResponse.data.data[0];
+          console.log('Product data loaded:', promotionData.product);
+          
+          // Ensure we have the image URL
+          if (promotionData.product && !promotionData.product.imageURL) {
+            console.warn('No image URL in product data');
+            promotionData.product.imageURL = require('@/assets/image.png');
+          }
+        }
+      } catch (productErr) {
+        console.error('Error fetching product details:', productErr);
+        // Set a fallback product object to prevent null reference errors
+        promotionData.product = {
+          name: 'Product Not Found',
+          imageURL: require('@/assets/image.png'),
+          salePrice: 0,
+          unit: 'unit'
+        };
+      }
+      
+      promotion.value = promotionData;
+      console.log('Final promotion data:', promotion.value);
+    } else {
+      console.log('No active promotions found');
+      promotion.value = null;
+    }
+  } catch (err) {
+    console.error('Error fetching promotion:', err);
+    promotion.value = null;
+  }
+}
+
+// Computed property with fallback for when there's no active promotion
+const currentPromotion = computed(() => {
+  // Check if we have a valid promotion with product data
+  if (!promotion.value || !promotion.value.product || !promotion.value.productId) {
+    return null;
+  }
+  
+  // Ensure required product properties exist
+  const product = promotion.value.product;
+  if (!product.imageURL) {
+    product.imageURL = require('@/assets/image.png');
+  }
+  if (!product.name) {
+    product.name = 'Product';
+  }
+  if (!product.unit) {
+    product.unit = 'unit';
+  }
+  
+  return promotion.value;
+});
+
+
+// Debugging currentPromotion.product.imageURL
+console.log('Product Image URL:', currentPromotion?.product?.imageURL);
+
+// Ensure fallback image is correctly resolved
+const fallbackImage = require('@/assets/image.png');
+
 
 // Products data
 const products = ref([])
@@ -1003,6 +1189,28 @@ function setupSocketConnection() {
 }
 
 function openRatingModal(product) {
+  // Check if user is logged in
+  const isAuthenticated = checkAuthStatus();
+  
+  if (!isAuthenticated) {
+    // If not logged in, show a login prompt
+    Swal.fire({
+      icon: 'info',
+      title: t('alerts.loginRequired'),
+      text: t('alerts.loginToRate'),
+      showCancelButton: true,
+      confirmButtonText: t('common.login'),
+      cancelButtonText: t('common.cancel')
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to login page
+        window.location.href = '/login';
+      }
+    });
+    return;
+  }
+  
+  // If authenticated, proceed with opening the modal
   selectedProduct.value = product;
   rating.value = 0;
   review.value = '';
@@ -1014,13 +1222,34 @@ function setRating(val) {
 }
 
 async function submitRating() {
+  // Check for rating selection
   if (!rating.value) {
     Swal.fire({ icon: 'warning', title: t('alerts.pleaseSelectRating') });
     return;
   }
+  
+  // Check authentication status
+  const isAuthenticated = checkAuthStatus();
+  if (!isAuthenticated) {
+    Swal.fire({
+      icon: 'error',
+      title: t('alerts.authenticationRequired'),
+      text: t('alerts.pleaseLoginFirst'),
+      showCancelButton: true,
+      confirmButtonText: t('common.login'),
+      cancelButtonText: t('common.cancel')
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '/login';
+      }
+    });
+    return;
+  }
+  
   try {
     const token = localStorage.getItem('token');
     const userId = store.getUserId || localStorage.getItem('userId');
+    
     console.log('Submitting rating:', {
       productId: selectedProduct.value._id,
       RTCTrackEvent: rating.value,
@@ -1028,6 +1257,7 @@ async function submitRating() {
       userId,
       createdBy: userId,
     });
+    
     await axios.post(`${apiURL}/api/insertDoc/Rate`, {
       fields: {
         productId: selectedProduct.value._id,
@@ -1039,10 +1269,16 @@ async function submitRating() {
     }, {
       headers: { Authorization: token ? `Bearer ${token}` : '' }
     });
-    Swal.fire({ icon: 'success', title: t('alerts.thankYouForRating') });
+    
+    Swal.fire({ 
+      icon: 'success', 
+      title: t('alerts.thankYouForRating') 
+    });
+    
     showRatingModal.value = false;
     // Optionally: refresh product ratings here
   } catch (err) {
+    console.error('Error submitting rating:', err);
     Swal.fire({
       icon: 'error',
       title: t('alerts.failedToSubmitRating'),
@@ -1055,12 +1291,24 @@ async function submitRating() {
 
 
 // Lifecycle hooks
-onMounted(() => {
-  fetchProducts()
-  fetchCartItems()
-  startCarousel()
-  setupIntersectionObserver()
-  setupSocketConnection() // Setup socket connection
+onMounted(async () => {
+  console.log('Home component mounted');
+  
+  try {
+    // These operations don't require authentication
+    await fetchProducts();
+    await fetchPromotion();
+    startCarousel();
+    setupIntersectionObserver();
+    
+    // Operations that might depend on authentication
+    await fetchCartItems();
+    setupSocketConnection(); // Setup socket connection
+    
+    console.log('Home component initialization completed');
+  } catch (error) {
+    console.error('Error during Home component initialization:', error);
+  }
 })
 
 onUnmounted(() => {

@@ -1,6 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import LoginView from '@/views/auth/Login.vue';
+import CustomerLoginForm from '@/views/auth/UserLoginForm.vue'
+import { createRouter, createWebHistory } from 'vue-router';
 
 
 const routes = [
@@ -19,12 +20,17 @@ const routes = [
       { path: '/history', name: 'History', component: () => import('@/views/user/History.vue') },
       { path: '/contact', name: 'Contact', component: () => import('@/views/user/Contact.vue') },
       { path: '/payment',name: 'Payment',component: () => import('@/views/user/Payment.vue')},
+      // { path: '/promotion', name: 'Promotion', component: () => import('@/views/user/Promotion.vue') },
+      { path: '/tracking', name: 'Tracking', component: () => import('@/views/user/TrackingDelivery.vue') },
       
 
     ]
   },
 
+  { path: '/user-login', name: 'UserLogin', component: CustomerLoginForm},
+
   { path: '/login', name: 'Login', component: LoginView },
+  { path: '/forgot-password', name: 'ForgotPassword', component: () => import('@/views/auth/ForgotPassword.vue') },
   {
     path: "/notFound",
     component: () => import("../views/NotFound.vue"),
@@ -132,6 +138,13 @@ const routes = [
         name: "feedback",
         path: "/admin/feedback",
         component: () => import("../views/admin/CustomerFeedback.vue"),
+      },
+
+      //promotion
+      {
+        name: "promotion",
+        path: "/admin/promotion",
+        component: () => import("../views/admin/Promotion.vue"),
       }
     ]
   }

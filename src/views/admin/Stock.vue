@@ -151,7 +151,7 @@
                 <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Level</th> -->
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description
                 </th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Unit</th>
+                <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Unit</th> -->
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
               </tr>
@@ -207,9 +207,9 @@
                 </td>
 
                 <!-- Unit Column -->
-                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
+                <!-- <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-600">
                   {{ stock.purchaseProducts?.unit || '-' }}
-                </td>
+                </td> -->
 
 
 

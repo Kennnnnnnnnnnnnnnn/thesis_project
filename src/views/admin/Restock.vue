@@ -366,9 +366,15 @@
           <div>
             <h2 class="text-xl font-semibold text-gray-800">Purchase Details</h2>
           </div>
-          <button @click="closePurchaseDetail" class="text-red-600 hover:text-red-700">
-            <i class="fas fa-times text-xl"></i>
-          </button>
+          <div class="flex items-center gap-3">
+            <button @click="deleteRestock(selectedPurchaseId)" 
+              class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+              <i class="fas fa-trash-alt mr-1"></i> Delete
+            </button>
+            <button @click="closePurchaseDetail" class="text-red-600 hover:text-red-700">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
         </div>
 
         <div class="p-4">
@@ -457,7 +463,7 @@
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <DeleteConfirmation v-if="showConfirmDialog" @confirm="handleDeleteConfirmation" @cancel="handleCancelConfirmation"
+    <DeleteConfirmation :show="showConfirmDialog" @confirm="handleDeleteConfirmation" @cancel="handleCancelConfirmation"
       message="Are you sure you want to delete this restock order? This action cannot be undone." />
   </div>
 </template>
@@ -1070,6 +1076,10 @@ const deleteRestock = (restockId) => {
   console.log('Delete button clicked for:', restockId);
   pendingRestockId.value = restockId;
   showConfirmDialog.value = true;
+  // Close the purchase detail modal if open
+  if (showPurchaseDetail.value && selectedPurchaseId.value === restockId) {
+    showPurchaseDetail.value = false;
+  }
 };
 
 const handleDeleteConfirmation = async () => {
@@ -1086,7 +1096,7 @@ const handleDeleteConfirmation = async () => {
       return;
     }
 
-    // First get the purchase details to know which products to update
+    // First check if this purchase exists and get its details
     const purchaseDetails = await axios.get(
       `${apiURL}/api/getAllDocs/PurchaseProduct`,
       {
@@ -1113,126 +1123,140 @@ const handleDeleteConfirmation = async () => {
     const purchaseData = purchaseDetails.data.data[0];
     const timestamp = await fetchTimestamp();
 
-    // Create a deletion log record to track this action
-    await axios.post(
-      `${apiURL}/api/insertDoc/DeletePurchaseLog`,
-      {
-        fields: {
-          purchaseProducts: purchaseData,
-          deletedBy: userId,
-          deletedAt: timestamp
-        }
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    // Revert stock changes for each product in the purchase
-    for (const item of purchaseData.products) {
-      // Get current product data
-      const productResponse = await axios.get(
-        `${apiURL}/api/getAllDocs/Product`,
+    try {
+      // Create a deletion log record to track this action
+      await axios.post(
+        `${apiURL}/api/insertDoc/DeletePurchaseLog`,
+        {
+          fields: {
+            purchaseProducts: purchaseData,
+            deletedBy: userId,
+            deletedAt: timestamp
+          }
+        },
         {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
-          },
-          params: {
-            dynamicConditions: JSON.stringify([
-              {
-                field: '_id',
-                operator: '==',
-                value: item.id
-              }
-            ])
           }
         }
       );
+    } catch (logError) {
+      console.error('Error creating deletion log:', logError);
+      // Continue with deletion even if logging fails
+    }
 
-      if (productResponse.data.data && productResponse.data.data.length > 0) {
-        const product = productResponse.data.data[0];
-        // Calculate new stock by subtracting the purchase quantity
-        const newTotalStock = Math.max(0, (product.totalStock || 0) - item.quantity);
-
-        // Update product data
-        await axios.patch(
-          `${apiURL}/api/updateDoc/Product/${item.id}`,
-          {
-            fields: {
-              totalStock: newTotalStock,
-              status: newTotalStock > 0, // Set status to false if stock = 0
-              updatedAt: timestamp,
-              updatedBy: userId
-            }
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          }
-        );
-
-        // Update stock record if it exists
-        const stockResponse = await axios.get(
-          `${apiURL}/api/getAllDocs/Stock`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            params: {
-              dynamicConditions: JSON.stringify([
-                {
-                  field: 'productId',
-                  operator: '==',
-                  value: item.id
-                }
-              ])
-            }
-          }
-        );
-
-        if (stockResponse.data.data && stockResponse.data.data.length > 0) {
-          const stockRecord = stockResponse.data.data[0];
-          const isOutOfStock = newTotalStock <= 0;
-
-          await axios.patch(
-            `${apiURL}/api/updateDoc/Stock/${stockRecord._id}`,
-            {
-              fields: {
-                quantity: newTotalStock,
-                isOutOfStock: isOutOfStock,
-                updatedAt: timestamp,
-                updatedBy: userId
-              }
-            },
+    // Only adjust stock if this purchase affected inventory (status = true)
+    if (purchaseData.status === true && purchaseData.products && purchaseData.products.length > 0) {
+      // Revert stock changes for each product in the purchase
+      for (const item of purchaseData.products) {
+        if (!item.id) continue; // Skip items with no product ID
+        
+        try {
+          // Get current product data
+          const productResponse = await axios.get(
+            `${apiURL}/api/getAllDocs/Product`,
             {
               headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
+              },
+              params: {
+                dynamicConditions: JSON.stringify([
+                  {
+                    field: '_id',
+                    operator: '==',
+                    value: item.id
+                  }
+                ])
               }
             }
           );
 
-          // Emit socket event for stock update
-          socket.emit('dataUpdate', {
-            action: 'update',
-            collection: 'Stock',
-            data: stockRecord._id
-          });
-        }
+          if (productResponse.data.data && productResponse.data.data.length > 0) {
+            const product = productResponse.data.data[0];
+            // Calculate new stock by subtracting the purchase quantity
+            const newTotalStock = Math.max(0, (product.totalStock || 0) - item.quantity);
 
-        // Emit socket event for product update
-        socket.emit('dataUpdate', {
-          action: 'update',
-          collection: 'Product',
-          data: item.id
-        });
+            // Update product data
+            await axios.patch(
+              `${apiURL}/api/updateDoc/Product/${item.id}`,
+              {
+                fields: {
+                  totalStock: newTotalStock,
+                  status: newTotalStock > 0, // Set status to false if stock = 0
+                  updatedAt: timestamp,
+                  updatedBy: userId
+                }
+              },
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+
+            // Update stock record if it exists
+            const stockResponse = await axios.get(
+              `${apiURL}/api/getAllDocs/Stock`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                params: {
+                  dynamicConditions: JSON.stringify([
+                    {
+                      field: 'productId',
+                      operator: '==',
+                      value: item.id
+                    }
+                  ])
+                }
+              }
+            );
+
+            if (stockResponse.data.data && stockResponse.data.data.length > 0) {
+              const stockRecord = stockResponse.data.data[0];
+              const isOutOfStock = newTotalStock <= 0;
+
+              await axios.patch(
+                `${apiURL}/api/updateDoc/Stock/${stockRecord._id}`,
+                {
+                  fields: {
+                    quantity: newTotalStock,
+                    isOutOfStock: isOutOfStock,
+                    updatedAt: timestamp,
+                    updatedBy: userId
+                  }
+                },
+                {
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  }
+                }
+              );
+
+              // Emit socket event for stock update
+              socket.emit('dataUpdate', {
+                action: 'update',
+                collection: 'Stock',
+                data: stockRecord._id
+              });
+            }
+
+            // Emit socket event for product update
+            socket.emit('dataUpdate', {
+              action: 'update',
+              collection: 'Product',
+              data: item.id
+            });
+          }
+        } catch (productError) {
+          console.error(`Error updating product ${item.id}:`, productError);
+        }
       }
     }
 
@@ -1248,6 +1272,7 @@ const handleDeleteConfirmation = async () => {
     );
 
     if (response.data.success) {
+      // Emit socket event for UI update
       socket.emit('dataUpdate', {
         action: 'delete',
         collection: 'PurchaseProduct',
