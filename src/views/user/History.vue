@@ -217,7 +217,7 @@ const confirmReceipt = async (order) => {
     
     const updateData = {
       fields: {
-        status: 'completed',
+        status: 'got product',
         updatedAt: new Date()
       }
     };
@@ -229,6 +229,7 @@ const confirmReceipt = async (order) => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       }
     );
+
 
     console.log('📥 Response received:', response.data);
 
