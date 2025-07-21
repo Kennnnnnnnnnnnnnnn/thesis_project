@@ -17,22 +17,28 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import apiURL from '@/api/config'
 import axios from 'axios'
+import apiURL from '@/api/config'
 
 const allProducts = ref([])
 
 const fetchProducts = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`${apiURL}/api/public/products`, {
-      headers: { Authorization: `Bearer ${token}` },
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
     })
+
     if (response.data.success) {
       allProducts.value = response.data.data
+      console.log('✅ Products fetched:', allProducts.value.length)
+    } else {
+      console.warn('⚠️ Failed to fetch products:', response.data.message)
     }
   } catch (err) {
-    console.error('Error fetching products:', err)
+    console.error('❌ Error fetching products:', err.message)
     allProducts.value = []
   }
 }

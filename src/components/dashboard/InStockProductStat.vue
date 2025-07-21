@@ -25,9 +25,16 @@ const inStockCount = ref(0)
 const fetchInStock = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`${apiURL}/api/public/products`, {
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
       headers: { Authorization: `Bearer ${token}` },
+      params: {
+        dynamicConditions: JSON.stringify([
+          { field: "totalStock", operator: "&gt", value: 0 }
+        ])
+      }
     })
+    inStockCount.value = response.data.data.length
+
 
     if (response.data.success) {
       const products = response.data.data
