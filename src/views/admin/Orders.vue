@@ -502,6 +502,8 @@ const getStatusIcon = (status) => {
   }
 };
 
+
+
 // View order details
 const viewOrder = (orderId) => {
   selectedOrder.value = orderData.value.find(order => order._id === orderId);
@@ -555,6 +557,24 @@ const updateOrderStatus = async (newStatus) => {
     );
 
     if (response.data.success) {
+      // ✅ Send Telegram alert if status is 'delivering'
+      if (newStatus === 'delivering') {
+        try {
+          await axios.post(
+            `${apiURL}/api/delivery/confirm`,
+            {
+              orderId: editOrderData.value._id,
+              customerName: editOrderData.value.customerName,
+              address: editOrderData.value.address
+            },
+            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+          );
+          console.log("✅ Telegram alert sent");
+        } catch (telegramError) {
+          console.error('❌ Telegram alert failed:', telegramError);
+        }
+      }
+
       Swal.fire({
         icon: 'success',
         title: 'Order Updated',
@@ -576,6 +596,7 @@ const updateOrderStatus = async (newStatus) => {
     isLoading.value = false;
   }
 };
+
 
 
 
