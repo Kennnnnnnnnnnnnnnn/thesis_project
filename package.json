@@ -15,6 +15,7 @@
     "@lottiefiles/dotlottie-vue": "^0.7.2",
     "@primeuix/themes": "^1.2.1",
     "@vueuse/core": "^13.2.0",
+    "apexcharts": "^5.2.0",
     "axios": "^1.9.0",
     "chart.js": "^3.9.1",
     "core-js": "^3.43.0",
@@ -38,6 +39,7 @@
     "vue-chart-3": "^3.1.8",
     "vue-i18n": "^9.14.4",
     "vue-router": "^4.5.1",
+    "vue3-apexcharts": "^1.8.0",
     "vue3-lottie": "^3.3.1",
     "vuetify": "^3.8.10",
     "xlsx": "^0.18.5"

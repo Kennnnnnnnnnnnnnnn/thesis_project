@@ -12,6 +12,7 @@ import { Vue3Lottie } from 'vue3-lottie';
 import App from './App.vue';
 import './assets/tailwind.css';
 import router from './router';
+import VueApexCharts from 'vue3-apexcharts'
 
 
 
@@ -72,6 +73,8 @@ app.use(PrimeVue, {
   },
 });
 
+app.use(VueApexCharts)
+app.component('apexchart', VueApexCharts)
 
 // 🔗 Use plugins
 app.component('KhqrGenerator', KhqrGenerator);
