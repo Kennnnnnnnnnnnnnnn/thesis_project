@@ -65,8 +65,8 @@
     <!-- Table -->
     <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100"
       style="max-height: 60vh;">
-        <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+      <!-- Loading Overlay -->
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
       </div>
 
@@ -224,7 +224,8 @@
 
             <!-- New Currency Field -->
             <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Currency <span class="text-red-500">*</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Currency <span
+                  class="text-red-500">*</span></label>
               <div class="relative">
                 <select v-model="selectedCurrencyId"
                   class="w-full border border-gray-300 rounded-md p-2.5 pr-8 appearance-none focus:ring focus:ring-amber-500/30 focus:border-amber-400">
@@ -252,7 +253,7 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Quantity <span
                     class="text-red-500">*</span></label>
-                <input v-model.number="quantity" type="number" min="1"
+                <input v-model.number="quantity" type="number" 
                   class="w-full border border-gray-300 rounded-md p-2.5 text-left focus:ring focus:ring-amber-500/30 focus:border-amber-400"
                   placeholder="0" />
               </div>
@@ -260,7 +261,7 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Price <span
                     class="text-red-500">*</span></label>
-                <input v-model.number="price" type="number" min="0" step="0.01"
+                <input v-model.number="price" type="number"  step="0.01"
                   class="w-full border border-gray-300 rounded-md p-2.5 text-left focus:ring focus:ring-amber-500/30 focus:border-amber-400"
                   placeholder="0" />
               </div>
@@ -367,10 +368,10 @@
             <h2 class="text-xl font-semibold text-gray-800">Purchase Details</h2>
           </div>
           <div class="flex items-center gap-3">
-            <button @click="deleteRestock(selectedPurchaseId)" 
+            <!-- <button @click="deleteRestock(selectedPurchaseId)" 
               class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
               <i class="fas fa-trash-alt mr-1"></i> Delete
-            </button>
+            </button> -->
             <button @click="closePurchaseDetail" class="text-red-600 hover:text-red-700">
               <i class="fas fa-times text-xl"></i>
             </button>
@@ -384,7 +385,8 @@
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <span class="text-sm font-medium text-gray-700">Supplier:</span>
-                <p class="text-sm text-gray-900">{{ getSupplierName(selectedPurchaseId) }}</p>
+                <p class="text-sm text-gray-900">{{getSupplierName(restockData.find(p => p._id ===
+                  selectedPurchaseId)?.supplierId)}}</p>
               </div>
               <div>
                 <span class="text-sm font-medium text-gray-700">Status:</span>
@@ -402,13 +404,13 @@
               <div>
                 <span class="text-sm font-medium text-gray-700">Created At:</span>
                 <p class="text-sm text-gray-900">
-                  {{ formatDate(restockData.find(p => p._id === selectedPurchaseId).createdAt) }}
+                  {{formatDate(restockData.find(p => p._id === selectedPurchaseId).createdAt)}}
                 </p>
               </div>
               <div>
                 <span class="text-sm font-medium text-gray-700">Total Items:</span>
                 <p class="text-sm text-gray-900">
-                  {{ restockData.find(p => p._id === selectedPurchaseId).products.length }}
+                  {{restockData.find(p => p._id === selectedPurchaseId).products.length}}
                 </p>
               </div>
             </div>
@@ -429,8 +431,8 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in restockData.find(p => p._id === selectedPurchaseId).products" :key="item.id"
-                    class="hover:bg-gray-50">
+                  <tr v-for="(item, index) in restockData.find(p => p._id === selectedPurchaseId).products"
+                    :key="item.id" class="hover:bg-gray-50">
                     <td class="border border-gray-300 p-2 text-center">{{ index + 1 }}</td>
                     <td class="border border-gray-300 p-2">{{ item.name }}</td>
                     <td class="border border-gray-300 p-2 text-center">{{ item.quantity }} {{ item.unit }}</td>
@@ -455,7 +457,7 @@
           <div class="mb-4">
             <h3 class="text-lg font-semibold text-gray-800 mb-2">Notes</h3>
             <p class="text-sm text-gray-900">
-              {{ restockData.find(p => p._id === selectedPurchaseId).description || '-' }}
+              {{restockData.find(p => p._id === selectedPurchaseId).description || '-'}}
             </p>
           </div>
         </div>
@@ -513,8 +515,8 @@ const id = ref('');
 const description = ref('');
 const selectedSupplierId = ref('');  // Was using supplierId
 const selectedProductId = ref('');
-const quantity = ref(1);  // Set default to 1
-const price = ref(0);
+const quantity = ref('');  // Set default to 1
+const price = ref('');
 const unit = ref('');
 const itemDescription = ref('');
 const cartItems = ref([]);
@@ -574,8 +576,15 @@ const addToCart = () => {
 
   const totalPrice = quantity.value * price.value;
 
+  // Clear cart if this is the first item being added
+  if (cartItems.value.length === 0) {
+    cartItems.value = [];
+  }
+
   cartItems.value.push({
     id: product._id,
+    supplierId: selectedSupplierId.value,
+    productId: product._id,
     name: product.name,
     quantity: quantity.value,
     unitPrice: price.value,
@@ -587,8 +596,8 @@ const addToCart = () => {
 
   // Reset form fields for next item
   selectedProductId.value = '';
-  quantity.value = 1;
-  price.value = 0;
+  quantity.value = '';
+  price.value = '';
   unit.value = '';
   itemDescription.value = '';
   error.value = '';
@@ -606,8 +615,8 @@ const calculateCartTotal = () => {
 const clearForm = () => {
   selectedProductId.value = '';
   selectedSupplierId.value = '';
-  quantity.value = 1;
-  price.value = 0;
+  quantity.value = '';
+  price.value = ''
   unit.value = '';
   itemDescription.value = '';
   description.value = '';
@@ -618,11 +627,12 @@ const clearForm = () => {
 // Update the resetForm function
 const resetForm = () => {
   id.value = '';
+  selectedCurrencyId.value = '';
   description.value = '';
   selectedSupplierId.value = '';
   selectedProductId.value = '';
-  quantity.value = 1;
-  price.value = 0;
+  quantity.value = '';
+  price.value = '';
   unit.value = '';
   itemDescription.value = '';
   cartItems.value = [];
@@ -859,7 +869,7 @@ const handleSubmit = async () => {
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         unit: item.unit,
-        
+
 
       };
     });
@@ -1151,7 +1161,7 @@ const handleDeleteConfirmation = async () => {
       // Revert stock changes for each product in the purchase
       for (const item of purchaseData.products) {
         if (!item.id) continue; // Skip items with no product ID
-        
+
         try {
           // Get current product data
           const productResponse = await axios.get(

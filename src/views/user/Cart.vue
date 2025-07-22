@@ -83,7 +83,14 @@
                   <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ getProductDescription(item) }}</p>
                   
                   <div class="flex items-center gap-3">
-                    <span class="text-2xl font-bold text-gray-800">{{ formatPrice(getProductPrice(item)) }} ៛</span>
+                    <span class="text-2xl font-bold text-gray-800">
+                      <template v-if="getProductPrice(item) !== null">
+                        {{ formatPrice(getProductPrice(item)) }} ៛
+                      </template>
+                      <template v-else>
+                        <span class="text-red-500">Price not available</span>
+                      </template>
+                    </span>
                     <span v-if="getProductDiscount(item) > 0" class="text-lg text-gray-400 line-through">
                       {{ formatPrice(getProductOldPrice(item)) }} ៛
                     </span>
@@ -321,13 +328,6 @@ const fetchCart = async () => {
     }
   } catch (err) {
     console.error('❌ Failed to fetch cart:', err);
-    Swal.fire({
-      icon: 'error',
-      title: t('alerts.failedToLoadCart'),
-      text: t('alerts.tryAgain'),
-      timer: 3000,
-      showConfirmButton: false,
-    });
   } finally {
     isLoading.value = false;
   }
@@ -351,11 +351,30 @@ const getProductName = (item) => {
 };
 
 const getProductPrice = (item) => {
+  // Try to get price from productData (guest cart)
   if (!token) {
-    return item.productData?.salePrice || 0;
+    if (item.productData && typeof item.productData.salePrice === 'number' && item.productData.salePrice > 0) {
+      return item.productData.salePrice;
+    }
+    // Fallback: try to get from products map if available
+    const product = products.value[item.productId];
+    if (product && typeof product.salePrice === 'number' && product.salePrice > 0) {
+      return product.salePrice;
+    }
+    // If still missing, return null to indicate missing price
+    return null;
   }
+  // Logged-in user: get from products map
   const product = products.value[item.productId];
-  return product?.salePrice || 0;
+  if (product && typeof product.salePrice === 'number' && product.salePrice > 0) {
+    return product.salePrice;
+  }
+  // Fallback: try to get from productData if available
+  if (item.productData && typeof item.productData.salePrice === 'number' && item.productData.salePrice > 0) {
+    return item.productData.salePrice;
+  }
+  // If still missing, return null
+  return null;
 };
 
 const getProductDiscount = (item) => {
@@ -435,12 +454,6 @@ const updateQuantity = async (item, newQuantity) => {
     }
   } catch (err) {
     console.error('Error updating quantity:', err);
-    Swal.fire({
-      icon: 'error',
-      title: t('alerts.failedToUpdateQuantity'),
-      timer: 1500,
-      showConfirmButton: false,
-    });
 
   }
 };
@@ -470,12 +483,7 @@ const removeItem = async (id) => {
     });
 
   } catch (err) {
-    Swal.fire({
-      icon: 'error',
-      title: t('alerts.failedToRemoveItem'),
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    // ...existing code...
 
   }
 };
@@ -513,18 +521,98 @@ const clearCart = async () => {
         showConfirmButton: false,
       });
     } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: t('alerts.failedToClearCart'),
-        timer: 1500,
-        showConfirmButton: false,
-      });
+      // ...existing code...
     }
   }
 };
 
 
 // Proceed to checkout
+// Function to get user's current location
+const getCurrentLocation = () => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation is not supported by your browser'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const token = localStorage.getItem('token');
+          const userId = localStorage.getItem('userId');
+
+          // Update user location in database
+          const updateResponse = await axios.patch(
+            `${API}/updateDoc/User/${userId}`,
+            {
+              fields: {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                updatedAt: new Date().toISOString()
+              }
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (updateResponse.data?.success) {
+            console.log('Location updated successfully:', {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+            // Show success toast
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Location updated successfully',
+              showConfirmButton: false,
+              timer: 2000
+            });
+            resolve(position);
+          } else {
+            // Show backend error message if available
+            const backendMsg = updateResponse.data?.message || 'Failed to update location in database';
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'warning',
+              title: backendMsg,
+              showConfirmButton: false,
+              timer: 3000
+            });
+            reject(new Error(backendMsg));
+          }
+        } catch (err) {
+          console.error('Error updating location:', err);
+          // Show error toast with backend error message if available
+          const backendMsg = err?.response?.data?.message || err.message || 'Could not update location';
+          // ...existing code...
+          reject(err);
+        }
+      },
+      (error) => {
+        console.warn('Geolocation error:', error);
+        // Show user-friendly error message
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'warning',
+          title: 'Please enable location access for better service',
+          showConfirmButton: false,
+          timer: 2000
+        });
+        reject(error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+    );
+  });
+};
+
 const openQRModal = async () => {
   isProcessing.value = true;
   paymentConfirmed.value = false;
@@ -536,6 +624,14 @@ const openQRModal = async () => {
       requireLogin(t);
       isProcessing.value = false;
       return;
+    }
+
+    // Try to get current location
+    try {
+      await getCurrentLocation();
+    } catch (locationErr) {
+      console.warn('Could not get location:', locationErr);
+      // Continue with order process even if location update fails
     }
     billNumber.value = `BILL${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
     const payload = {
@@ -576,11 +672,7 @@ const openQRModal = async () => {
     }
     showQRModal.value = true;
   } catch (err) {
-    Swal.fire({ 
-      icon: 'error', 
-      title: t('alerts.paymentInitiationFailed'), 
-      text: err?.response?.data?.message || t('alerts.tryAgain') 
-    });
+    // ...existing code...
   } finally {
     isProcessing.value = false;
   }
@@ -621,18 +713,75 @@ const createOrders = async () => {
     });
     
     const allowedRoles = ['customer', 'admin', 'super admin'];
-    const userRole = localStorage.getItem('userRole'); // Or use your store if available
-    const userName = localStorage.getItem('userName') || 'Guest';
-    const userLocation = localStorage.getItem('userLocation') || 'Unknown'; // Or use your store if available
+    const userRole = localStorage.getItem('userRole');
+    const userId = localStorage.getItem('userId');
+
+    // Fetch user details from User collection
+    let userDetails = {};
+    try {
+      const userResponse = await axios.get(`${API}/getAllDocs/User`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          dynamicConditions: JSON.stringify([
+            { field: '_id', operator: '==', value: userId }
+          ])
+        }
+      });
+
+      if (userResponse.data?.success && userResponse.data?.data?.length > 0) {
+        userDetails = userResponse.data.data[0];
+        console.log('User details retrieved:', userDetails);
+      } else {
+        console.warn('No user details found for ID:', userId);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user details from database:', err);
+    }
+
+    // Format address components
+    const formatLocation = (details) => {
+      const addressParts = [
+        details.village && `Village: ${details.village}`,
+        details.commune && `Commune: ${details.commune}`,
+        details.district && `District: ${details.district}`,
+        details.province && `Province: ${details.province}`,
+        details.country && `Country: ${details.country}`
+      ].filter(Boolean);
+      
+      return addressParts.length > 0 ? addressParts.join('\n') : null;
+    };
+
+    // Prepare location details
+    const latitude = userDetails.latitude;
+    const longitude = userDetails.longitude;
+    const addressFormatted = formatLocation(userDetails);
+    
+    // Create location text for Telegram with HTML formatting
+    let locationText = '';
+    if (latitude && longitude) {
+      const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      locationText = mapUrl;
+      if (addressFormatted) {
+        locationText += '\n\n' + addressFormatted;
+      }
+    } else if (addressFormatted) {
+      locationText = addressFormatted;
+    } else {
+      locationText = '📍 Location not available';
+    }
 
     if (allowedRoles.includes(userRole)) {
       await sendToTelegram(
-        `🛒 *New Order Created!*\n` +
-        `*User:* ${userName}\n` +
-        `*Amount:* ៛${finalAmount.value}\n` +
-        `*Time:* ${new Date().toLocaleString()}\n` +
-        `*Location:* ${userLocation}\n` +
-        `*Order ID:* ${orderResponse.data.data._id || 'N/A'}`
+        `🌟 New Order Notification 🌟\n\n` +
+        `📦 Order Details\n` +
+        `└─ 🆔 Order ID: ${orderResponse.data.data._id || 'N/A'}\n` +
+        `└─ 💰 Amount: ៛${formatPrice(finalAmount.value)}\n` +
+        `└─ ⏰ Time: ${new Date().toLocaleString()}\n\n` +
+        `👤 Customer Information\n` +
+        `└─ 😊 Name: ${userDetails.name || 'Guest'}\n` +
+        `└─ 📱 Phone: ${userDetails.displayPhoneNumber || userDetails.phoneNumber || 'N/A'}\n\n` +
+        `📍 Location\n` +
+        `└─ ${locationText}`
       );
     }
 
@@ -656,12 +805,13 @@ const createOrders = async () => {
           
           console.log(`Stock update for ${product.name}: Current=${currentStock}, Deducting=${quantityToDeduct}, New=${newStockAmount}`);
           
-          // Update the product with new stock amount
+          // Update the product with new stock amount and set status based on stock level
           const updateResponse = await axios.patch(
             `${API}/updateDoc/Product/${productId}`,
             {
               fields: {
                 totalStock: newStockAmount,
+                status: newStockAmount > 0, // Set status to false if stock is zero
                 updatedAt: new Date().toISOString(),
                 updatedBy: localStorage.getItem('userId') || 'customer'
               }
@@ -675,6 +825,40 @@ const createOrders = async () => {
             collection: 'Product',
             data: productId
           });
+
+          // Update corresponding Stock record if it exists
+          try {
+            const stockResponse = await axios.get(`${API}/getAllDocs/Stock`, {
+              headers: { Authorization: `Bearer ${token}` },
+              params: {
+                dynamicConditions: JSON.stringify([
+                  { field: 'productId', operator: '==', value: productId }
+                ])
+              }
+            });
+
+            if (stockResponse.data && stockResponse.data.data && stockResponse.data.data.length > 0) {
+              const stockRecord = stockResponse.data.data[0];
+              await axios.patch(`${API}/updateDoc/Stock/${stockRecord._id}`, {
+                fields: {
+                  quantity: newStockAmount,
+                  isOutOfStock: newStockAmount <= 0,
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: localStorage.getItem('userId') || 'customer'
+                }
+              }, { headers: { Authorization: `Bearer ${token}` } });
+
+              // Emit stock update event
+              socket.emit('dataUpdate', {
+                action: 'update',
+                collection: 'Stock',
+                data: stockRecord._id
+              });
+            }
+          } catch (stockErr) {
+            console.error("Error updating stock record:", stockErr);
+            // Continue with the order process even if stock update fails
+          }
           
           console.log(`Updated stock for product ${product.name}: ${product.totalStock} → ${newStockAmount}`);
         }
@@ -727,11 +911,7 @@ const createOrders = async () => {
     showQRModal.value = false;
     // No need to fetch cart again since we've already cleared it
   } catch (err) {
-  Swal.fire({ 
-      icon: 'error', 
-      title: t('alerts.orderCreationFailed'), 
-      text: err?.response?.data?.message || t('alerts.contactSupport') 
-    });
+  // ...existing code...
   }
 };
 
@@ -759,11 +939,7 @@ const confirmPayment = async () => {
     // Create the order
     await createOrders();
   } catch (err) {
-    Swal.fire({ 
-      icon: 'error', 
-      title: t('alerts.confirmFailed'), 
-      text: err?.response?.data?.message || t('alerts.tryAgain') 
-    });
+    // ...existing code...
   }
 };
 

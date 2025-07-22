@@ -324,6 +324,7 @@
 import apiURL from '@/api/config';
 import Pagination from '@/components/Pagination.vue';
 import formatDate from '@/composables/formatDate';
+import { useDeliveryBot } from '@/composables/useDeliveryBot';
 import socket from '@/services/socket.js';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
@@ -524,6 +525,7 @@ const closeEditDialog = () => {
 };
 
 const updateOrderStatus = async (newStatus) => {
+  const { sendToTelegram } = useDeliveryBot();
   if (!editOrderData.value) return;
 
   const confirmResult = await Swal.fire({
@@ -557,22 +559,69 @@ const updateOrderStatus = async (newStatus) => {
     );
 
     if (response.data.success) {
-      // ✅ Send Telegram alert if status is 'delivering'
+      // ✅ Send Telegram alert to delivery bot if status is 'delivering'
       if (newStatus === 'delivering') {
         try {
-          await axios.post(
-            `${apiURL}/api/delivery/confirm`,
-            {
-              orderId: editOrderData.value._id,
-              customerName: editOrderData.value.customerName,
-              address: editOrderData.value.address
-            },
-            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-          );
-          console.log("✅ Telegram alert sent");
+          // Prepare delivery notification message with amount and address
+          const orderId = editOrderData.value._id;
+          const orderTime = new Date().toLocaleString();
+          const orderAmount = editOrderData.value.totalCost ? `៛${Number(editOrderData.value.totalCost).toLocaleString()}` : '៛0.00';
+          const customerName = editOrderData.value.userId?.name || 'Guest';
+          const customerPhone = editOrderData.value.userId?.phoneNumber || editOrderData.value.userId?.displayPhoneNumber || 'N/A';
+          // Try to get location from userId (populated user object)
+          const latitude = editOrderData.value.userId?.latitude;
+          const longitude = editOrderData.value.userId?.longitude;
+          
+          // Format address more cleanly
+          const user = editOrderData.value.userId || {};
+          const address = [
+            user.village && `Village: ${user.village}`,
+            user.commune && `Commune: ${user.commune}`,
+            user.district && `District: ${user.district}`,
+            user.province && `Province: ${user.province}`,
+            user.country && `Country: ${user.country}`
+          ].filter(Boolean);
+          
+          // Build location section
+          let locationSection = '';
+          if (latitude && longitude) {
+            locationSection = `📍 <a href="https://www.google.com/maps?q=${latitude},${longitude}">View on Google Maps</a>\n`;
+          }
+          if (address.length > 0) {
+            locationSection += address.join('\n');
+          } else {
+            locationSection += '📍 Location not available';
+          }
+
+          // Format order items
+          const items = editOrderData.value.items.map(item => 
+            `• ${item.name} (${item.quantity}x) - ៛${Number(item.price).toLocaleString()}`
+          ).join('\n');
+
+          const message = 
+            '<b>🌟 NEW DELIVERY ORDER 🌟</b>\n\n' +
+            '<b>📦 ORDER DETAILS</b>\n' +
+            `🆔 Order ID: <code>${orderId}</code>\n` +
+            `⏰ Time: ${orderTime}\n` +
+            `� Total Amount: <b>${orderAmount}</b>\n\n` +
+            '<b>👤 CUSTOMER INFORMATION</b>\n' +
+            `Name: ${customerName}\n` +
+            `Phone: ${customerPhone}\n\n` +
+            '<b>📍 DELIVERY LOCATION</b>\n' +
+            `${locationSection}\n\n` +
+            '<b>🛍️ ORDER ITEMS</b>\n' +
+            items;
+
+          console.log("📤 Sending Telegram message:", message);
+          const result = await sendToTelegram(message);
+          console.log("✅ Delivery bot notification sent", result);
         } catch (telegramError) {
-          console.error('❌ Telegram alert failed:', telegramError);
+          console.error('❌ Delivery bot notification failed:', telegramError);
         }
+        // Auto-close the dialog immediately after updating to delivering
+        closeEditDialog();
+        fetchOrders();
+        return;
       }
 
       Swal.fire({
@@ -669,13 +718,13 @@ const updateOrder = async () => {
       };
 
       // Show success notification
-      Swal.fire({
-        icon: 'success',
-        title: t('order.updateOrder') + ' Successfully',
-        text: 'Order status has been updated to delivering',
-        timer: 2000,
-        showConfirmButton: false
-      });
+      // Swal.fire({
+      //   icon: 'success',
+      //   title: t('order.updateOrder') + ' Successfully',
+      //   text: 'Order status has been updated to delivering',
+      //   timer: 2000,
+      //   showConfirmButton: false
+      // });
       
       // Close the modal after a short delay
       setTimeout(() => {

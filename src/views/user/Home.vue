@@ -409,7 +409,7 @@
     </footer>
 
     <!-- Cart Drawer -->
-    <div v-if="showCartDrawer"
+    <!-- <div v-if="showCartDrawer"
       class="fixed top-0 right-0 w-[360px] h-full bg-white border-l border-gray-200 shadow-lg z-[999] flex flex-col p-5">
       <div class="flex justify-between items-center mb-3 text-lg">
         <h3 class="font-medium">{{ $t('cart.title') }}</h3>
@@ -448,17 +448,19 @@
           {{ $t('cart.viewCart') }}
         </router-link>
       </div>
-    </div>
+    </div> -->
 
     <!-- Cart Button -->
-    <button @click="showCartDrawer = true"
-      class="fixed bottom-8 right-8 bg-yellow-400 text-gray-800 rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-orange-400 transition-colors z-50">
-      <span class="text-2xl">🛒</span>
-      <span v-if="cartItems.length > 0"
-        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-        {{ cartItems.length }}
-      </span>
-    </button>
+    <router-link to="/cart">
+      <button
+        class="fixed bottom-8 right-8 bg-yellow-400 text-gray-800 rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-orange-400 transition-colors z-50">
+        <span class="text-2xl">🛒</span>
+        <span v-if="cartItems.length > 0"
+          class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+          {{ cartItems.length }}
+        </span>
+      </button>
+    </router-link>
 
     <!-- Rating Modal -->
     <transition name="fade">
@@ -855,7 +857,8 @@ async function addToCart(product) {
           }
         },
         {
-          headers: {
+          headers:
+           {
             Authorization: token ? `Bearer ${token}` : '',
             'Content-Type': 'application/json'
           }

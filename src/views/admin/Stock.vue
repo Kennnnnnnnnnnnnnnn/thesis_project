@@ -372,10 +372,6 @@ const handleListenIsLastRecordOnPage = (page) => {
 const getStockStatusClass = (stock, minThreshold) => {
   if (stock <= 0) {
     return 'bg-red-100 text-red-700 border-red-200';
-  } else if (stock <= minThreshold * 0.5) {
-    return 'bg-orange-100 text-orange-700 border-orange-200';
-  } else if (stock <= minThreshold) {
-    return 'bg-yellow-100 text-yellow-700 border-yellow-200';
   } else {
     return 'bg-green-100 text-green-700 border-green-200';
   }
@@ -385,10 +381,6 @@ const getStockStatusClass = (stock, minThreshold) => {
 const getStockStatusText = (stock, minThreshold) => {
   if (stock <= 0) {
     return 'Out of Stock';
-  } else if (stock <= minThreshold * 0.5) {
-    return 'Critical Stock';
-  } else if (stock <= minThreshold) {
-    return 'Low Stock';
   } else {
     return 'In Stock';
   }
@@ -398,10 +390,6 @@ const getStockStatusText = (stock, minThreshold) => {
 const getStockStatusIcon = (stock, minThreshold) => {
   if (stock <= 0) {
     return 'fa-circle-xmark';
-  } else if (stock <= minThreshold * 0.5) {
-    return 'fa-triangle-exclamation';
-  } else if (stock <= minThreshold) {
-    return 'fa-exclamation-circle';
   } else {
     return 'fa-circle-check';
   }

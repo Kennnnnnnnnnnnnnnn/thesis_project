@@ -395,8 +395,10 @@ async function verifyOtp() {
           try {
             // Use the dynamic route endpoint to update User collection
             await axios.patch(`${api}/api/updateDoc/User/${userId}`, {
-              latitude: locationData.latitude,
-              longitude: locationData.longitude
+              fields: {
+                latitude: locationData.latitude,
+                longitude: locationData.longitude
+              }
             }, {
               headers: {
                 'Authorization': `Bearer ${response.data.token}`

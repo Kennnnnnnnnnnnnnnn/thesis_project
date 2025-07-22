@@ -8,6 +8,7 @@ export const useTelegram = () => {
     const chatId = '1058951332';
 
 
+
     const telegramURL = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
     const sendToTelegram = async (text) => {
