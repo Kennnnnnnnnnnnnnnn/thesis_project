@@ -1,69 +1,69 @@
 <template>
   <div class="p-4 md:p-6 bg-gray-50 font-khmer">
-    <!-- Header Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <!-- Title -->
-        <div class="flex items-center gap-4">
-          <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
-              <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h1>
-            <!-- <p class="text-sm text-gray-600 mt-0.5 font-medium">Manage your product catalog and inventory</p> -->
-          </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          <!-- Items per page -->
-          <div class="relative">
-            <button @click="toggleDropdownRow"
-              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-              <span>{{ selectedItem }} {{ $t('items') }}</span>
-              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
-                :class="{ 'rotate-180': isOpen }"></i>
-            </button>
-            <div v-show="isOpen"
-              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
-              <div v-for="item in items" :key="item" @click="selectItem(item)"
-                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                {{ item }} {{ $t('items') }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Search Input -->
-          <div class="relative">
-            <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
-              class="w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-          </div>
-
-          <!-- Category Filter -->
-          <select v-model="categoryFilter"
-            class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
-            <option value="all">{{ $t('products.categories.all') }}</option>
-            <option v-for="category in categories" :key="category._id" :value="category._id">
-              {{ category.name }}
-            </option>
-          </select>
-
-          <!-- Add Button -->
-          <button
-            class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
-            @click="openModal">
-            <i class="fas fa-plus text-xs"></i>
-            {{ $t('products.addToCart') }}
-          </button>
-        </div>
-
+<!-- Header Section -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <!-- Title -->
+    <div class="flex items-center gap-3 md:gap-4">
+      <div class="p-2 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h1>
       </div>
     </div>
 
+    <!-- Controls -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
+      <!-- Search Input - Moved to top for mobile -->
+      <div class="relative w-full sm:w-auto sm:order-2">
+        <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
+          class="w-full sm:w-48 md:w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+      </div>
+
+      <div class="flex flex-row gap-3 items-center flex-wrap sm:order-1">
+        <!-- Items per page -->
+        <div class="relative">
+          <button @click="toggleDropdownRow"
+            class="flex items-center justify-between min-w-[110px] px-3 py-2 md:px-4 md:py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+            <span>{{ selectedItem }} {{ $t('items') }}</span>
+            <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
+              :class="{ 'rotate-180': isOpen }"></i>
+          </button>
+          <div v-show="isOpen"
+            class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
+            <div v-for="item in items" :key="item" @click="selectItem(item)"
+              class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
+              {{ item }} {{ $t('items') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Filter -->
+        <select v-model="categoryFilter"
+          class="px-3 py-2 md:px-4 md:py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all min-w-[120px]">
+          <option value="all">{{ $t('products.categories.all') }}</option>
+          <option v-for="category in categories" :key="category._id" :value="category._id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Add Button -->
+      <button
+        class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2 md:px-5 md:py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl sm:order-3"
+        @click="openModal">
+        <i class="fas fa-plus text-xs"></i>
+        <span class="hidden sm:inline">{{ $t('products.addToCart') }}</span>
+        <span class="sm:hidden">{{ $t('products.add') }}</span>
+      </button>
+    </div>
+  </div>
+</div>
     <!-- Main Table Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
       <!-- Table Header -->

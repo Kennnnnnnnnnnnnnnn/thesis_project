@@ -1,66 +1,67 @@
 <template>
   <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
-    <!-- Header Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <!-- Title -->
-        <div class="flex items-center gap-4">
-          <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
-              <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
-              <path d="M7 7V5a2 2 0 0 1 4 0v2"></path>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Restock Management</h1>
-          </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          <!-- Items per page -->
-          <div class="relative">
-            <button @click="toggleDropdownRow"
-              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-              <span>{{ selectedItem }} items</span>
-              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
-                :class="{ 'rotate-180': isOpen }"></i>
-            </button>
-            <div v-show="isOpen"
-              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
-              <div v-for="item in items" :key="item" @click="selectItem(item)"
-                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                {{ item }} items
-              </div>
-            </div>
-          </div>
-
-          <!-- Search Input -->
-          <div class="relative">
-            <input v-model="searchQuery" type="text" placeholder="Search restock orders..."
-              class="w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-          </div>
-
-          <!-- Status Filter -->
-          <select v-model="statusFilter"
-            class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
-            <option value="all">All Status</option>
-            <option value="true">Pending</option>
-            <option value="false">Completed</option>
-          </select>
-
-          <!-- Add Button -->
-          <button
-            class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
-            @click="openModal">
-            <i class="fas fa-plus text-xs"></i>
-            Purchase
-          </button>
-        </div>
+   <!-- Header Section -->
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-6">
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <!-- Title -->
+    <div class="flex items-center gap-4">
+      <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2">
+          <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          <path d="M7 7V5a2 2 0 0 1 4 0v2"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Restock Management</h1>
       </div>
     </div>
+
+    <!-- Controls -->
+    <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center w-full lg:w-auto">
+      <!-- Items per page -->
+      <div class="relative w-full sm:w-auto">
+        <button @click="toggleDropdownRow"
+          class="w-full sm:w-auto flex items-center justify-between px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+          <span>{{ selectedItem }} items</span>
+          <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
+            :class="{ 'rotate-180': isOpen }"></i>
+        </button>
+        <div v-show="isOpen"
+          class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
+          <div v-for="item in items" :key="item" @click="selectItem(item)"
+            class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
+            {{ item }} items
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative w-full sm:w-auto">
+        <input v-model="searchQuery" type="text" placeholder="Search restock orders..."
+          class="w-full sm:w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+      </div>
+
+      <!-- Status Filter -->
+      <select v-model="statusFilter"
+        class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
+        <option value="all">All Status</option>
+        <option value="true">Pending</option>
+        <option value="false">Completed</option>
+      </select>
+
+      <!-- Add Button -->
+      <button
+        class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+        @click="openModal">
+        <i class="fas fa-plus text-xs"></i>
+        Purchase
+      </button>
+    </div>
+  </div>
+</div>
+
 
     <!-- Table -->
     <div class="overflow-y-auto mt-5 relative bg-white rounded-lg shadow-sm border border-gray-100"
