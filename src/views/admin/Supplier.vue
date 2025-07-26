@@ -119,7 +119,9 @@
                       </div>
                       <!-- Mobile-only info -->
                       <div class="text-xs text-gray-500 sm:hidden mt-1">
-                        <div>{{ formatShortDate(supplier.createdAt) }}</div>
+                        <div>
+                          {{ formatDate(supplier.createdAt) }}
+                        </div>
                         <div class="truncate max-w-[120px]" v-if="supplier.contact">{{ supplier.contact }}</div>
                       </div>
                     </div>

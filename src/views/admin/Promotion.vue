@@ -167,6 +167,163 @@
       </div>
     </div>
 
+
+    <!-- Create/Edit Modal -->
+    <div v-if="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-[1000] p-4">
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-200">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 tracking-tight">
+              {{ showEditModal ? 'Update Promotion' : 'Create New Promotion' }}
+            </h2>
+            <p class="text-sm text-gray-600 mt-1 font-medium">
+              {{ showEditModal ? 'Modify existing promotion details' : 'Add a new promotion to your campaigns' }}
+            </p>
+          </div>
+          <button class="p-2.5 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all"
+            @click="closeModal">
+            <i class="fas fa-times text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
+          <!-- Product and Promotion Type -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Product <span class="text-red-500">*</span>
+              </label>
+              <select v-model="productId" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
+                <option value="" disabled>Choose product</option>
+                <option v-for="product in products" :key="product._id" :value="product._id">
+                  {{ product.name }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Promotion Type <span class="text-red-500">*</span>
+              </label>
+              <select v-model="promotionType" required
+                class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium">
+                <option value="" disabled>Choose type</option>
+                <option value="discount">Discount</option>
+                <option value="freeDelivery">Free Delivery</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Start and End Date Pickers -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Start Date <span class="text-red-500">*</span>
+              </label>
+              <DatePicker v-model="startDate" :min-date="new Date()"
+                input-class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-medium" :show-icon="true"
+                dateFormat="dd/mm/yy" placeholder="Start date" />
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                End Date <span class="text-red-500">*</span>
+              </label>
+              <DatePicker v-model="endDate" :min-date="startDate || new Date()"
+                input-class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-medium" :show-icon="true"
+                dateFormat="dd/mm/yy" placeholder="End date" />
+            </div>
+          </div>
+
+          <!-- Promotion Quantity Limit and Unit -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Quantity for Discount <span class="text-red-500">*</span>
+              </label>
+              <input v-model="promotionQtyLimit" type="number" min="0" step="1"
+                class="flex px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Input qty" />
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Quantity <span class="text-red-500">*</span>
+              </label>
+              <input v-model="promotionQtyStartFrom" type="number" min="0" step="1"
+                class="flex px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Start from qty" />
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3">
+                Unit <span class="text-red-500">*</span>
+              </label>
+              <input v-model="promotionQtyUnit" type="text"
+                class=" px-3 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all font-medium"
+                placeholder="Unit (e.g. kg, pcs)" />
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-3">
+              Description
+            </label>
+            <textarea v-model="description" rows="3"
+              class="w-full px-4 py-3.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all resize-none font-medium"
+              placeholder="Description (optional)"></textarea>
+          </div>
+
+          <!-- Status Toggle -->
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-3">
+              Status
+            </label>
+            <div class="flex items-center space-x-3">
+              <Switch v-model="enabled" class="relative inline-flex h-6 w-11 items-center rounded-full transition"
+                :class="enabled ? 'bg-amber-500' : 'bg-gray-300'">
+                <span class="sr-only">Toggle Status</span>
+                <span class="inline-block h-4 w-4 transform bg-white rounded-full transition shadow-sm"
+                  :class="enabled ? 'translate-x-6' : 'translate-x-1'"></span>
+              </Switch>
+              <span class="text-sm text-gray-700 font-medium">{{ enabled ? 'Active' : 'Inactive' }}</span>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-circle text-red-500"></i>
+              <p class="text-red-700 text-sm font-semibold">{{ error }}</p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-4 pt-4">
+            <button type="button"
+              class="flex-1 px-6 py-3.5 text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 font-semibold transition-all"
+              @click="resetForm">
+              {{ $t('common.reset') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting"
+              class="flex-1 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-2xl hover:from-amber-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
+              <span v-if="isSubmitting" class="flex items-center justify-center gap-2">
+                <i class="fas fa-spinner fa-spin"></i>
+                {{ showEditModal ? 'Updating Promotion...' : 'Creating Promotion...' }}
+              </span>
+              <span v-else>
+                {{ showEditModal ? 'Update Promotion' : 'Create Promotion' }}
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+   
+
     <!-- Confirmation Dialog -->
     <DeleteConfirmation :show="showConfirmDialog" @cancel="handleCancelConfirmation"
       @confirm="handleDeleteConfirmation" />
