@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 sm:p-4 md:p-6 bg-gray-50 font-khmer">
+  <div class="p-2 sm:p-4 md:p-6 bg-gray-50">
     <!-- Header Section - Stacked on mobile -->
     <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-4 sm:mb-6">
       <div class="flex flex-col gap-4 sm:gap-6">

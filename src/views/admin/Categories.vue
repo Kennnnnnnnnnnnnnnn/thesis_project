@@ -1,10 +1,10 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen ">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <!-- Title -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 w-[450px]">
           <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -12,7 +12,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Category Management</h1>
+            <h1 class="text-xl font-bold text-gray-900 tracking-tight">Category Management</h1>
           </div>
         </div>
 

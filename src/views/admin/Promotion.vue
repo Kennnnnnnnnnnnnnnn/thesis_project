@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 font-khmer">
+  <div class="p-4 md:p-6 bg-gray-50">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-6">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -11,7 +11,7 @@
               <path d="M16 6l4 4-4 4M8 18l-4-4 4-4"></path>
             </svg>
           </div>
-          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Promotions</h1>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight">Promotions</h1>
         </div>
 
         <!-- Controls -->

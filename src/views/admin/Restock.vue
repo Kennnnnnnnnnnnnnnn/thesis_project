@@ -1,8 +1,8 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
+  <div class="p-4 md:p-6 bg-gray-50 min-h-screen">
    <!-- Header Section -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-6">
-  <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
     <!-- Title -->
     <div class="flex items-center gap-4">
       <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
@@ -13,12 +13,12 @@
         </svg>
       </div>
       <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Restock Management</h1>
+        <h1 class="text-xl sm:text-xl font-bold text-gray-900 tracking-tight w-[230px]">Restock Management</h1>
       </div>
     </div>
 
     <!-- Controls -->
-    <div class="flex flex-col sm:flex-row sm:flex-wrap gap-3 items-stretch sm:items-center w-full lg:w-auto">
+    <div class="flex flex-col gap-3 w-full lg:flex-row lg:flex-nowrap lg:items-center lg:justify-end">
       <!-- Items per page -->
       <div class="relative w-full sm:w-auto">
         <button @click="toggleDropdownRow"
@@ -38,8 +38,8 @@
 
       <!-- Search Input -->
       <div class="relative w-full sm:w-auto">
-        <input v-model="searchQuery" type="text" placeholder="Search restock orders..."
-          class="w-full sm:w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+        <input v-model="searchQuery" type="text" placeholder="Search restock"
+          class="w-full sm:w-42 lg:w-44 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
       </div>
 
@@ -59,6 +59,7 @@
         Purchase
       </button>
     </div>
+
   </div>
 </div>
 

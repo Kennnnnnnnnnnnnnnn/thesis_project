@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 font-khmer">
+  <div class="p-2">
     <!-- Header Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
       <h1 class="text-xl font-bold text-gray-900">Order Reports</h1>

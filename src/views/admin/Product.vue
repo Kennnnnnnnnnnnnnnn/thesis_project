@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 bg-gray-50 font-khmer">
+  <div class="p-4 md:p-6 bg-gray-50">
 <!-- Header Section -->
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 md:p-6 mb-6">
   <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -12,7 +12,7 @@
         </svg>
       </div>
       <div>
-        <h1 class="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h1>
+        <h1 class="text-xl md:text-xl font-bold text-gray-900 tracking-tight">{{ $t('products.title') }}</h1>
       </div>
     </div>
 

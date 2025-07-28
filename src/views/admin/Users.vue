@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 md:p-6 font-khmer">
+  <div class="p-4 md:p-6">
  <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
   <div class="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
     <!-- Title -->
@@ -15,7 +15,7 @@
       <!-- Search - Full width on mobile -->
       <div class="relative w-full sm:w-auto sm:flex-1 sm:min-w-[200px]">
         <input v-model="searchQuery" type="text" :placeholder="$t('user.searchPlaceholder')"
-          class="w-full pl-8 pr-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"/>
+          class="w-full sm:w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"/>
         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
       </div>
       
@@ -25,7 +25,7 @@
       </div>
       
       <button @click="openModal"
-        class="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-lg text-sm font-semibold transition-colors duration-200 shadow-sm hover:shadow-md">
+        class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl">
         <i class="fas fa-plus"></i>
         <span>{{ $t('user.createUser') }}</span>
       </button>

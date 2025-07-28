@@ -1,9 +1,9 @@
 <template>
-  <div class="p-6 max-w-screen-xl mx-auto bg-gray-100 min-h-screen overflow-y-auto font-sans">
+  <div class="p-2 max-w-screen-xl mx-auto bg-gray-100 min-h-screen overflow-y-auto font-sans">
     <!-- Header -->
     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Business Dashboard</h1>
+        <h1 class="text-2xl font-bold text-gray-900">Business Dashboard</h1>
       </div>
       <div class="flex items-center gap-4 mt-4 md:mt-0">
         <select

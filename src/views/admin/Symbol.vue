@@ -1,5 +1,5 @@
 <template>
-    <div class="p-4 md:p-6 bg-gray-50 font-khmer">
+    <div class="p-4 md:p-6 bg-gray-50">
         <!-- Header Section -->
         <div
             class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -8,12 +8,12 @@
                     <i class="fas fa-coins text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Symbol Management</h1>
+                    <h1 class="text-xl font-bold text-gray-900 tracking-tight">Symbol Management</h1>
                     <p class="text-sm text-gray-500 mt-1">Manage your currency symbols</p>
                 </div>
             </div>
             <button @click="showAddModal = true"
-                class="px-6 py-3 rounded-2xl bg-orange-600 text-white font-bold hover:bg-orange-700 transition-all">
+                class="w-[160px] xs:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl">
                 <i class="fas fa-plus mr-2"></i> Add Symbol
             </button>
         </div>

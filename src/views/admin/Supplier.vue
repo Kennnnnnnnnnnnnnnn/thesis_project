@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 sm:p-4 md:p-6 bg-gray-50 min-h-screen font-khmer">
+  <div class="p-2 sm:p-4 md:p-6 bg-gray-50 min-h-screen">
     <!-- Header Section - Stacked on mobile -->
     <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-4 sm:mb-6">
       <div class="flex flex-col gap-4 sm:gap-6">
@@ -13,7 +13,7 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Supplier Management</h1>
+            <h1 class="text-xl sm:text-xl font-bold text-gray-900 tracking-tight">Supplier Management</h1>
           </div>
         </div>
         
@@ -57,7 +57,7 @@
 
               <!-- Add Button - Full width on mobile -->
               <button
-                class="w-full xs:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+                class="w-[100px] xs:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
                 @click="openModal">
                 <i class="fas fa-plus text-xs"></i>
                 <span class="hidden xs:inline">Create Supplier</span>
