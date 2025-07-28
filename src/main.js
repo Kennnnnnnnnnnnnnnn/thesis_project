@@ -26,6 +26,7 @@ import * as directives from 'vuetify/directives';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import 'vuetify/styles';
 import './registerServiceWorker';
+import './assets/tailwind.css'
 
 // 🌐 Vue I18n
 import { createI18n } from 'vue-i18n';

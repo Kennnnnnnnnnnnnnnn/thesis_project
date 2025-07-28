@@ -1,11 +1,10 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 module.exports = {
   content: ["./public/**/*.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        khmer: ['Noto Serif Khmer', 'serif'],
+        sans: ['"Kantumruy Pro"', 'Inter', 'sans-serif'], // Khmer + English fallback
       },
     },
   },
