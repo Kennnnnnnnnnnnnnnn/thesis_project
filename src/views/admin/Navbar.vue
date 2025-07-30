@@ -229,14 +229,14 @@ const logout = () => {
     store.clearAuth();
     localStorage.clear();
     localStorage.removeItem('auth');
-    window.location.href = '/login';
+    window.location.href = '/';
 };
 
 // On mount: add resize listener & fetch user data
 onMounted(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-        router.push('/login');
+        router.push('/user-login');
         return;
     }
 

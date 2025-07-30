@@ -3,7 +3,7 @@
       <!-- Logo -->
       <div class="flex items-center gap-2 sm:gap-4 cursor-pointer" @click="navigateToHome">
         <img src="@/assets/rice.png" alt="Logo" class="h-7 sm:h-9 w-auto" />
-        <h1 class="text-lg sm:text-xl font-semibold text-gray-800">{{ $t('companyName') }}</h1>
+        <h1 class="text-lg sm:text-xl font-semibold text-gray-800">{{ $t('companyName')}}</h1>
       </div>
 
       <!-- Location Display -->
@@ -26,22 +26,26 @@
       <div class="flex items-center gap-2 sm:gap-4 md:gap-6">
         <!-- Language Switcher -->
         <button @click="toggleLanguage" class="p-2 rounded-md hover:bg-gray-100 transition">
-          <img :src="currentFlag" alt="Lang" class="h-6 w-6 object-contain" />
+          <img :src="currentFlag" alt="Lang" class="h-7 w-7 object-contain" />
         </button>
 
         <!-- Auth -->
         <template v-if="!isAuthenticated">
-          <router-link to="/register" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">{{
-            $t('common.register') }}</router-link>
-          <router-link to="/login" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">{{
-            $t('common.login') }}</router-link>
+          <div class="hidden md:flex items-center gap-3">
+            <router-link to="/register" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
+              {{ $t('common.register') }}
+            </router-link>
+            <router-link to="/user-login" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+              {{ $t('common.login') }}
+            </router-link>
+          </div>
         </template>
 
         <template v-else>
           <!-- Profile and Logout for Desktop -->
           <div class="hidden md:flex items-center gap-3">
             <router-link to="/profile"
-              class="flex items-center gap-2 px-3 py-1 rounded bg-slate-200 text-gray-800 hover:bg-slate-300">
+              class="flex items-center gap-2 px-3  rounded bg-slate-100 text-gray-800 hover:bg-slate-200">
               <img :src="profileImage" alt="Profile" class="w-8 h-8 rounded-full object-cover" />
               <span>{{ profileName }}</span>
             </router-link>
@@ -98,16 +102,39 @@
           </router-link>
         </li>
         <!-- Logout Button -->
-        <li>
-          <button @click="logout"
-            class="flex items-center gap-3 w-full text-left text-red-600 font-medium text-base hover:text-red-700">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            {{ $t('common.logout') }}
-          </button>
-        </li>
+          <li>
+            <template v-if="isAuthenticated">
+              <button @click="logout"
+                class="flex items-center gap-3 w-full text-left text-red-600 font-medium text-base hover:text-red-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                {{ $t('common.logout') }}
+              </button>
+            </template>
+
+            <template v-else>
+              <router-link to="/register"
+                class="flex items-center gap-3 text-yellow-600 font-medium text-base hover:text-yellow-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4v16m8-8H4" />
+                </svg>
+                {{ $t('common.register') }}
+              </router-link>
+
+              <router-link to="/user-login"
+                class="flex items-center gap-3 text-green-600 font-medium text-base hover:text-green-700 mt-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+                {{ $t('common.login') }}
+              </router-link>
+            </template>
+          </li>
+
       </ul>
     </div>
 
