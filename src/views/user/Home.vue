@@ -3,23 +3,10 @@
     <!-- Search Section -->
 
 
-    <section class="py-8 mt-8">
-      <div class="max-w-6xl mx-auto px-5">
-        <div class="relative max-w-2xl mx-auto">
-          <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
-            class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400" />
-          <!-- Search Icon on right -->
-          <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z" />
-          </svg>
-        </div>
-      </div>
-    </section>
+    
 
     <!-- Image Carousel -->
-    <section class="my-8">
+    <section class="mt-10 mb-8">
       <div class="relative overflow-hidden rounded-lg border border-yellow-200">
         <div class="flex transition-transform duration-500 ease-in-out"
           :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
@@ -131,12 +118,27 @@
     </section>
 
 
+    <section class="mt-3">
+          <div class="max-w-6xl mx-auto px-5">
+            <div class="relative max-w-2xl mx-auto">
+              <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
+                class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400" />
+              <!-- Search Icon on right -->
+              <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z" />
+              </svg>
+            </div>
+          </div>
+    </section>
+
 
     <!-- New Products Section -->
     <section class="py-10">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.newProductsTitle') }}</h2>
+          <h2 class="text-2xl font-bold text-gray-800">{{ $t('home.newProductsTitle') }}</h2>
           <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
             {{ $t('common.viewAll') }}
@@ -206,77 +208,11 @@
       </div>
     </section>
 
-    <!-- Best Sellers Section -->
-    <!-- <section class="py-10"> -->
-    <!-- <div class="max-w-6xl mx-auto px-5">
-        <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.bestSellersTitle') }}</h2>
-          <router-link to="/product"
-            class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
-            {{ $t('common.viewAll') }}
-          </router-link>
-        </div> -->
-
-    <!-- <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          <div v-for="product in bestSellers" :key="product._id"
-            class="bg-white rounded-lg border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col h-full"> -->
-    <!-- Product Image -->
-    <!-- <div class="bg-gray-50 p-4 h-48 flex items-center justify-center">
-              <img :src="product.imageURL || require('@/assets/image.png')" alt="Product Image"
-                class="max-w-full max-h-40 object-contain">
-            </div> -->
-
-    <!-- Product Info -->
-    <!-- <div class="p-4 flex flex-col flex-grow">
-              <div class="flex items-center justify-center mb-2">
-                <span v-for="i in 5" :key="i" class="text-xl"
-                  :class="{'text-yellow-400': i <= (product.avgRating || 0), 'text-gray-300': i > (product.avgRating || 0)}">
-                  ★
-                </span>
-                <span class="ml-2 text-sm text-gray-500">({{ product.ratingCount || 0 }})</span>
-              </div>
-
-              <h3 class="text-base font-bold text-center mb-2 text-gray-800">
-                {{ product.name }}
-              </h3>
-
-              <p class="text-sm text-gray-600 text-center mb-3 flex-grow">
-                {{ product.description || $t('home.premiumProduct') }}
-              </p>
-
-              <div class="text-center my-4">
-                <p v-if="product.discount > 0" class="text-xs text-gray-500 line-through">
-                  ៛{{ formatPrice(product.salePrice) }}
-                </p>
-                <p class="text-xl font-bold text-gray-800">
-                  ៛{{ formatPrice(calculateFinalPrice(product)) }}
-                </p>
-                <span v-if="product.discount > 0" class="text-sm text-red-600 font-bold">
-                  {{ $t('common.save') }} {{ product.discount }}%
-                </span>
-              </div>
-
-              <div class="flex justify-between items-center mt-2">
-                <button @click="toggleFavorite(product)">
-                  <span :class="{ favorited: product.isFavorite }" class="heart">❤</span>
-                </button>
-                <button @click="addToCart(product)"
-                  class="bg-yellow-400 text-gray-800 border-none px-4 py-2 rounded cursor-pointer transition-all duration-300 font-bold text-sm flex-grow ml-2 hover:bg-orange-400 hover:text-white">
-                  {{ $t('common.addToCart') }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section> -->
-
-
     <!-- All Products Section -->
     <section class="py-10">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800">{{ $t('home.allProductsTitle') }}</h2>
+          <h2 class="text-2xl font-bold text-gray-800">{{ $t('home.allProductsTitle') }}</h2>
           <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
             {{ $t('common.viewAll') }}

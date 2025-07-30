@@ -36,9 +36,8 @@
                         </button> -->
 
                         <!-- Translate Button -->
-                        <button @click="toggleLanguage"
-                            class="bg-gray-50 border border-gray-200 text-gray-600 font-medium py-2 px-4 rounded-md transition-all duration-200 flex items-center gap-2 hover:bg-yellow-50 hover:text-amber-900 hover:border-yellow-200">
-                            <span>{{ currentLanguage }}</span>
+                        <button @click="toggleLanguage" class="p-2 rounded-md hover:bg-gray-100 transition">
+                           <img :src="currentFlag" alt="Lang" class="h-7 w-7 object-contain" />
                         </button>
 
                         <!-- Profile Dropdown -->
@@ -49,9 +48,9 @@
                                     <img :src="userData.profilePicture" :alt="userData.name"
                                         class="w-full h-full object-cover" />
                                 </div>
-                                <div v-else
-                                    class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-medium">
-                                    {{ userData.name }}
+                                <div v-else>
+                                <img src="https://i.pinimg.com/736x/41/67/e9/4167e99030267e03f2d6fb67b66588ce.jpg" alt=""
+                                class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-medium">
                                 </div>
                                 <div class="hidden md:block text-left">
                                     <div class="text-sm font-medium text-gray-700">{{ userData.name }}</div>
@@ -135,6 +134,12 @@ import { onClickOutside } from '@vueuse/core';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/store/useStore';
 import { useI18n } from 'vue-i18n'; // ✅ Fix: import useI18n!
+import flagEN from '@/assets/flags/en.png'
+import flagKH from '@/assets/flags/kh.png'
+import flagZH from '@/assets/flags/zh.png'
+
+const currentFlag = ref(flagEN)
+
 
 // Initialize i18n
 const { t, locale } = useI18n();
@@ -142,15 +147,19 @@ const currentLanguage = ref(locale.value.toUpperCase());
 
 // Language toggle: cycles en → kh → zh → en
 const toggleLanguage = () => {
-    if (locale.value === 'en') {
-        locale.value = 'kh';
-    } else if (locale.value === 'kh') {
-        locale.value = 'zh';
-    } else {
-        locale.value = 'en';
-    }
-    currentLanguage.value = locale.value.toUpperCase();
-};
+  if (locale.value === 'en') {
+    locale.value = 'kh'
+    currentFlag.value = flagKH
+  } else if (locale.value === 'kh') {
+    locale.value = 'zh'
+    currentFlag.value = flagZH
+  } else {
+    locale.value = 'en'
+    currentFlag.value = flagEN
+  }
+  currentLanguage.value = locale.value.toUpperCase()
+}
+
 
 // Store & router
 const store = useStore();
