@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-white py-4 md:py-8">
+  <div class="mt-6 bg-white py-4 md:py-8">
     <!-- Header -->
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-start mb-6 md:mb-8">
         <h1 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 flex items-start justify-start">
-          <span class="mr-2 md:mr-3 text-lg md:text-xl">🛒</span>
+          <span class="mr-2 md:mr-3 text-lg md:text-xl"></span>
           {{ $t('cart.title') }}
         </h1>
       </div>
@@ -245,7 +245,7 @@ function requireLogin(t) {
     confirmButtonText: 'OK',
     allowOutsideClick: false
   }).then(() => {
-    router.push('/register');
+    router.push('/user-login');
   });
 }
 

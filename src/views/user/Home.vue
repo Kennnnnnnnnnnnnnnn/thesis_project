@@ -1,10 +1,5 @@
 <template>
-  <div class="bg-white text-center">
-    <!-- Search Section -->
-
-
-    
-
+  <div class="bg-white mt-2 text-center">
     <!-- Image Carousel -->
     <section class="mt-10 mb-8">
       <div class="relative overflow-hidden rounded-lg border border-yellow-200">
@@ -28,7 +23,7 @@
     </section>
 
     <!-- Promotion Event Banner Section -->
-    <section class="py-10">
+    <section class="py-2">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-800">Special Offer</h2>
@@ -118,27 +113,27 @@
     </section>
 
 
-    <section class="mt-3">
-          <div class="max-w-6xl mx-auto px-5">
-            <div class="relative max-w-2xl mx-auto">
-              <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
-                class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400" />
-              <!-- Search Icon on right -->
-              <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z" />
-              </svg>
-            </div>
-          </div>
+    <section class="mt-8">
+      <div class="max-w-6xl mx-auto px-5">
+        <div class="relative max-w-2xl mx-auto">
+          <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
+            class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400" />
+          <!-- Search Icon on right -->
+          <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z" />
+          </svg>
+        </div>
+      </div>
     </section>
 
 
     <!-- New Products Section -->
-    <section class="py-10">
+    <section class="py-5">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
-          <h2 class="text-2xl font-bold text-gray-800">{{ $t('home.newProductsTitle') }}</h2>
+          <h2 class="text-xl font-bold text-gray-800">{{ $t('home.newProductsTitle') }}</h2>
           <router-link to="/product"
             class="text-orange-600 font-bold hover:text-red-500 hover:underline transition-colors duration-300">
             {{ $t('common.viewAll') }}

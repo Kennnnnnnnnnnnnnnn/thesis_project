@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-col justify-center items-center bg-gray-50 p-4">
+  <div class="flex flex-col justify-center items-center bg-gray-50 p-2">
     <div class="w-full max-w-sm bg-white p-8 rounded-lg shadow-lg">
-      <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Register Form</h2>
+      <h2 class="text-xl font-bold text-center text-gray-800 mb-6">Register Form</h2>
 
       <!-- Step 1: Phone Number Entry -->
       <div v-if="currentStep === 1">
@@ -11,7 +11,7 @@
           <input
             type="tel"
             v-model="phone"
-            placeholder="e.g., 012345678"
+            placeholder="012345678"
             class="w-full border rounded-md p-2 focus:outline-none focus:border-yellow-400"
           />
         </div>
@@ -83,14 +83,17 @@
 
         
 
-        <button
-          class="w-full bg-green-500 text-white font-bold py-2 rounded hover:bg-green-600 transition"
-          @click="sendOtp"
-          :disabled="loading"
-        >
-          <span v-if="loading">{{ t('sending') }}</span>
-          <span v-else>{{ t('Verify') }}</span>
-        </button>
+        <div class="flex justify-center mt-4">
+          <button
+            class="w-20 bg-green-500 text-white font-bold py-2 rounded hover:bg-green-600 transition"
+            @click="sendOtp"
+            :disabled="loading"
+          >
+            <span v-if="loading">{{ t('sending') }}</span>
+            <span v-else>{{ t('Verify') }}</span>
+          </button>
+        </div>
+
       </div>
 
       <!-- Step 2: OTP Verification -->
@@ -125,8 +128,8 @@
         </button>
       </div>
 
-      <router-link to="/login" class="block mt-4 text-center text-sm text-gray-600 hover:underline">
-        {{ t('alreadyHaveAccount') }}
+      <router-link to="/login" class="block text-blue-400 mt-4 text-center text-sm text-gray-600 hover:underline">
+        {{ t('Already Have Account? Login Now!') }}
       </router-link>
     </div>
   </div>

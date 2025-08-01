@@ -89,5 +89,5 @@ app.use(VueGoogleMaps, {
     key: 'AIzaSyDApUy7BfllnejZYnnUWEK3OOPR4gcj1tU',
   },
 });
-
+ 
 app.mount('#app');

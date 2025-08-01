@@ -101,7 +101,7 @@
   </div>
 </template> -->
 <template>
-  <div class="font-inter min-h-screen bg-gray-50 py-8">
+  <div class="font-inter mt-4 bg-gray-50 py-8">
     <div class="max-w-4xl mx-auto bg-white rounded-2xl overflow-hidden shadow-lg">
       <!-- Header with gradient background -->
       <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 px-10 py-8 text-white">
