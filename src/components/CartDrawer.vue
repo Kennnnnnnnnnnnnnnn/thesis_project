@@ -155,6 +155,7 @@ const proceedToCheckout = async () => {
 
     const payload = {
       amount: totalAmount,
+      userId: userId,
       name: store.userName || 'Guest',
       password: '123456',
       currentLocation: 'Phnom Penh',

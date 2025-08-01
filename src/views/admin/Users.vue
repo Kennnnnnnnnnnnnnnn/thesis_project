@@ -483,6 +483,7 @@ const closeModal = () => {
   showModal.value = false;
   showEditModal.value = false;
   resetForm();
+  currentPage.value = 1;
 };
 
 const resetForm = () => {
