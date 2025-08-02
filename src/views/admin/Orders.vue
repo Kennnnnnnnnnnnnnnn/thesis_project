@@ -84,6 +84,11 @@
                   {{ $t('order.items') }}</th>
                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
                   $t('order.total') }}</th>
+
+                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  Location </th>
+
+
                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
                   $t('order.status') }}</th>
                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
@@ -107,7 +112,7 @@
                     <div class="ml-2 sm:ml-3">
                       <div class="text-sm font-bold text-gray-900 truncate max-w-[120px] sm:max-w-none">
                         {{ getUserName(item.createdBy
-                        ) || 'Guest' }}
+                        ) || 'Customer' }}
                       </div>
                       <div class="text-xs text-gray-500 sm:hidden">
                         {{ formatShortDate(item.createdAt) }}
@@ -130,6 +135,22 @@
                     {{ item.totalCost ? '៛' + item.totalCost.toFixed(2) : '៛0.00' }}
                   </div>
                 </td>
+                <!-- location -->
+                <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
+                  <div class="text-sm font-bold text-gray-900 whitespace-nowrap">
+                    <button 
+                      v-if="getUserLocation(item.userId || item.createdBy)"
+                      @click="openGoogleMaps(getUserLocation(item.userId || item.createdBy))"
+                      class="text-blue-600 hover:text-blue-800 underline cursor-pointer transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded"
+                      title="View location on Google Maps"
+                    >
+                      Customer Location
+                    </button>
+                    <span v-else class="text-gray-500">No Location</span>
+                  </div>
+                </td>
+
+
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
                   <span class="inline-flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs font-bold"
                     :class="getStatusClass(item.status)">
@@ -217,7 +238,15 @@
               </div>
               <div class="flex items-start">
                 <span class="text-xs sm:text-sm font-bold text-gray-500 w-24 sm:w-32">{{ $t('order.address') }}:</span>
-                <span class="text-xs sm:text-sm text-gray-700 font-medium">{{ customerAddress }}</span>
+                <span class="text-xs sm:text-sm text-gray-700 font-medium"><button 
+                      v-if="getUserLocation(selectedOrder.userId || selectedOrder.createdBy)"
+                      @click="openGoogleMaps(getUserLocation(selectedOrder.userId || selectedOrder.createdBy))"
+                      class="text-blue-600 hover:text-blue-800 underline cursor-pointer transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded"
+                      title="View location on Google Maps"
+                    >
+                      Customer Location
+                    </button>
+                    <span v-else class="text-gray-500">No Location</span></span>
               </div>
             </div>
 
@@ -235,12 +264,12 @@
                 <span class="text-xs sm:text-sm text-gray-700 font-medium">{{ formatDate(selectedOrder.confirmedAt)
                 }}</span>
               </div>
-              <div class="flex items-center" v-if="selectedOrder.deliveringAt">
+              <!-- <div class="flex items-center" v-if="selectedOrder.deliveringAt">
                 <span class="text-xs sm:text-sm font-bold text-gray-500 w-24 sm:w-32">{{ $t('order.deliveringAt')
                 }}:</span>
                 <span class="text-xs sm:text-sm text-gray-700 font-medium">{{ formatDate(selectedOrder.deliveringAt)
                 }}</span>
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -252,8 +281,7 @@
                 class="flex items-center p-3 sm:p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition">
                 <div
                   class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center mr-3 sm:mr-4 border border-gray-200">
-                  <img :src="item.image || ''" alt="" class="w-full h-full object-cover" v-if="item.image">
-                  <i v-else class="fas fa-box text-gray-400 text-xs sm:text-sm"></i>
+                  <img :src="item.image || defaultProductImage" alt="" class="w-full h-full object-cover">
                 </div>
                 <div class="flex-1 min-w-0">
                   <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate">{{ item.name }}</h4>
@@ -351,6 +379,7 @@
 import apiURL from '@/api/config';
 import Pagination from '@/components/Pagination.vue';
 import formatDate from '@/composables/formatDate';
+import formatShortDate from '@/composables/formatShortDate';
 import { useDeliveryBot } from '@/composables/useDeliveryBot';
 import socket from '@/services/socket.js';
 import { useStore } from '@/store/useStore';
@@ -358,7 +387,6 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import formatShortDate from '@/composables/formatShortDate';
 
 // Initialize i18n
 const { t } = useI18n();
@@ -386,32 +414,45 @@ const orderData = ref([]);
 const isEditing = ref(false);
 const editOrderData = ref(null);
 const customerAddress = ref('');
+const defaultProductImage = ref(require('@/assets/image.png'))
 
 
 
 const getUserName = (userId) => {
   const user = userData.value.find(user => user._id === userId);
-  return user ? user.name : 'Guest';
+  return user ? user.name : '';
+};
+
+const getUserLocation = (userId) => {
+  const user = userData.value.find(user => user._id === userId);
+  if (user && user.latitude && user.longitude) {
+    return {
+      latitude: user.latitude,
+      longitude: user.longitude
+    };
+  }
+  return null;
+};
+
+const openGoogleMaps = (location) => {
+  if (location && location.latitude && location.longitude) {
+    const url = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
+    window.open(url, '_blank');
+  }
 };
 
 const getUserData = async () => {
   try {
     isLoading.value = true;
-    const params = {
-      dynamicConditions: JSON.stringify([
-        {
-          field: "_id",
-          operator: "==",
-          value: store.getUserId
-        }
-      ])
-    }
+    
     const response = await axios.get(`${apiURL}/api/getAllDocs/User`, {
-      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+
+    console.log("Fetched user data:", response.data.data);
+
     userData.value = response.data.data;
 
 
@@ -429,6 +470,7 @@ const fetchOrders = async () => {
     isLoading.value = true;
     const params = {
       populate: JSON.stringify(['createdBy', 'userId']),
+      sortOrder: 'desc',
     }
     const response = await axios.get(`${apiURL}/api/order/list`, {
       params,
@@ -437,7 +479,6 @@ const fetchOrders = async () => {
       }
     });
 
-    console.log('Fetched orders:', response.data.data);
     orderData.value = response.data.data;
 
   } catch (error) {
@@ -648,12 +689,13 @@ const updateOrderStatus = async (newStatus) => {
         } catch (telegramError) {
           console.error('❌ Delivery bot notification failed:', telegramError);
         }
-        // Auto-close the dialog immediately after updating to delivering
+        // Close dialog and refresh for delivering status
         closeEditDialog();
         fetchOrders();
         return;
       }
 
+      // For other statuses (pending, rejected), show success message then close
       Swal.fire({
         icon: 'success',
         title: 'Order Updated',
@@ -661,6 +703,8 @@ const updateOrderStatus = async (newStatus) => {
         timer: 2000,
         showConfirmButton: false
       });
+      
+      // Close dialog and refresh for other statuses
       closeEditDialog();
       fetchOrders();
     }

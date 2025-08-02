@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col justify-center items-center bg-gray-50 p-2">
+  <div class="flex flex-col justify-center items-center p-2 mt-20">
     <div class="w-full max-w-sm bg-white p-8 rounded-lg shadow-lg">
       <h2 class="text-xl font-bold text-center text-gray-800 mb-6">Register Form</h2>
 
@@ -123,7 +123,7 @@
           @click="resendOtp"
           :disabled="loading || resendDisabled"
         >
-          <span v-if="resendDisabled">{{ t('resendIn') }} {{ resendTimer }}</span>
+          <span v-if="resendDisabled">{{ t('resendIn') }} {{ resendTimer }}s</span>
           <span v-else>{{ t('resendOTP') }}</span>
         </button>
       </div>
@@ -165,18 +165,28 @@ let resendInterval = null;
 function startResendTimer() {
   resendDisabled.value = true;
   resendTimer.value = 60;
+  
+  // Clear any existing interval
+  if (resendInterval) {
+    clearInterval(resendInterval);
+  }
+  
   resendInterval = setInterval(() => {
     resendTimer.value--;
     if (resendTimer.value <= 0) {
       clearInterval(resendInterval);
       resendDisabled.value = false;
+      resendInterval = null;
     }
   }, 1000);
 }
 
 // Clear interval when component is unmounted
 onUnmounted(() => {
-  if (resendInterval) clearInterval(resendInterval);
+  if (resendInterval) {
+    clearInterval(resendInterval);
+    resendInterval = null;
+  }
 });
 
 // Complete sendOtp function with enhanced validation
@@ -236,6 +246,7 @@ async function sendOtp() {
       purpose: 'registration'
     });
 
+    console.log('OTP Send Response:', response.data);
 
     if (response.data.success) {
       verificationId.value = response.data.verificationId;
@@ -275,7 +286,57 @@ async function sendOtp() {
   }
 }
 
+// Separate function for resending OTP without validation
+async function sendOtpRequest() {
+  loading.value = true;
 
+  try {
+    // Format the phone number for Twilio (E.164 format)
+    const formattedPhone = formatPhoneNumber(phone.value);
+    
+    
+    const response = await axios.post(`${api}/api/customer-auth/send-otp`, {
+      phoneNumber: formattedPhone,
+      purpose: 'registration'
+    });
+
+    console.log('OTP Resend Response:', response.data);
+
+    if (response.data.success) {
+      verificationId.value = response.data.verificationId;
+      startResendTimer();
+      
+      // Clear the OTP field for new attempt
+      otp.value = '';
+      
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'OTP Resent!',
+        text: 'A new verification code has been sent to your phone.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } else {
+      Swal.fire({ icon: 'error', title: response.data.message });
+    }
+  } catch (err) {
+    console.error('Error resending OTP:', err);
+    
+    let errorMessage = 'Failed to resend OTP. Please try again.';
+    
+    if (err.response?.data?.message) {
+      errorMessage = err.response.data.message;
+    }
+    
+    Swal.fire({
+      icon: 'error',
+      title: 'Resend Failed',
+      text: errorMessage
+    });
+  } finally {
+    loading.value = false;
+  }
+}
 
 // Function to get user's geolocation
 async function getUserLocation() {
@@ -472,10 +533,16 @@ async function verifyOtp() {
   }
 }
 
-
-
+// Fixed resend OTP function
 async function resendOtp() {
-  await sendOtp();
+  if (resendDisabled.value || loading.value) {
+    return;
+  }
+
+  console.log('Resending OTP...');
+  
+  // Use the separate function that doesn't change steps or validate passwords
+  await sendOtpRequest();
 }
 
 // Helper function to format phone numbers for international use

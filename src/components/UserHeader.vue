@@ -46,9 +46,9 @@
       <template v-else>
         <div class="hidden md:flex items-center gap-3">
           <router-link to="/profile"
-                       class="flex items-center gap-2 px-3 rounded bg-slate-100 text-gray-800 hover:bg-slate-200">
+                       class="flex items-center gap-2 px-3 rounded  text-gray-800 ">
             <img :src="profileImage" alt="Profile" class="w-8 h-8 rounded-full object-cover" />
-            <span>{{ profileName }}</span>
+            <!-- <span>{{ profileName }}</span> -->
           </router-link>
           <button @click="logout" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
             {{ $t('common.logout') }}
@@ -178,7 +178,7 @@ import flagKH from '@/assets/flags/kh.png'
 import flagZH from '@/assets/flags/zh.png'
 import { useStore } from '@/store/useStore'
 import axios from 'axios'
-import { computed, onUnmounted ,onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -236,10 +236,15 @@ const getUserLocation = () => {
 const fetchProfile = async () => {
   try {
     // Always get current device location for display
+    console.log('Getting user location...');
     const location = await getUserLocation();
     userLocation.value = location;
+    console.log('User location coordinates:', location);
+    
     try {
+      console.log('Fetching location name...');
       locationName.value = await getLocationNameFromCoordinates(location.latitude, location.longitude);
+      console.log('Location name set to:', locationName.value);
     } catch (error) {
       console.error('Error getting location name:', error);
       locationName.value = 'Cambodia';
@@ -293,9 +298,35 @@ const getLocationNameFromCoordinates = async (latitude, longitude) => {
     const response = await axios.get(`${apiURL}/api/geocode`, {
       params: { latitude, longitude }
     });
-    // Prefer commune > district > city > country
-    const { commune, district, city, country } = response.data;
-    return commune || district || city || country || 'Cambodia';
+    
+    // Log the full response to debug what we're getting
+    console.log('Geocoding API response:', response.data);
+    
+    // Prefer commune > district > city > province > country
+    const { commune, district, city, province, country } = response.data;
+    
+    // Create a more descriptive location string
+    let locationString = '';
+    if (commune && district) {
+      locationString = `${commune}, ${district}`;
+    } else if (district) {
+      locationString = district;
+    } else if (commune) {
+      locationString = commune;
+    } else if (city && province && city !== province) {
+      locationString = `${city}, ${province}`;
+    } else if (district && province && district !== province) {
+      locationString = `${district}, ${province}`;
+    } else if (city) {
+      locationString = city;
+    } else if (province) {
+      locationString = province;
+    } else {
+      locationString = country || 'Cambodia';
+    }
+    
+    console.log('Final location string:', locationString);
+    return locationString;
   } catch (error) {
     console.error('Error getting location name:', error);
     return 'Cambodia';
@@ -362,6 +393,7 @@ const onEscapeKey = (e) => {
 
 onMounted(() => {
   checkMobile()
+  fetchProfile()
   window.addEventListener('resize', checkMobile)
   window.addEventListener('keydown', onEscapeKey)
 })

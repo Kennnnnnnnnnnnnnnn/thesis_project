@@ -14,7 +14,6 @@
         <img :src="item.imageURL || defaultImg" class="w-[70px] h-[70px] object-cover mr-3 rounded bg-gray-100" />
         <div class="flex-1">
           <h4 class="m-0 text-sm font-semibold">{{ item.name }}</h4>
-          <p class="text-xs text-gray-500 mb-1">{{ item.categoryName || 'No category' }}</p>
           <div class="flex items-center gap-2.5 my-1">
             <button @click="changeQty(item, item.quantity - 1)" :disabled="item.quantity <= 1"
               class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50">−</button>
@@ -29,16 +28,6 @@
     </div>
 
     <div class="border-t border-gray-100 pt-3">
-      <div class="flex justify-between mb-3 text-sm">
-        <label class="flex items-center">
-          <input type="radio" value="home" v-model="delivery" class="mr-1" />
-          <span>Home Delivery</span>
-        </label>
-        <label class="flex items-center">
-          <input type="radio" value="collect" v-model="delivery" class="mr-1" />
-          <span>Click & Collect</span>
-        </label>
-      </div>
       <p class="mb-1">Subtotal: ៛{{ subtotal.toFixed(2) }}</p>
       <p class="font-bold mb-3">Total: ៛{{ subtotal.toFixed(2) }}</p>
       <button @click="proceedToCheckout"
@@ -99,7 +88,10 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 const { sendToTelegram } = useTelegram();
+import { useRouter } from 'vue-router';
 
+
+const router = useRouter();
 const store = useStore();
 const userId = store.userId;
 const API = `${apiURL}/api`;
@@ -115,6 +107,10 @@ const emit = defineEmits(['close', 'updateQty', 'removeItem']);
 const delivery = ref('home');
 const defaultImg = require('@/assets/image.png');
 
+// Helper function to format price
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('en-US').format(Math.round(price));
+};
 
 const discountedPrice = (product) => {
   if (!product.discount || product.discount <= 0) return product.salePrice;
@@ -129,12 +125,64 @@ const close = () => emit('close');
 const changeQty = (item, qty) => emit('updateQty', item, qty);
 const removeItem = (item) => emit('removeItem', item);
 
+// Function to get user's current location
+const getCurrentLocation = () => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation is not supported by your browser'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const token = localStorage.getItem('token');
+          const userId = localStorage.getItem('userId');
+
+          // Update user location in database
+          const updateResponse = await axios.patch(
+            `${API}/updateDoc/User/${userId}`,
+            {
+              fields: {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                updatedAt: new Date().toISOString()
+              }
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (updateResponse.data?.success) {
+            console.log('Location updated successfully:', {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+            resolve(position);
+          } else {
+            reject(new Error('Failed to update location in database'));
+          }
+        } catch (err) {
+          console.error('Error updating location:', err);
+          reject(err);
+        }
+      },
+      (error) => {
+        console.warn('Geolocation error:', error);
+        reject(error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+    );
+  });
+};
+
 const proceedToCheckout = async () => {
   try {
     const userId = store.userId;
     const token = localStorage.getItem('token');
-
-
 
     if (!userId || !token) {
       Swal.fire({
@@ -144,9 +192,17 @@ const proceedToCheckout = async () => {
         confirmButtonText: 'Go to Register',
         allowOutsideClick: false
       }).then(() => {
-        window.location.href = '/register'; // Redirect to register after user clicks confirm
+        window.location.href = '/register';
       });
       return;
+    }
+
+    // Try to get current location
+    try {
+      await getCurrentLocation();
+    } catch (locationErr) {
+      console.warn('Could not get location:', locationErr);
+      // Continue with order process even if location update fails
     }
 
     const totalAmount = subtotal.value;
@@ -165,7 +221,6 @@ const proceedToCheckout = async () => {
       billNumber: billNumber.value,
       phoneNumber: '85512345678'
     };
-
 
     const res = await axios.post(`${API}/transaction/generate-qr`, payload, {
       headers: { Authorization: `Bearer ${token}` }
@@ -224,7 +279,6 @@ const createOrders = async () => {
   }
 
   try {
-
     const orderItems = props.cartItems.map(item => ({
       productId: item._id,
       name: item.name, 
@@ -249,7 +303,6 @@ const createOrders = async () => {
       }
     };
 
-
     // Create the order
     const orderResponse = await axios.post(`${API}/insertDoc/Order`, orderPayload, {
       headers: { Authorization: `Bearer ${token}` }
@@ -273,6 +326,80 @@ const createOrders = async () => {
       }
     }
 
+    // Enhanced Telegram notification with detailed order information
+    const allowedRoles = ['customer', 'admin', 'super admin'];
+    const userRole = localStorage.getItem('userRole');
+    
+    // Fetch user details from User collection
+    let userDetails = {};
+    try {
+      const userResponse = await axios.get(`${API}/getAllDocs/User`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          dynamicConditions: JSON.stringify([
+            { field: '_id', operator: '==', value: userId }
+          ])
+        }
+      });
+
+      if (userResponse.data?.success && userResponse.data?.data?.length > 0) {
+        userDetails = userResponse.data.data[0];
+        console.log('User details retrieved:', userDetails);
+      } else {
+        console.warn('No user details found for ID:', userId);
+      }
+    } catch (err) {
+      console.error('Failed to fetch user details from database:', err);
+    }
+
+    // Format address components
+    const formatLocation = (details) => {
+      const addressParts = [
+        details.village && `Village: ${details.village}`,
+        details.commune && `Commune: ${details.commune}`,
+        details.district && `District: ${details.district}`,
+        details.province && `Province: ${details.province}`,
+        details.country && `Country: ${details.country}`
+      ].filter(Boolean);
+      
+      return addressParts.length > 0 ? addressParts.join('\n') : null;
+    };
+
+    // Prepare location details
+    const latitude = userDetails.latitude;
+    const longitude = userDetails.longitude;
+    const addressFormatted = formatLocation(userDetails);
+    
+    // Create location text for Telegram
+    let locationText = '';
+    if (latitude && longitude) {
+      const mapUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      locationText = mapUrl;
+      if (addressFormatted) {
+        locationText += '\n\n' + addressFormatted;
+      }
+    } else if (addressFormatted) {
+      locationText = addressFormatted;
+    } else {
+      locationText = '📍 Location not available';
+    }
+
+    // Send comprehensive Telegram notification
+    if (allowedRoles.includes(userRole)) {
+      await sendToTelegram(
+        `🌟 New Order Notification 🌟\n\n` +
+        `📦 Order Details\n` +
+        `└─ 🆔 Order ID: ${orderResponse.data.data._id || 'N/A'}\n` +
+        `└─ 💰 Amount: ៛${formatPrice(totalCost)}\n` +
+        `└─ ⏰ Time: ${new Date().toLocaleString()}\n\n` +
+        `👤 Customer Information\n` +
+        `└─ 😊 Name: ${userDetails.name || 'Guest'}\n` +
+        `└─ 📱 Phone: ${userDetails.displayPhoneNumber || userDetails.phoneNumber || 'N/A'}\n\n` +
+        `📍 Location\n` +
+        `└─ ${locationText}`
+      );
+    }
+
     // Update product stock quantities
     try {
       // Process each item to update product stock
@@ -286,20 +413,52 @@ const createOrders = async () => {
           const product = productResponse.data.data[0];
           
           // Calculate new stock amount
-          const newStockAmount = Math.max(0, (product.totalStock || 0) - item.quantity);
+          const currentStock = parseInt(product.totalStock) || 0;
+          const quantityToDeduct = parseInt(item.quantity) || 0;
+          const newStockAmount = Math.max(0, currentStock - quantityToDeduct);
           
-          // Update the product with new stock amount
+          console.log(`Stock update for ${product.name}: Current=${currentStock}, Deducting=${quantityToDeduct}, New=${newStockAmount}`);
+          
+          // Update the product with new stock amount and set status based on stock level
           await axios.patch(
             `${API}/updateDoc/Product/${item._id}`,
             {
               fields: {
                 totalStock: newStockAmount,
+                status: newStockAmount > 0, // Set status to false if stock is zero
                 updatedAt: new Date().toISOString(),
                 updatedBy: userId
               }
             },
             { headers: { Authorization: `Bearer ${token}` } }
           );
+
+          // Update corresponding Stock record if it exists
+          try {
+            const stockResponse = await axios.get(`${API}/getAllDocs/Stock`, {
+              headers: { Authorization: `Bearer ${token}` },
+              params: {
+                dynamicConditions: JSON.stringify([
+                  { field: 'productId', operator: '==', value: item._id }
+                ])
+              }
+            });
+
+            if (stockResponse.data && stockResponse.data.data && stockResponse.data.data.length > 0) {
+              const stockRecord = stockResponse.data.data[0];
+              await axios.patch(`${API}/updateDoc/Stock/${stockRecord._id}`, {
+                fields: {
+                  quantity: newStockAmount,
+                  isOutOfStock: newStockAmount <= 0,
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: userId
+                }
+              }, { headers: { Authorization: `Bearer ${token}` } });
+            }
+          } catch (stockErr) {
+            console.error("Error updating stock record:", stockErr);
+            // Continue with the order process even if stock update fails
+          }
           
           console.log(`Updated stock for product ${product.name}: ${product.totalStock} → ${newStockAmount}`);
         }
@@ -312,6 +471,14 @@ const createOrders = async () => {
     showQRModal.value = false;
     emit('close');
     props.cartItems.forEach(item => emit('removeItem', item));
+    
+    Swal.fire({ 
+      icon: 'success', 
+      title: 'Order Submitted Successfully!',  
+      timer: 1500, 
+      showConfirmButton: false 
+    });
+    
   } catch (err) {
     console.error('Failed to submit order:', err);
 
@@ -346,19 +513,6 @@ const confirmPayment = async () => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
-      // Send Telegram message after QR code scanned
-      const allowedRoles = ['customer', 'admin', 'super admin'];
-      if (allowedRoles.includes(store.userRole)) {
-        await sendToTelegram(
-          `✅ *QR Code Scanned!*\n` +
-          `*User:* ${store.userName || 'Guest'}\n` +
-          `*Amount:* ៛${subtotal.value}\n` +
-          `*Time:* ${new Date().toLocaleString()}\n` +
-          `*Location:* ${store.userLocation || 'Unknown'}\n` +
-          `*Transaction ID:* ${txId}`
-        );
-      }
     } catch (scanErr) {
       console.error("Failed to update scanned status:", scanErr);
       // Continue anyway - this step is optional
@@ -373,6 +527,19 @@ const confirmPayment = async () => {
 
     // Finally create the order
     await createOrders();
+
+    showQRModal.value = false;
+    Swal.fire({
+      icon: 'success',
+      title: 'Payment Confirmed',
+      text: 'Your payment has been successfully confirmed.',
+      timer: 1000,
+      showConfirmButton: false,
+      willClose: () => {
+        router.push('/history');
+      }
+
+    });
 
   } catch (err) {
     console.error('Confirm failed:', err);
@@ -391,25 +558,6 @@ const confirmPayment = async () => {
       alert('Failed to confirm payment and create order');
     }
   }
-};
-
-const getUserLocation = () => {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve('Location not available');
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve(
-            `Lat: ${position.coords.latitude.toFixed(5)}, Lng: ${position.coords.longitude.toFixed(5)}`
-          );
-        },
-        () => {
-          resolve('Location permission denied');
-        }
-      );
-    }
-  });
 };
 </script>
 

@@ -291,57 +291,71 @@ export default {
                 case '/admin/categories':
                     collectionName = 'Category';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
 
                 case '/admin/permission':
                     collectionName = 'User';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
                 case '/admin/users':
                     collectionName = 'User';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
 
                 case '/admin/supplier':
                     collectionName = 'Supplier';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
                 case '/admin/stock':
                     collectionName = 'Stock';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
 
                 case '/admin/create':
                     collectionName = 'Product';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
                 case '/admin/restock':
                     collectionName = 'PurchaseProduct';
                     searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
                 case '/admin/orders':
                     collectionName = 'Order';
                     // searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
 
                 case '/admin/currency':
                     collectionName = 'Currency';
                     // searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
 
                 case '/admin/symbol':
                     collectionName = 'SymbolCurrency';
                     // searchFieldsArray.value = 'name';
+                    sortOrder = 'desc';
                     break;
 
                 case '/admin/feedback':
                     collectionName = 'CustomerFeedback';
                     // searchFieldsArray.value = 'name';
+                    sortField = 'createdAt';
+                    sortOrder = 'desc';
                     break;
                     
                 case '/admin/promotion':
                     collectionName = 'Promotion';
                     // searchFieldsArray.value = 'name';
+                    sortField = 'createdAt';
+                    sortOrder = 'desc';
                     break;
 
 

@@ -107,7 +107,7 @@
         <button
           class="w-full bg-green-500 text-white font-bold py-2 rounded hover:bg-green-600 transition mb-3"
           @click="resetPassword"
-          :disabled="loading || newPassword !== confirmPassword"
+          :disabled="loading || newPassword !== confirmPassword || !newPassword || !confirmPassword"
         >
           <span v-if="loading">{{ t('resetting') }}</span>
           <span v-else>{{ t('resetPassword') }}</span>
@@ -118,7 +118,7 @@
           @click="resendOtp"
           :disabled="loading || resendDisabled"
         >
-          <span v-if="resendDisabled">{{ t('resendIn') }} {{ resendTimer }}</span>
+          <span v-if="resendDisabled">{{ t('resendIn') }} {{ resendTimer }}s</span>
           <span v-else>{{ t('resendOTP') }}</span>
         </button>
       </div>
@@ -151,25 +151,35 @@ const loading = ref(false);
 const currentStep = ref(1);
 const verificationId = ref('');
 const resendDisabled = ref(false);
-const resendTimer = ref(60);
+const resendTimer = ref(60); // Add this missing ref
 let resendInterval = null;
 
 // Function to start resend timer
 function startResendTimer() {
   resendDisabled.value = true;
   resendTimer.value = 60;
+  
+  // Clear any existing interval
+  if (resendInterval) {
+    clearInterval(resendInterval);
+  }
+  
   resendInterval = setInterval(() => {
     resendTimer.value--;
     if (resendTimer.value <= 0) {
       clearInterval(resendInterval);
       resendDisabled.value = false;
+      resendInterval = null;
     }
   }, 1000);
 }
 
 // Clear interval when component is unmounted
 onUnmounted(() => {
-  if (resendInterval) clearInterval(resendInterval);
+  if (resendInterval) {
+    clearInterval(resendInterval);
+    resendInterval = null;
+  }
 });
 
 // Function to send OTP for password reset
@@ -191,16 +201,14 @@ async function sendResetOtp() {
   loading.value = true;
 
   try {
-    // Format the phone number for Twilio (E.164 format)
-    const formattedPhone = formatPhoneNumber(phone.value);
+    console.log('Sending OTP for phone:', phone.value);
     
-    console.log('Sending reset verification to:', formattedPhone);
-    
-    const response = await axios.post(`${api}/api/phone/forgot-password`, {
-      phoneNumber: formattedPhone
+    // Use the correct customerAuth route for forgot password
+    const response = await axios.post(`${api}/api/customer-auth/forgot-password`, {
+      phoneNumber: phone.value
     });
 
-    console.log('Send reset OTP response:', response.data);
+    console.log('OTP Send Response:', response.data);
 
     if (response.data.success) {
       verificationId.value = response.data.verificationId;
@@ -270,32 +278,38 @@ async function resetPassword() {
   loading.value = true;
 
   try {
-    const response = await axios.post(`${api}/api/phone/verify-reset-otp`, {
+    console.log('Verifying OTP and resetting password');
+    
+    // Use the correct customerAuth route for verifying reset OTP
+    const response = await axios.post(`${api}/api/customer-auth/verify-reset-otp`, {
       verificationId: verificationId.value,
       otp: otp.value,
       newPassword: newPassword.value
     });
 
-    console.log('Reset password response:', response.data);
+    console.log('Password Reset Response:', response.data);
 
-    if (response.data.success && response.data.token) {
-      // Store authentication data
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      
-      // Set axios default headers for all future requests
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-      
-      // Show success message
+    if (response.data.success) {
+      // Show success message and redirect to login
       Swal.fire({
         icon: 'success',
         title: t('passwordResetSuccess'),
-        text: t('passwordResetSuccessMessage'),
-        timer: 2000,
+        text: 'Password has been reset successfully. Please login with your new password.',
+        timer: 3000,
         showConfirmButton: false
       }).then(() => {
-        // Redirect to products page or dashboard
-        router.push('/product');
+        // Clear any existing auth data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userPermissions');
+        
+        // Clear axios authorization header
+        delete axios.defaults.headers.common['Authorization'];
+        
+        // Redirect to login page
+        router.push('/login');
       });
     } else {
       Swal.fire({ icon: 'error', title: response.data.message });
@@ -319,27 +333,31 @@ async function resetPassword() {
   }
 }
 
+// Fixed resend OTP function
 async function resendOtp() {
-  await sendResetOtp();
-}
+  if (resendDisabled.value || loading.value) {
+    return;
+  }
 
-// Helper function to format phone numbers for international use
-function formatPhoneNumber(phoneNumber, countryCode = '855') {
-  // Remove any non-digit characters
-  let cleaned = phoneNumber.replace(/\D/g, '');
+  console.log('Resending OTP...');
   
-  // If the number starts with a leading 0, remove it
-  if (cleaned.startsWith('0')) {
-    cleaned = cleaned.substring(1);
+  // Clear the OTP field for new attempt
+  otp.value = '';
+  
+  // Call the same function that sends initial OTP
+  // But don't change the step since we're already on step 2
+  const currentStepTemp = currentStep.value;
+  currentStep.value = 1; // Temporarily set to 1 for validation
+  
+  try {
+    await sendResetOtp();
+    // If successful, the sendResetOtp function will set currentStep to 2
+    // and start the timer, so we don't need to do anything else
+  } catch (error) {
+    // If failed, restore the step
+    currentStep.value = currentStepTemp;
+    console.error('Resend OTP failed:', error);
   }
-  
-  // If number already has country code (e.g. starts with 855), don't add it again
-  if (cleaned.startsWith(countryCode)) {
-    return '+' + cleaned;
-  }
-  
-  // Otherwise, add the + and country code
-  return '+' + countryCode + cleaned;
 }
 
 // Function to validate Cambodian phone numbers
