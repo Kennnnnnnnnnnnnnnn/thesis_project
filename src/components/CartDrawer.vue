@@ -37,47 +37,59 @@
     </div>
   </div>
 
-  <v-dialog v-model="showQRModal" width="400" persistent>
+  <v-dialog v-model="showQRModal" width="320" persistent>
     <v-card class="rounded-lg overflow-hidden">
-      <div class="bg-red-600 text-white py-3 px-4 text-center font-bold text-xl">
+      <div class="bg-red-600 text-white py-2 px-3 text-center font-semibold text-base">
         KHQR
       </div>
 
-      <div class="p-6 bg-white">
-        <h3 class="text-center text-gray-800 text-lg font-medium mb-2">Rice Shop</h3>
+      <div class="p-4 bg-white">
+        <h3 class="text-center text-gray-800 text-base font-semibold mb-1">Rice Shop</h3>
 
-        <p class="text-center text-2xl font-bold mb-4">{{ subtotal.toFixed(0) }} KHR</p>
+        <p class="text-center text-xl font-bold mb-3">{{ subtotal.toFixed(0) }} KHR</p>
 
-        <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-200 mx-auto mb-4"
-          style="width: 220px; height: 220px;">
+        <div class="bg-white p-1.5 rounded-md shadow-sm border border-gray-200 mx-auto mb-3"
+          style="width: 180px; height: 180px;">
           <img v-if="qrImageUrl" :src="qrImageUrl" alt="QR Code" class="w-full h-full" />
           <div v-else class="w-full h-full flex items-center justify-center">
-            <span class="text-gray-400">Loading QR code...</span>
+            <span class="text-gray-400 text-sm">Loading QR code...</span>
           </div>
         </div>
 
-        <p class="text-center text-gray-500 text-sm mb-4">Expires in 5 minutes</p>
+        <p class="text-center text-gray-500 text-xs mb-3">Expires in 5 minutes</p>
 
-        <div class="flex items-center justify-center mb-4">
-          <input type="checkbox" id="payment-confirmation" v-model="paymentConfirmed" class="mr-2" />
-          <label for="payment-confirmation" class="text-sm text-gray-700">
+        <div class="flex items-start justify-center mb-3">
+          <input type="checkbox" id="payment-confirmation" v-model="paymentConfirmed" class="mr-2 mt-1" />
+          <label for="payment-confirmation" class="text-sm text-gray-700 leading-snug">
             I confirm that I have scanned and paid
           </label>
         </div>
 
-        <button @click="confirmPayment"
-          class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-md font-bold text-base transition-colors mb-2"
-          :disabled="!paymentConfirmed" :class="{ 'opacity-50 cursor-not-allowed': !paymentConfirmed }">
-          I'VE PAID
-        </button>
+        <button
+            @click="handleConfirmPayment"
+            class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-md font-semibold text-sm transition-colors mb-2 flex items-center justify-center"
+            :disabled="!paymentConfirmed || isSubmitting"
+            :class="{ 'opacity-50 cursor-not-allowed': !paymentConfirmed || isSubmitting }"
+          >
+            <span v-if="!isSubmitting">I'VE PAID</span>
+            <svg v-else class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10"
+                stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          </button>
+
 
         <button @click="showQRModal = false"
-          class="w-full bg-white text-gray-700 py-3 rounded-md font-medium text-base border border-gray-300 hover:bg-gray-50 transition-colors">
+          class="w-full bg-white text-gray-700 py-2 rounded-md font-normal text-sm border border-gray-300 hover:bg-gray-50 transition-colors">
           CANCEL
         </button>
       </div>
     </v-card>
   </v-dialog>
+
 </template>
 
 <script setup>
@@ -100,6 +112,7 @@ const qrImageUrl = ref('');
 const qrTransaction = ref(null);
 const billNumber = ref('#' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'));
 const paymentConfirmed = ref(false);
+const isSubmitting = ref(false);
 
 const props = defineProps(['visible', 'cartItems']);
 const emit = defineEmits(['close', 'updateQty', 'removeItem']);
@@ -269,6 +282,19 @@ const proceedToCheckout = async () => {
   }
 };
 
+const handleConfirmPayment = async () => {
+  if (isSubmitting.value) return; // prevent double click
+  isSubmitting.value = true;
+  try {
+    await confirmPayment();
+  } catch (err) {
+    console.error('Payment confirmation failed:', err);
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+
 const createOrders = async () => {
   const token = localStorage.getItem('token');
   const userId = store.userId;
@@ -399,6 +425,8 @@ const createOrders = async () => {
         `└─ ${locationText}`
       );
     }
+
+
 
     // Update product stock quantities
     try {

@@ -141,49 +141,72 @@
       </div>
     </div>
 
-    <!-- QR Code Modal -->
     <div v-if="showQRModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-500 bg-opacity-50">
-      <div class="bg-white rounded-xl md:rounded-xl shadow-xl w-full max-w-sm md:max-w-md p-0 relative mx-2 md:mx-4">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-xs sm:max-w-sm p-0 relative mx-2">
+        
         <!-- Red Header -->
-        <div class="bg-red-600 rounded-t-xl px-4 md:px-6 py-3 md:py-4 flex items-center justify-center">
-          <span class="text-white text-xl md:text-2xl font-bold tracking-wide">KHQR</span>
+        <div class="bg-red-600 rounded-t-xl px-4 py-2 flex items-center justify-center">
+          <span class="text-white text-lg font-bold tracking-wide">KHQR</span>
         </div>
+
+        <!-- Close Button -->
         <button @click="showQRModal = false"
-          class="absolute top-2 md:top-3 right-2 md:right-3 text-gray-200 hover:text-red-200 text-lg md:text-xl transition-colors duration-200 z-10">
+          class="absolute top-2 right-2 text-gray-200 hover:text-red-200 text-lg transition-colors duration-200 z-10">
           <i class="fa-solid fa-times"></i>
         </button>
-        <div class="px-4 md:px-6 py-4 md:py-6 flex flex-col items-center">
-          <h3 class="text-lg md:text-xl font-semibold mb-1 md:mb-2 mt-1 md:mt-2">{{ $t('cart.shopName') }}</h3>
-          <p class="text-2xl md:text-3xl font-bold mb-3 md:mb-4">{{ formatPrice(finalAmount) }} KHR</p>
-          <div class="mb-3 md:mb-4 bg-white border border-gray-200 rounded-lg flex items-center justify-center"
-            style="width: 200px; height: 200px; min-width: 240px; min-height: 240px;">
+
+        <!-- Content -->
+        <div class="px-4 py-4 flex flex-col items-center text-center">
+          <h3 class="text-base font-semibold mb-1">{{ $t('cart.shopName') }}</h3>
+          <p class="text-xl font-bold mb-3">{{ formatPrice(finalAmount) }} KHR</p>
+
+          <!-- QR Code -->
+          <div class="mb-3 bg-white border border-gray-200 rounded-lg flex items-center justify-center"
+            style="width: 180px; height: 180px;">
             <img v-if="qrImageUrl" :src="qrImageUrl" alt="QR Code" class="w-full h-full rounded-lg" />
             <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
               <div class="text-center">
-                <i class="fa-solid fa-qrcode text-3xl md:text-4xl mb-1 md:mb-2"></i>
-                <p class="text-xs md:text-sm">{{ $t('cart.loadingQR') }}</p>
+                <i class="fa-solid fa-qrcode text-2xl mb-1"></i>
+                <p class="text-xs">{{ $t('cart.loadingQR') }}</p>
               </div>
             </div>
           </div>
-          <p class="text-gray-500 text-sm md:text-base mb-3 md:mb-4">{{ $t('cart.expiresIn') }}</p>
-          <div class="flex items-center justify-center mb-3 md:mb-4">
-            <input type="checkbox" id="payment-confirmation" v-model="paymentConfirmed"
-              class="mr-2 w-4 h-4 accent-green-500" />
-            <label for="payment-confirmation" class="text-sm md:text-base text-gray-700 select-none">
+
+          <p class="text-gray-500 text-xs mb-2">{{ $t('cart.expiresIn') }}</p>
+
+          <!-- Checkbox -->
+          <div class="flex items-center justify-center mb-3 text-sm">
+            <input type="checkbox" id="payment-confirmation" v-model="paymentConfirmed" class="mr-2 w-4 h-4 accent-green-500" />
+            <label for="payment-confirmation" class="text-gray-700 select-none">
               {{ $t('cart.confirmPaymentText') }}
             </label>
           </div>
-          <button @click="confirmPayment" :disabled="!paymentConfirmed"
-            class="w-full py-2 md:py-3 text-base md:text-lg font-bold rounded mb-2 md:mb-3 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-green-400 hover:bg-green-500 text-white">
-            {{ $t('cart.iHavePaid') }}
-          </button>
+
+          <!-- Buttons -->
+          <button
+              @click="handleConfirmPayment"
+              :disabled="!paymentConfirmed || isConfirming"
+              class="w-full py-2 text-sm font-bold rounded mb-2 transition disabled:opacity-50 disabled:cursor-not-allowed bg-green-400 hover:bg-green-500 text-white flex items-center justify-center"
+            >
+              <span v-if="!isConfirming">{{ $t('cart.iHavePaid') }}</span>
+
+              <!-- 👇 Spinner when confirming -->
+              <svg v-else class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10"
+                  stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              </svg>
+            </button>
           <button @click="showQRModal = false"
-            class="w-full py-2 md:py-3 text-base md:text-lg font-bold rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition">
+            class="w-full py-2 text-sm font-bold rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition">
             {{ $t('common.cancel') }}
           </button>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -217,6 +240,7 @@ const qrTransaction = ref(null);
 const billNumber = ref('#' + Math.floor(Math.random() * 10000).toString().padStart(4, '0'));
 const paymentConfirmed = ref(false);
 const { t } = useI18n();
+const isConfirming = ref(false);
 
 function requireLogin(t) {
   Swal.fire({
@@ -275,6 +299,24 @@ const fetchCart = async () => {
     isLoading.value = false;
   }
 };
+
+const handleConfirmPayment = async () => {
+  if (isConfirming.value) return; // Prevent double click
+  isConfirming.value = true;
+  try {
+    await confirmPayment();
+  } catch (err) {
+    console.error("Error during payment confirmation:", err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Payment Failed',
+      text: 'Something went wrong. Please try again.',
+    });
+  } finally {
+    isConfirming.value = false;
+  }
+};
+
 
 // Helper functions to get product data
 const getProductImage = (item) => {

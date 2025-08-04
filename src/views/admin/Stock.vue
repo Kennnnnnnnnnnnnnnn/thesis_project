@@ -2,8 +2,9 @@
   <div class="p-4 md:p-6 bg-gray-50 min-h-screen overflow-y-auto">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <!-- Title -->
+      <!-- Title -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <!-- Icon and Heading -->
         <div class="flex items-center gap-4">
           <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
@@ -15,17 +16,15 @@
               <path d="M2 7h20"></path>
             </svg>
           </div>
-          <div>
-            <h1 class="text-xl font-bold text-gray-900 tracking-tight">Inventory Management</h1>
-          </div>
+          <h1 class="text-xl font-bold text-gray-900 tracking-tight">Inventory Management</h1>
         </div>
 
         <!-- Controls -->
-        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
           <!-- Items per page -->
-          <div class="relative">
+          <div class="relative w-full sm:w-auto">
             <button @click="toggleDropdownRow"
-              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
+              class="flex items-center justify-between w-full sm:min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
               <span>{{ selectedItem }} items</span>
               <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
                 :class="{ 'rotate-180': isOpen }"></i>
@@ -41,13 +40,12 @@
 
           <!-- Filters -->
           <select v-model="categoryFilter"
-            class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
+            class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Categories</option>
           </select>
 
-          <!-- Enhanced Filters -->
           <select v-model="stockStatusFilter"
-            class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
+            class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Status</option>
             <option value="in-stock">In Stock</option>
             <option value="low-stock">Low Stock</option>
@@ -55,15 +53,18 @@
             <option value="out-of-stock">Out of Stock</option>
           </select>
 
-          <!-- Add Button -->
-          <!-- <button
-            class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+          <!-- Add Item Button (Uncomment to use) -->
+          <!--
+          <button
+            class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
             @click="openModal">
             <i class="fas fa-plus text-xs"></i>
             Add Item
-          </button> -->
+          </button>
+          -->
         </div>
       </div>
+
     </div>
 
     <!-- Stats Cards -->

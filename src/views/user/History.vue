@@ -45,47 +45,10 @@
                 <span :class="`px-2 py-1 rounded text-xs font-medium ${getStatusClass(order.status)}`">
                   {{ $t(order.status) }}
                 </span>
-
-
-                <!-- <button 
-                  v-if="order.status === 'delivering'"
-                  @click="confirmReceipt(order)"
-                  :disabled="isLoading"
-                  class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                >
-                  <i class="fas fa-check-circle text-xs"></i>
-                  {{ isLoading ? 'Confirming...' : 'Confirm' }}
-                </button> -->
               </div>
             </div>
           </div>
 
-          <!-- Pending Animation -->
-          <!-- <div v-if="order.status === 'pending'" class="flex justify-center p-4">
-            <DotLottieVue
-              style="height: 120px; width: 120px"
-              autoplay
-              loop
-              src="https://lottie.host/b3e4008f-9dbd-4b76-b13e-e1cdb52f6190/3JhAvD9aX1.json"
-              @complete="onAnimationComplete"
-              @error="onAnimationError"
-              @ready="onAnimationReady"
-            />
-          </div> -->
-
-          <!-- Animation when status is confirm -->
-          <!-- <div v-if="order.status === 'confirmed'" class="flex justify-center p-4">
-            <DotLottieVue
-              style="height: 120px; width: 120px"
-              autoplay
-              loop
-              src="https://assets10.lottiefiles.com/packages/lf20_w51pcehl.json"
-         
-              @complete="onAnimationComplete"
-              @error="onAnimationError"
-              @ready="onAnimationReady"
-            />
-          </div> -->
 
           <!-- Order Items -->
           <div class="p-4">

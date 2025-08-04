@@ -23,7 +23,7 @@
     </section>
 
     <!-- Promotion Event Banner Section -->
-    <section class="py-2">
+    <!-- <section class="py-2">
       <div class="max-w-6xl mx-auto px-5">
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold text-gray-800">Special Offer</h2>
@@ -46,11 +46,10 @@
                   <span v-else>Special Discount</span>
                 </template>
                 <template v-else>
-                  <span>No Active Promotion</span>
+                  <span>Free Delivery 500Kg</span>
                 </template>
               </div>
 
-              <!-- Product Name and ID -->
               <div v-if="currentPromotion?.product" class="mb-4">
                 <h3 class="text-xl font-bold text-gray-800 mb-1">
                   {{ currentPromotion.product.name }}
@@ -58,7 +57,7 @@
                 <p class="text-sm text-gray-600">ID: {{ currentPromotion.product.idCustom }}</p>
               </div>
 
-              <!-- Product Price Information -->
+  
               <div v-if="currentPromotion?.product" class="mb-4 space-y-1">
                 <p class="text-lg font-semibold text-gray-900">
                   {{ formatPrice(currentPromotion.product.salePrice) }} 
@@ -69,7 +68,7 @@
                 </p>
               </div>
 
-              <!-- Promotion Details -->
+
               <div class="flex flex-wrap items-center gap-3">
                 <span v-if="currentPromotion?.promotionQtyStartFrom"
                   class="inline-block bg-orange-100 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">
@@ -83,7 +82,6 @@
                 </span>
               </div>
 
-              <!-- Discount Calculation Example -->
               <div v-if="currentPromotion?.product" class="bg-green-50 p-3 rounded-lg mb-4">
                 <p class="text-sm text-green-800 font-medium">
                   Buy {{ currentPromotion.promotionQtyStartFrom }}{{ currentPromotion.promotionQtyUnit }} or more and save 
@@ -99,7 +97,7 @@
               </router-link>
             </div>
 
-            <!-- Product Image -->
+
             <div class="flex-shrink-0 mt-8 md:mt-0 md:ml-10 flex flex-col items-center">
               <img 
                 :src="currentPromotion?.product?.imageURL || fallbackImage" 
@@ -110,7 +108,7 @@
           </div>
         </div>
       </div>
-    </section>
+    </section> -->
 
 
     <section class="mt-8">

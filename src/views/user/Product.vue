@@ -8,17 +8,7 @@
         class="w-full py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300" />
     </div>
 
-    <!-- 🏷️ Category Tabs -->
-    <div class="flex justify-center gap-2 mb-5">
-      <button
-        v-for="cat in categories"
-        :key="cat.value"
-        :class="[ 'px-4 py-2 rounded-full', activeCategory === cat.value ? 'bg-yellow-400 font-bold' : 'bg-gray-100 font-normal', 'transition-colors duration-200' ]"
-        @click="activeCategory = cat.value"
-      >
-        {{ $t(cat.label) }}
-      </button>
-    </div>
+
 
     <!-- 🛍️ Product Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
