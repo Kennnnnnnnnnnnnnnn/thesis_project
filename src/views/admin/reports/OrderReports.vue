@@ -12,56 +12,52 @@
         <!-- START DATE -->
         <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
           <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              variant="outlined"
-              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto"
-            >
+            <v-btn v-bind="props" variant="outlined"
+              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto">
               <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
               {{ formattedStartDate || 'Start Date' }}
             </v-btn>
           </template>
-          <v-date-picker
-            v-model="startDate"
-            @update:model-value="menuStart = false"
-            :max="endDate"
-            show-adjacent-months
-          />
+          <v-date-picker v-model="startDate" @update:model-value="menuStart = false" :max="endDate"
+            show-adjacent-months />
         </v-menu>
 
         <!-- END DATE -->
         <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
           <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              variant="outlined"
-              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto"
-            >
+            <v-btn v-bind="props" variant="outlined"
+              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto">
               <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
               {{ formattedEndDate || 'End Date' }}
             </v-btn>
           </template>
-          <v-date-picker
-            v-model="endDate"
-            @update:model-value="menuEnd = false"
-            :min="startDate"
-            show-adjacent-months
-          />
+          <v-date-picker v-model="endDate" @update:model-value="menuEnd = false" :min="startDate"
+            show-adjacent-months />
         </v-menu>
 
+        <!-- Search Button -->
+        <button @click="clearFilters"
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 w-full md:w-auto">
+          Clear
+        </button>
+
         <!-- Export Excel Button -->
-        <button
-          @click="exportToExcel"
-          class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 w-full md:w-auto"
-        >
+        <button @click="exportToExcel"
+          class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 w-full md:w-auto">
           <i class="fas fa-file-excel mr-2"></i>Export Excel
+        </button>
+
+        <!-- Print Button -->
+        <button @click="printReport"
+          class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 w-full md:w-auto">
+          <i class="fas fa-print mr-2"></i>Print
         </button>
       </div>
     </div>
 
 
     <!-- Table Section -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden relative print-this" ref="printSection">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden relative print-section" ref="printSection">
       <!-- Loading Spinner -->
       <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center z-10">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
@@ -73,6 +69,7 @@
           <thead class="bg-gray-100 text-sm">
             <tr>
               <th class="text-left p-4">#</th>
+              <th class="text-left p-4">Costumer</th>
               <th class="text-left p-4">Items</th>
               <th class="text-center p-4">Total</th>
               <th class="text-center p-4">Payment</th>
@@ -84,9 +81,15 @@
             <tr v-for="(order, index) in orders" :key="order._id" class="hover:bg-gray-50">
               <td class="p-4">{{ index + 1 }}</td>
               <td class="p-4">
+                {{
+                  getUserName(order.userId) || 'Customer'
+                }}
+              </td>
+              <td class="p-4">
                 <div v-for="item in order.items" :key="item._id" class="flex items-center gap-2 mb-1 last:mb-0">
                   <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                    <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover rounded" />
+                    <img v-if="item.image" :src="item.image" :alt="item.name"
+                      class="w-full h-full object-cover rounded" />
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <i class="fas fa-box text-gray-400"></i>
                     </div>
@@ -184,13 +187,18 @@
 
 
 <script setup>
-import apiURL from '@/api/config'
-import axios from 'axios'
-import * as XLSX from 'xlsx'
+import apiURL from '@/api/config';
 import formatDate from '@/composables/formatDate';
 import socket from '@/services/socket';
-import { onMounted, onUnmounted, watch, ref, computed } from 'vue';
-import dayjs from 'dayjs'
+import axios from 'axios';
+import dayjs from 'dayjs';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import * as XLSX from 'xlsx';
+
+// Print function: use window.print to print only the table
+const printReport = () => {
+  window.print();
+};
 
 const icondisplay = ref();
 const startDate = ref(null)
@@ -200,6 +208,34 @@ const menuEnd = ref(false)
 const isLoading = ref(false)
 const printSection = ref(null)
 const orders = ref([])
+const userData = ref([])
+
+
+
+const getUserName = (userId) => {
+  const user = userData.value.find(user => user._id === userId);
+  return user ? user.name : '';
+};
+
+
+const getUserData = async () => {
+  try {
+    isLoading.value = true;
+    
+    const response = await axios.get(`${apiURL}/api/getAllDocs/User`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    userData.value = response.data.data;
+
+
+  } catch (error) {
+    console.log("Error fetching user data:", error);
+
+  }
+}
 
 const fetchOrders = async (start = null, end = null) => {
   try {
@@ -230,13 +266,16 @@ const fetchOrders = async (start = null, end = null) => {
 
     const response = await axios.get(`${apiURL}/api/order/list`, {
       params: {
-        populate: JSON.stringify(['userId']),
-        dynamicConditions: JSON.stringify(dynamicConditions)
+        dynamicConditions: JSON.stringify(dynamicConditions),
+        sortField: 'createdAt',
+        sortOrder: 'desc'
       },
       headers: {
         'Authorization': `Bearer ${token}`
       }
     })
+
+
 
     if (response.data.success) {
       orders.value = response.data.data
@@ -257,6 +296,12 @@ const formattedStartDate = computed(() =>
 const formattedEndDate = computed(() =>
   endDate.value ? dayjs(endDate.value).format('YYYY-MM-DD') : ''
 )
+
+const clearFilters = () => {
+  startDate.value = null
+  endDate.value = null
+  fetchOrders()
+}
 
 watch([startDate, endDate], ([newStart, newEnd]) => {
   if (newStart && newEnd) {
@@ -308,6 +353,7 @@ const exportToExcel = () => {
 
 
 onMounted(() => {
+  getUserData();
   if (socket && socket.disconnected) {
     socket.connect();
   }
@@ -362,9 +408,33 @@ fetchOrders()
   scroll-behavior: smooth;
 }
 
-/* Remove print styles since we're not using them anymore */
+
 @media print {
-  /* Remove this entire block */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-section,
+  .print-section * {
+    visibility: visible !important;
+  }
+
+  .print-section {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100vw !important;
+    background: white !important;
+    box-shadow: none !important;
+    z-index: 9999 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Hide header/filter section and any other non-table UI */
+  .print-section~* {
+    display: none !important;
+  }
 }
 
 /* Custom date input styling */

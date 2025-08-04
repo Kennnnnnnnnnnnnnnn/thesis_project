@@ -44,12 +44,12 @@
       </div>
 
       <!-- Status Filter -->
-      <select v-model="statusFilter"
+      <!-- <select v-model="statusFilter"
         class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
         <option value="all">All Status</option>
         <option value="true">Pending</option>
         <option value="false">Completed</option>
-      </select>
+      </select> -->
 
       <!-- Add Button -->
       <button

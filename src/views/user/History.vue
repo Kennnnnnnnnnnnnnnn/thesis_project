@@ -415,6 +415,7 @@ const confirmReceipt = async (order) => {
     const updateData = {
       fields: {
         status: 'got_product',
+        confirmedAt: new Date(),
         updatedAt: new Date()
       }
     };

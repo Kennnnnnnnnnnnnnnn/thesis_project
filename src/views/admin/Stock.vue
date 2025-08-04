@@ -39,11 +39,11 @@
           </div>
 
           <!-- Filters -->
-          <select v-model="categoryFilter"
+          <!-- <select v-model="categoryFilter"
             class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Categories</option>
-          </select>
-
+          </select> -->
+<!-- 
           <select v-model="stockStatusFilter"
             class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Status</option>
@@ -51,7 +51,7 @@
             <option value="low-stock">Low Stock</option>
             <option value="critical-stock">Very Low Stock</option>
             <option value="out-of-stock">Out of Stock</option>
-          </select>
+          </select> -->
 
           <!-- Add Item Button (Uncomment to use) -->
           <!--

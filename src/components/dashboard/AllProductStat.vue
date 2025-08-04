@@ -33,7 +33,6 @@ const fetchProducts = async () => {
 
     if (response.data.success) {
       allProducts.value = response.data.data
-      console.log('✅ Products fetched:', allProducts.value.length)
     } else {
       console.warn('⚠️ Failed to fetch products:', response.data.message)
     }

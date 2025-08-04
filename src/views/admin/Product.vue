@@ -44,13 +44,13 @@
         </div>
 
         <!-- Category Filter -->
-        <select v-model="categoryFilter"
+        <!-- <select v-model="categoryFilter"
           class="px-3 py-2 md:px-4 md:py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all min-w-[120px]">
           <option value="all">{{ $t('products.categories.all') }}</option>
           <option v-for="category in categories" :key="category._id" :value="category._id">
             {{ category.name }}
           </option>
-        </select>
+        </select> -->
       </div>
 
       <!-- Add Button -->

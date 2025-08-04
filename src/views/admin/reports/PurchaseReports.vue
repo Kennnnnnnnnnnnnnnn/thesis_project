@@ -66,8 +66,7 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
           <select v-model="selectedSupplier" class="w-full px-3 py-2 border rounded-lg">
-            <option value="">All Suppliers</option>
-            <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id">
+            <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id" >
               {{ supplier.name }}
             </option>
           </select>

@@ -107,7 +107,7 @@
                       </div>
                     </div>
                     <div class="ml-3">
-                      <div class="text-sm font-bold text-gray-900">
+                      <div class="text-sm font-semibold text-gray-900">
                         {{ item.name }}
                       </div>
                       
@@ -116,19 +116,19 @@
                 </td>
 
                 <td class="px-6 py-4 whitespace-nowrap ">
-                  <div class="text-sm font-bold text-gray-900">
+                  <div class="text-sm  text-gray-900">
                     {{ item.email || '-' }}
                   </div>
                 </td>
 
                
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="text-sm font-bold text-gray-900">
+                  <div class="text-sm  text-gray-900">
                     {{ item.phoneNumber }}
                   </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                  <div class="text-sm font-bold text-gray-900">
+                  <div class="text-sm  text-gray-900">
                     {{ item.feedback }}
                   </div>
                 </td>
@@ -172,9 +172,8 @@
 import apiURL from '@/api/config';
 import Pagination from '@/components/Pagination.vue';
 import formatDate from '@/composables/formatDate';
-import { useStore } from '@/store/useStore';
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref , watch} from 'vue';
 import { useI18n } from 'vue-i18n';
 
 // Initialize i18n
@@ -245,7 +244,10 @@ const fetchFeedbacks = async () => {
 };
 
 
-
+watch(searchQuery, (newValue) => {
+  searchText.value = newValue;
+  currentPage.value = 1;
+}, { immediate: true });
 
 
 

@@ -3,17 +3,14 @@
     <!-- Header Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
       <!-- Header -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+      <div class="flex flex-col sm:flex-row j items-start sm:items-center gap-4 mb-4">
         <h1 class="text-xl font-bold text-gray-900">Stock Reports</h1>
 
-        <!-- Export Button -->
-        <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
-          <i class="fas fa-file-excel mr-2"></i>Export Excel
-        </button>
+
       </div>
 
       <!-- Filters -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Category Filter -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
@@ -25,8 +22,20 @@
           </select>
         </div>
 
+
+        <!-- product -->
+          <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+          <select v-model="selectedProduct" class="w-full px-3 py-2 border rounded-lg">
+            <option value="">All Products</option>
+            <option v-for="product in products" :key="product._id" :value="product._id">
+              {{ product.name }}
+            </option>
+          </select>
+        </div>
+
         <!-- Stock Level Filter -->
-        <div>
+        <!-- <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Stock Level</label>
           <select v-model="stockLevel" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Levels</option>
@@ -34,160 +43,118 @@
             <option value="medium">Medium Stock (10–50)</option>
             <option value="high">High Stock (&gt; 50)</option>
           </select>
-        </div>
+        </div> -->
 
-        <!-- Action Buttons -->
-        <div class="flex gap-2 items-end">
-          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 w-full">
+        <!-- Action & Export/Print Buttons Redesigned -->
+        <div class="flex gap-2 items-end mt-2">
+          <button @click="handleRefresh" class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
             <i class="fas fa-sync-alt"></i>
+            <span class="hidden sm:inline">Refresh</span>
           </button>
-          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 w-full">
-            Search
+          <button @click="handleSearch" class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-all duration-150">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+          </button>
+          <button @click="exportToExcel" class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm font-medium transition-all duration-150">
+            <i class="fas fa-file-excel"></i>
+            <span>Excel</span>
+          </button>
+          <button @click="printReport" class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 shadow-sm font-medium transition-all duration-150">
+            <i class="fas fa-print"></i>
+            <span>Print</span>
           </button>
         </div>
       </div>
     </div>
 
     <!-- Table Section -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-      <!-- Loading State -->
-      <div v-if="isLoading" class="p-8 text-center">
-        <div class="animate-spin h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto"></div>
-        <p class="mt-2 text-gray-600">Loading stocks...</p>
-      </div>
-
-      <!-- ✅ Desktop Table -->
-      <div class="hidden md:block overflow-x-auto" v-if="stocks.length > 0">
-        <table class="w-full">
-          <thead class="bg-gray-50 text-sm">
-            <tr>
-              <th class="text-left p-4">#</th>
-              <th class="text-left p-4">Product</th>
-              <th class="text-center p-4">Current Stock</th>
-              <th class="text-center p-4">Last Purchase</th>
-              <th class="text-center p-4">Min/Max</th>
-              <th class="text-center p-4">Status</th>
-              <th class="text-center p-4">Last Updated</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y">
-            <tr v-for="(stock, index) in stocks" :key="stock._id" class="hover:bg-gray-50">
-              <td class="p-4">{{ index + 1 }}</td>
-              <td class="p-4">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                    <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
-                      class="w-full h-full object-cover rounded" />
-                    <div v-else class="w-full h-full flex items-center justify-center">
-                      <i class="fas fa-box text-gray-400"></i>
-                    </div>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium">{{ stock.name }}</p>
-                    <p class="text-xs text-gray-500">{{ stock.description || 'No description' }}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="p-4 text-center">
-                <p class="font-medium" :class="[
-                  stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
-                ]">{{ stock.quantity }} {{ stock.purchaseProducts?.unit || 'kg' }}</p>
-              </td>
-              <td class="p-4 text-center">
-                <div v-if="stock.lastPurchase" class="text-sm">
-                  <p class="font-medium">{{ stock.lastPurchase.quantity }} {{ stock.lastPurchase.unit }}</p>
-                  <p class="text-xs text-gray-500">{{ formatCurrency(stock.lastPurchase.unitPrice) }}/unit</p>
-                </div>
-                <p v-else class="text-sm text-gray-500">-</p>
-              </td>
-              <td class="p-4 text-center">
-                <p class="text-sm">{{ stock.minThreshold }}/{{ stock.maxCapacity }}</p>
-              </td>
-              <td class="p-4 text-center">
-                <span :class="[
-                  'px-2 py-1 rounded text-xs font-medium',
-                  stock.isOutOfStock ? 'bg-red-100 text-red-700' :
-                    stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-green-100 text-green-700'
-                ]">
-                  {{ stock.isOutOfStock ? 'Out of Stock' :
-                    stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }}
-                </span>
-              </td>
-              <td class="p-4 text-center">
-                <p class="text-sm">{{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
-                <p class="text-xs text-gray-500">{{ stock.updatedBy?.name || stock.createdBy?.name || '-' }}</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ✅ Mobile Cards -->
-      <div class="md:hidden divide-y" v-if="stocks.length > 0">
-        <div v-for="stock in stocks" :key="stock._id" class="p-4">
-          <div class="flex justify-between items-start mb-3">
-            <div class="flex items-center gap-2">
-              <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0">
-                <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
-                  class="w-full h-full object-cover rounded" />
-                <div v-else class="w-full h-full flex items-center justify-center">
-                  <i class="fas fa-box text-gray-400"></i>
-                </div>
-              </div>
-              <div>
-                <p class="font-medium">{{ stock.name }}</p>
-                <p class="text-sm text-gray-500">{{ stock.description || 'No description' }}</p>
-              </div>
-            </div>
-            <span :class="[
-              'px-2 py-1 rounded text-xs font-medium',
-              stock.isOutOfStock ? 'bg-red-100 text-red-700' :
-                stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-green-100 text-green-700'
-            ]">
-              {{ stock.isOutOfStock ? 'Out of Stock' :
-                stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }}
-            </span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 mt-3">
-            <div>
-              <p class="text-xs text-gray-500">Category</p>
-              <span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700">
-                {{ stock.categoryId?.name || 'Uncategorized' }}
-              </span>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Current Stock</p>
-              <p class="font-medium" :class="[
-                stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
-              ]">{{ stock.quantity }} {{ stock.unit || 'units' }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Last Purchase</p>
-              <div v-if="stock.lastPurchase" class="text-sm">
-                <p class="font-medium">{{ stock.lastPurchase.quantity }} {{ stock.lastPurchase.unit }}</p>
-                <p class="text-xs">{{ formatCurrency(stock.lastPurchase.unitPrice) }}/unit</p>
-              </div>
-              <p v-else class="text-sm">-</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500">Min/Max</p>
-              <p class="text-sm">{{ stock.minThreshold }}/{{ stock.maxCapacity }}</p>
-            </div>
-          </div>
-
-          <div class="mt-3 text-right">
-            <p class="text-xs text-gray-500">Last Updated: {{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
-          </div>
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden print-section">
+      <div class="print-table">
+        <div v-if="isLoading" class="p-8 text-center">
+          <div class="animate-spin h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto"></div>
+          <p class="mt-2 text-gray-600">Loading stocks...</p>
         </div>
-      </div>
-
-      <!-- ❌ Empty State -->
-      <div v-else class="p-8 text-center">
-        <i class="fas fa-box text-4xl text-gray-400 mb-2"></i>
-        <p class="text-gray-600">No stocks found</p>
+        <div class="hidden md:block overflow-x-auto">
+          <template v-if="stocks.length > 0">
+            <table class="w-full">
+              <thead class="bg-gray-50 text-sm">
+                <tr>
+                  <th class="text-left p-4">#</th>
+                  <th class="text-left p-4">Product</th>
+                  <th class="text-left p-4">Category</th>
+                  <th class="text-center p-4">Current Stock</th>
+                  <th class="text-center p-4">Last Purchase</th>
+                  <th class="text-center p-4">Min/Max</th>
+                  <th class="text-center p-4">Status</th>
+                  <th class="text-center p-4">Last Updated</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr v-for="(stock, index) in stocks" :key="stock._id" class="hover:bg-gray-50">
+                  <td class="p-4">{{ index + 1 }}</td>
+                  <td class="p-4">
+                    <div class="flex items-center gap-2">
+                      <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
+                        <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
+                          class="w-full h-full object-cover rounded" />
+                        <div v-else class="w-full h-full flex items-center justify-center">
+                          <i class="fas fa-box text-gray-400"></i>
+                        </div>
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium">{{ stock.name }}</p>
+                        <!-- <p class="text-xs text-gray-500">{{ stock.description || 'No description' }}</p> -->
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-4">
+                    <p class="text-sm">
+                      {{
+                        (stock.categoryId && typeof stock.categoryId === 'object' && stock.categoryId.name)
+                          ? stock.categoryId.name
+                          : (stock.productId && stock.productId.categoryId && typeof stock.productId.categoryId === 'object' && stock.productId.categoryId.name)
+                            ? stock.productId.categoryId.name
+                            : 'No Category'
+                      }}
+                    </p>
+                  </td>
+                  <td class="p-4 text-center">
+                    <p class="font-medium" :class="[
+                      stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
+                    ]">{{ stock.quantity }} {{ stock.purchaseProducts?.unit || 'kg' }}</p>
+                  </td>
+                  <td class="p-4 text-center">
+                    <div v-if="stock.lastPurchase" class="text-sm">
+                      <p class="font-medium">{{ stock.lastPurchase.quantity }} {{ stock.lastPurchase.unit }}</p>
+                      <p class="text-xs text-gray-500">{{ formatCurrency(stock.lastPurchase.unitPrice) }}/unit</p>
+                    </div>
+                    <p v-else class="text-sm text-gray-500">-</p>
+                  </td>
+                  <td class="p-4 text-center">
+                    <p class="text-sm">{{ stock.minThreshold }}/{{ stock.maxCapacity }}</p>
+                  </td>
+                  <td class="p-4 text-center">
+                    <span :class="[
+                      'px-2 py-1 rounded text-xs font-medium',
+                      stock.isOutOfStock ? 'bg-red-100 text-red-700' :
+                        stock.quantity < stock.minThreshold ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-green-100 text-green-700'
+                    ]">
+                      {{ stock.isOutOfStock ? 'Out of Stock' :
+                        stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }} </span>
+                  </td>
+                  <td class="p-4 text-center">
+                    <p class="text-sm">{{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
+                    <p class="text-xs text-gray-500">{{ stock.updatedBy?.name || stock.createdBy?.name || '-' }}</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+          <template v-else-if="!isLoading">
+            <div class="w-full text-center p-8 text-gray-500 text-lg">No Data Found</div>
+          </template>
+        </div>
       </div>
     </div>
   </div>
@@ -195,12 +162,17 @@
 
 
 <script setup>
-import apiURL from '@/api/config'
-import axios from 'axios'
-import { onMounted, ref, onUnmounted } from 'vue'
-import * as XLSX from 'xlsx'
+
+// Print function: use window.print to print only the table
+const printReport = () => {
+  window.print();
+};
+import apiURL from '@/api/config';
 import formatDate from '@/composables/formatDate';
 import socket from '@/services/socket';
+import axios from 'axios';
+import { onMounted, onUnmounted, ref } from 'vue';
+import * as XLSX from 'xlsx';
 
 
 const selectedCategory = ref('')
@@ -208,6 +180,8 @@ const stockLevel = ref('')
 const isLoading = ref(false)
 const stocks = ref([])
 const categories = ref([])
+const products = ref([])
+const selectedProduct = ref('')
 
 const fetchCategories = async () => {
   try {
@@ -230,6 +204,29 @@ const fetchCategories = async () => {
   }
 }
 
+
+const fetchProduct = async () => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Authentication token not found')
+    }
+
+    const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (response.data.success) {
+        products.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+  }
+}
+
+
 const fetchStocks = async () => {
   try {
     isLoading.value = true
@@ -243,34 +240,12 @@ const fetchStocks = async () => {
       })
     }
 
-    if (stockLevel.value) {
-      switch (stockLevel.value) {
-        case 'low':
-          dynamicConditions.push({
-            field: 'quantity',
-            operator: '<',
-            value: 10
-          })
-          break
-        case 'medium':
-          dynamicConditions.push({
-            field: 'quantity',
-            operator: '>=',
-            value: 10
-          }, {
-            field: 'quantity',
-            operator: '<=',
-            value: 50
-          })
-          break
-        case 'high':
-          dynamicConditions.push({
-            field: 'quantity',
-            operator: '>',
-            value: 50
-          })
-          break
-      }
+    if (selectedProduct.value) {
+      dynamicConditions.push({
+        field: 'productId',
+        operator: '=',
+        value: selectedProduct.value
+      })
     }
 
     const token = localStorage.getItem('token')
@@ -291,16 +266,28 @@ const fetchStocks = async () => {
     })
 
     if (response.data.success) {
-      stocks.value = response.data.data.map(stock => ({
-        ...stock,
-        name: stock.name || stock.productId?.name,
-        description: stock.description || stock.productId?.description,
-        lastPurchase: stock.purchaseProducts ? {
-          quantity: stock.purchaseProducts.quantity,
-          unitPrice: stock.purchaseProducts.unitPrice,
-          unit: stock.purchaseProducts.unit
-        } : null
-      }))
+      stocks.value = response.data.data.map(stock => {
+        // Try to get the populated category object, or look up by ID from categories
+        let categoryObj = null;
+        if (stock.categoryId && typeof stock.categoryId === 'object' && stock.categoryId.name) {
+          categoryObj = stock.categoryId;
+        } else if (stock.productId && stock.productId.categoryId && typeof stock.productId.categoryId === 'object' && stock.productId.categoryId.name) {
+          categoryObj = stock.productId.categoryId;
+        } else if (stock.categoryId && typeof stock.categoryId === 'string' && categories.value.length > 0) {
+          categoryObj = categories.value.find(cat => cat._id === stock.categoryId) || null;
+        }
+        return {
+          ...stock,
+          name: stock.name || stock.productId?.name,
+          description: stock.description || stock.productId?.description,
+          lastPurchase: stock.purchaseProducts ? {
+            quantity: stock.purchaseProducts.quantity,
+            unitPrice: stock.purchaseProducts.unitPrice,
+            unit: stock.purchaseProducts.unit
+          } : null,
+          categoryId: categoryObj
+        };
+      });
     }
   } catch (error) {
     console.error('Error fetching stocks:', error)
@@ -310,6 +297,8 @@ const fetchStocks = async () => {
 }
 
 const handleRefresh = () => {
+  selectedCategory.value = ''
+  selectedProduct.value = ''
   fetchStocks()
 }
 
@@ -356,6 +345,7 @@ const exportToExcel = () => {
 onMounted(() => {
   fetchCategories()
   fetchStocks()
+  fetchProduct()
 
   // Connect socket if needed
   if (socket && socket.disconnected) {
@@ -386,6 +376,44 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+@media print {
+
+  body,
+  html {
+    background: white !important;
+  }
+
+  body>*:not(.print-section) {
+    display: none !important;
+  }
+
+  .print-section {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: white !important;
+    z-index: 9999 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .print-section>*:not(.print-table) {
+    display: none !important;
+  }
+
+  .print-table {
+    display: block !important;
+  }
+
+  .print-table * {
+    visibility: visible !important;
+  }
+}
+
 .overflow-x-auto::-webkit-scrollbar {
   width: 4px;
   height: 4px;

@@ -19,83 +19,61 @@
 
         <!-- Controls - Responsive Row -->
         <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
-          <!-- Search Input -->
-          <div class="relative">
-            <input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="$t('order.searchPlaceholder')"
-              class="w-60 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
-            />
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-          </div>
 
           <!-- Items per page -->
           <div class="relative">
-            <button
-              @click="toggleDropdownRow"
-              class="flex items-center justify-between w-full sm:w-auto min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
-            >
+            <button @click="toggleDropdownRow"
+              class="flex items-center justify-between w-full sm:w-auto min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all">
               <span>{{ selectedItem }} {{ $t('items') }}</span>
-              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
+                :class="{ 'rotate-180': isOpen }"></i>
             </button>
-            <div
-              v-show="isOpen"
-              class="absolute top-full left-0 mt-2 w-full sm:w-auto bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm"
-            >
-              <div
-                v-for="item in items"
-                :key="item"
-                @click="selectItem(item)"
-                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium"
-              >
+            <div v-show="isOpen"
+              class="absolute top-full left-0 mt-2 w-full sm:w-auto bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
+              <div v-for="item in items" :key="item" @click="selectItem(item)"
+                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
                 {{ item }} {{ $t('items') }}
               </div>
             </div>
           </div>
+          
+          <!-- Search Input -->
+          <div class="relative">
+            <input v-model="searchQuery" type="text" :placeholder="$t('order.searchPlaceholder')"
+              class="w-60 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
+
+          
 
           <!-- Date Range Filter -->
           <div class="flex items-center gap-2 w-full sm:w-auto">
             <!-- START DATE -->
             <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
               <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  variant="outlined"
-                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm"
-                >
+                <v-btn v-bind="props" variant="outlined"
+                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm">
                   <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
                   {{ formattedStartDate || 'Start Date' }}
                 </v-btn>
               </template>
 
-              <v-date-picker
-                v-model="startDate"
-                @update:model-value="menuStart = false"
-                :max="endDate"
-                show-adjacent-months
-              />
+              <v-date-picker v-model="startDate" @update:model-value="menuStart = false" :max="endDate"
+                show-adjacent-months />
             </v-menu>
 
             <!-- END DATE -->
             <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
               <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  variant="outlined"
-                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm"
-                >
+                <v-btn v-bind="props" variant="outlined"
+                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm">
                   <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
                   {{ formattedEndDate || 'End Date' }}
                 </v-btn>
               </template>
 
-              <v-date-picker
-                v-model="endDate"
-                @update:model-value="menuEnd = false"
-                :min="startDate"
-                show-adjacent-months
-              />
+              <v-date-picker v-model="endDate" @update:model-value="menuEnd = false" :min="startDate"
+                show-adjacent-months />
             </v-menu>
           </div>
         </div>
@@ -128,7 +106,7 @@
                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
                   $t('order.total') }}</th>
 
-                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
                   Location </th>
 
 
@@ -181,12 +159,10 @@
                 <!-- location -->
                 <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-center">
                   <div class="text-sm font-bold text-gray-900 whitespace-nowrap">
-                    <button 
-                      v-if="getUserLocation(item.userId || item.createdBy)"
+                    <button v-if="getUserLocation(item.userId || item.createdBy)"
                       @click="openGoogleMaps(getUserLocation(item.userId || item.createdBy))"
                       class="text-blue-600 hover:text-blue-800 underline cursor-pointer transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded"
-                      title="View location on Google Maps"
-                    >
+                      title="View location on Google Maps">
                       Customer Location
                     </button>
                     <span v-else class="text-gray-500">No Location</span>
@@ -281,15 +257,14 @@
               </div>
               <div class="flex items-start">
                 <span class="text-xs sm:text-sm font-bold text-gray-500 w-24 sm:w-32">{{ $t('order.address') }}:</span>
-                <span class="text-xs sm:text-sm text-gray-700 font-medium"><button 
-                      v-if="getUserLocation(selectedOrder.userId || selectedOrder.createdBy)"
-                      @click="openGoogleMaps(getUserLocation(selectedOrder.userId || selectedOrder.createdBy))"
-                      class="text-blue-600 hover:text-blue-800 underline cursor-pointer transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded"
-                      title="View location on Google Maps"
-                    >
-                      Customer Location
-                    </button>
-                    <span v-else class="text-gray-500">No Location</span></span>
+                <span class="text-xs sm:text-sm text-gray-700 font-medium"><button
+                    v-if="getUserLocation(selectedOrder.userId || selectedOrder.createdBy)"
+                    @click="openGoogleMaps(getUserLocation(selectedOrder.userId || selectedOrder.createdBy))"
+                    class="text-blue-600 hover:text-blue-800 underline cursor-pointer transition-colors duration-200 hover:bg-blue-50 px-2 py-1 rounded"
+                    title="View location on Google Maps">
+                    Customer Location
+                  </button>
+                  <span v-else class="text-gray-500">No Location</span></span>
               </div>
             </div>
 
@@ -407,12 +382,12 @@
         </div>
 
         <!-- Dialog Footer -->
-        <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:p-6 border-t border-gray-100">
+        <!-- <div class="flex justify-end gap-2 sm:gap-3 p-4 sm:p-6 border-t border-gray-100">
           <button @click="closeEditDialog"
             class="px-4 py-2 sm:px-6 sm:py-3 rounded-xl text-xs sm:text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all">
             {{ $t('order.close') }}
           </button>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -428,10 +403,10 @@ import socket from '@/services/socket.js';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { onMounted, computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
 
 // Initialize i18n
 const { t } = useI18n();
@@ -465,6 +440,21 @@ const defaultProductImage = ref(require('@/assets/image.png'))
 
 
 
+const closeModel = () =>{
+  selectedOrder.value = null;
+  isEditing.value = false;
+  editOrderData.value = null;
+}
+
+const clearFilters = () => {
+  startDate.value = '';
+  endDate.value = '';
+  fetchOrders()
+
+};
+
+
+
 const getUserName = (userId) => {
   const user = userData.value.find(user => user._id === userId);
   return user ? user.name : '';
@@ -491,14 +481,12 @@ const openGoogleMaps = (location) => {
 const getUserData = async () => {
   try {
     isLoading.value = true;
-    
+
     const response = await axios.get(`${apiURL}/api/getAllDocs/User`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
-
-    console.log("Fetched user data:", response.data.data);
 
     userData.value = response.data.data;
 
@@ -674,6 +662,8 @@ const updateOrderStatus = async (newStatus) => {
     const updateData = {
       fields: {
         status: newStatus,
+        paymentStatus: newStatus === 'delivering' ? 'paid' : editOrderData.value.paymentStatus || 'pending',
+        deliveringAt: newStatus === 'delivering' ? new Date() : null,
         updatedBy: userData.value[0]?.name || 'Admin',
         updatedAt: new Date()
       }
@@ -739,14 +729,12 @@ const updateOrderStatus = async (newStatus) => {
             '<b>🛍️ ORDER ITEMS</b>\n' +
             items;
 
-          console.log("📤 Sending Telegram message:", message);
           const result = await sendToTelegram(message);
-          console.log("✅ Delivery bot notification sent", result);
         } catch (telegramError) {
           console.error('❌ Delivery bot notification failed:', telegramError);
         }
         // Close dialog and refresh for delivering status
-        closeEditDialog();
+        isEditing.value = false;
         fetchOrders();
         return;
       }
@@ -756,13 +744,16 @@ const updateOrderStatus = async (newStatus) => {
         icon: 'success',
         title: 'Order Updated',
         text: `Order status set to "${newStatus}"`,
-        timer: 2000,
+        timer: 800,
         showConfirmButton: false
       });
-      
-      // Close dialog and refresh for other statuses
-      closeEditDialog();
-      fetchOrders();
+
+      // Close dialog and refresh for other statuses after a brief delay
+      setTimeout(() => {
+        isEditing.value = false;
+        editOrderData.value = null;
+        fetchOrders();
+      }, 900);
     }
   } catch (error) {
     console.error('Error updating order:', error);
@@ -981,19 +972,19 @@ onMounted(() => {
   });
 
   socket.on('orderUpdated', (order) => {
-    console.log('🔄 Order updated (real-time):', order);
+   
     fetchOrders();
-    Swal.fire({
-      icon: 'info',
-      title: t('order.updated'),
-      text: `${t('order.orderNumber')} #${order._id}`,
-      timer: 3000,
-      showConfirmButton: false
-    });
+    // Swal.fire({
+    //   icon: 'info',
+    //   title: t('order.updated'),
+    //   text: `${t('order.orderNumber')} #${order._id}`,
+    //   timer: 3000,
+    //   showConfirmButton: false
+    // });
   });
 
   socket.on('orderDeleted', (orderId) => {
-    console.log('🗑️ Order deleted (real-time):', orderId);
+    
     fetchOrders();
     Swal.fire({
       icon: 'warning',
@@ -1055,5 +1046,4 @@ onUnmounted(() => {
 ::v-deep(.v-field) {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
-
 </style>

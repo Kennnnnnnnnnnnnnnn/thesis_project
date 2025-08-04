@@ -58,14 +58,14 @@
           </div>
 
           <!-- Status Filter -->
-          <select
+          <!-- <select
             v-model="statusFilter"
             class="w-36 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all"
           >
             <option value="all">All Status</option>
             <option value="true">Active</option>
             <option value="false">Inactive</option>
-          </select>
+          </select> -->
 
           <!-- Add Supplier Button -->
           <button

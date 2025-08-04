@@ -346,7 +346,7 @@ export default {
 
                 case '/admin/feedback':
                     collectionName = 'CustomerFeedback';
-                    // searchFieldsArray.value = 'name';
+                    searchFieldsArray.value = 'name';
                     sortField = 'createdAt';
                     sortOrder = 'desc';
                     break;
