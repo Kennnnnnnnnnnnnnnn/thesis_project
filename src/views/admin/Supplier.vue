@@ -74,7 +74,7 @@
           >
             <i class="fas fa-plus text-xs"></i>
             <span class="hidden sm:inline">Create Supplier</span>
-            <span class="sm:hidden">Add</span>
+            <span class="sm:hidden">Add Supplier</span>
           </button>
         </div>
 

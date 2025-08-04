@@ -4,7 +4,7 @@
 <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-6">
   <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
     <!-- Title -->
-    <div class="flex items-center gap-4">
+    <div class="flex mb-2 items-center gap-4">
       <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2">
