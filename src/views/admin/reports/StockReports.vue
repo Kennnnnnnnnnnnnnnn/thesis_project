@@ -1,17 +1,21 @@
 <template>
   <div class="p-4 md:p-6">
     <!-- Header Section -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
-      <h1 class="text-xl font-bold text-gray-900">Stock Reports</h1>
-      <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
-        <i class="fas fa-file-excel mr-2"></i>Export Excel
-      </button>
-    </div>
-
-    <!-- Filters Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="flex flex-wrap gap-4 items-end">
-        <div class="flex-1 min-w-[200px]">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+        <h1 class="text-xl font-bold text-gray-900">Stock Reports</h1>
+
+        <!-- Export Button -->
+        <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
+          <i class="fas fa-file-excel mr-2"></i>Export Excel
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Category Filter -->
+        <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select v-model="selectedCategory" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Categories</option>
@@ -20,20 +24,24 @@
             </option>
           </select>
         </div>
-        <div class="flex-1 min-w-[200px]">
+
+        <!-- Stock Level Filter -->
+        <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Stock Level</label>
           <select v-model="stockLevel" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Levels</option>
-            <option value="low">Low Stock (< 10)</option>
-            <option value="medium">Medium Stock (10-50)</option>
-            <option value="high">High Stock (> 50)</option>
+            <option value="low">Low Stock (&lt; 10)</option>
+            <option value="medium">Medium Stock (10–50)</option>
+            <option value="high">High Stock (&gt; 50)</option>
           </select>
         </div>
-        <div class="flex gap-2">
-          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
+
+        <!-- Action Buttons -->
+        <div class="flex gap-2 items-end">
+          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 w-full">
             <i class="fas fa-sync-alt"></i>
           </button>
-          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 w-full">
             Search
           </button>
         </div>
@@ -48,20 +56,8 @@
         <p class="mt-2 text-gray-600">Loading stocks...</p>
       </div>
 
-      <div class="text-center mb-8">
-        <!-- <img src="@/assets/logo-ambel.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" /> -->
-
-        <h3 class="text-2xl font-semibold tracking-wide text-black-600">Stock Report</h3>
-
-        <p class="text-gray-600 text-sm mt-1 mb-3">
-          A summary of your inventory levels, stock movements, and product availability.
-        </p>
-
-        <hr class="m-auto w-1/4 border border-slate rounded-full" />
-      </div>
-
-      <!-- Desktop Table -->
-      <div v-if="stocks.length > 0" class="hidden md:block overflow-x-auto">
+      <!-- ✅ Desktop Table -->
+      <div class="hidden md:block overflow-x-auto" v-if="stocks.length > 0">
         <table class="w-full">
           <thead class="bg-gray-50 text-sm">
             <tr>
@@ -81,7 +77,7 @@
                 <div class="flex items-center gap-2">
                   <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
                     <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
-                      class="w-full h-full object-cover rounded">
+                      class="w-full h-full object-cover rounded" />
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <i class="fas fa-box text-gray-400"></i>
                     </div>
@@ -92,7 +88,6 @@
                   </div>
                 </div>
               </td>
-
               <td class="p-4 text-center">
                 <p class="font-medium" :class="[
                   stock.quantity < stock.minThreshold ? 'text-red-600' : 'text-gray-900'
@@ -116,7 +111,8 @@
                       'bg-green-100 text-green-700'
                 ]">
                   {{ stock.isOutOfStock ? 'Out of Stock' :
-                    stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }} </span>
+                    stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }}
+                </span>
               </td>
               <td class="p-4 text-center">
                 <p class="text-sm">{{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
@@ -127,14 +123,14 @@
         </table>
       </div>
 
-      <!-- Mobile Cards -->
-      <div v-else-if="stocks.length > 0" class="md:hidden divide-y">
+      <!-- ✅ Mobile Cards -->
+      <div class="md:hidden divide-y" v-if="stocks.length > 0">
         <div v-for="stock in stocks" :key="stock._id" class="p-4">
           <div class="flex justify-between items-start mb-3">
             <div class="flex items-center gap-2">
               <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0">
                 <img v-if="stock.imageURL" :src="stock.imageURL" :alt="stock.name"
-                  class="w-full h-full object-cover rounded">
+                  class="w-full h-full object-cover rounded" />
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <i class="fas fa-box text-gray-400"></i>
                 </div>
@@ -151,8 +147,10 @@
                   'bg-green-100 text-green-700'
             ]">
               {{ stock.isOutOfStock ? 'Out of Stock' :
-                stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }} </span>
+                stock.quantity < stock.minThreshold ? 'Low Stock' : 'In Stock' }}
+            </span>
           </div>
+
           <div class="grid grid-cols-2 gap-4 mt-3">
             <div>
               <p class="text-xs text-gray-500">Category</p>
@@ -179,13 +177,14 @@
               <p class="text-sm">{{ stock.minThreshold }}/{{ stock.maxCapacity }}</p>
             </div>
           </div>
+
           <div class="mt-3 text-right">
             <p class="text-xs text-gray-500">Last Updated: {{ formatDate(stock.updatedAt || stock.createdAt) }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Empty State -->
+      <!-- ❌ Empty State -->
       <div v-else class="p-8 text-center">
         <i class="fas fa-box text-4xl text-gray-400 mb-2"></i>
         <p class="text-gray-600">No stocks found</p>
@@ -193,6 +192,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import apiURL from '@/api/config'

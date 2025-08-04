@@ -22,7 +22,6 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <OrderStats :startDate="startDate" :endDate="endDate" />
       <AllProductStat />
-      <PromotionProductStat />
       <InStockProductStat />
       <OutOfStockProductStat />
       
@@ -36,7 +35,6 @@ import dayjs from 'dayjs'
 // Components
 import OrderStats from '@/components/dashboard/OrderStat.vue'
 import AllProductStat from '@/components/dashboard/AllProductStat.vue'
-import PromotionProductStat from '@/components/dashboard/PromotionProductStat.vue'
 import InStockProductStat from '@/components/dashboard/InStockProductStat.vue'
 import OutOfStockProductStat from '@/components/dashboard/OutOfStockProductStat.vue'
 

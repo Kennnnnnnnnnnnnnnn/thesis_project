@@ -1,25 +1,69 @@
 <template>
   <div class="p-4 md:p-6">
-    <!-- Header Section -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
+    <!-- Header -->
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
       <h1 class="text-xl font-bold text-gray-900">Purchase Reports</h1>
       <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
         <i class="fas fa-file-excel mr-2"></i>Export Excel
       </button>
     </div>
 
-    <!-- Filters Section -->
+    <!-- Filters -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="flex flex-wrap gap-4 items-end">
-        <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-          <input v-model="startDate" type="date" class="w-full px-3 py-2 border rounded-lg" />
-        </div>
-        <div class="flex-1 min-w-[200px]">
-          <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-          <input v-model="endDate" type="date" class="w-full px-3 py-2 border rounded-lg" />
-        </div>
-        <div class="flex-1 min-w-[200px]">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <!-- Start Date Picker -->
+        <v-menu
+          v-model="menuStart"
+          :close-on-content-click="false"
+          offset-y
+          transition="scale-transition"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              class="w-full px-3 py-2 rounded-lg text-sm font-medium justify-start"
+            >
+              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
+              {{ formattedStartDate || 'Start Date' }}
+            </v-btn>
+          </template>
+          <v-date-picker
+            v-model="startDate"
+            @update:model-value="menuStart = false"
+            :max="endDate"
+            show-adjacent-months
+          />
+        </v-menu>
+
+        <!-- End Date Picker -->
+        <v-menu
+          v-model="menuEnd"
+          :close-on-content-click="false"
+          offset-y
+          transition="scale-transition"
+        >
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              class="w-full px-3 py-2 rounded-lg text-sm font-medium justify-start"
+            >
+              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
+              {{ formattedEndDate || 'End Date' }}
+            </v-btn>
+          </template>
+          <v-date-picker
+            v-model="endDate"
+            @update:model-value="menuEnd = false"
+            :min="startDate"
+            show-adjacent-months
+          />
+        </v-menu>
+
+
+        <!-- Supplier -->
+        <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
           <select v-model="selectedSupplier" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Suppliers</option>
@@ -28,39 +72,30 @@
             </option>
           </select>
         </div>
+
+        <!-- Action Buttons -->
         <div class="flex gap-2">
-          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
+          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 w-full">
             <i class="fas fa-sync-alt"></i>
           </button>
-          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 w-full">
             Search
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Table Section -->
+    <!-- Content Section -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-      <!-- Loading State -->
+      <!-- Loading -->
       <div v-if="isLoading" class="p-8 text-center">
         <div class="animate-spin h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto"></div>
         <p class="mt-2 text-gray-600">Loading purchases...</p>
       </div>
 
-      <div class="text-center mb-8">
-        <!-- <img src="@/assets/logo-ambel.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" /> -->
 
-        <h3 class="text-2xl font-semibold tracking-wide text-black-600">Purchase Report</h3>
-
-        <p class="text-gray-600 text-sm mt-1 mb-3">
-          A summary of your purchase transactions, supplier details, and received items.
-        </p>
-
-        <hr class="m-auto w-1/4 border border-slate rounded-full" />
-      </div>
-
-      <!-- Desktop Table -->
-      <div v-if="purchases.length > 0" class="hidden md:block overflow-x-auto">
+      <!-- ✅ Desktop Table -->
+      <div class="hidden md:block overflow-x-auto" v-if="purchases.length > 0">
         <table class="w-full">
           <thead class="bg-gray-50 text-sm">
             <tr>
@@ -85,31 +120,27 @@
                 <div class="flex flex-col gap-1">
                   <div v-for="product in purchase.products" :key="product.id" class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                      <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name"
-                        class="w-full h-full object-cover rounded">
+                      <img v-if="product.imageURL" :src="product.imageURL" class="w-full h-full object-cover rounded" />
                       <div v-else class="w-full h-full flex items-center justify-center">
                         <i class="fas fa-box text-gray-400"></i>
                       </div>
                     </div>
                     <div>
                       <p class="text-sm font-medium">{{ product.name }}</p>
-                      <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{
-                        formatCurrency(product.unitPrice) }}</p>
+                      <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{ formatCurrency(product.unitPrice) }}</p>
                     </div>
                   </div>
                 </div>
               </td>
               <td class="p-4 text-center">
-                {{purchase.products.reduce((sum, p) => sum + p.quantity, 0)}}
+                {{ purchase.products.reduce((sum, p) => sum + p.quantity, 0) }}
               </td>
               <td class="p-4 text-center font-medium">
-                {{formatCurrency(purchase.products.reduce((sum, p) => sum + p.totalPrice, 0))}}
+                {{ formatCurrency(purchase.products.reduce((sum, p) => sum + p.totalPrice, 0)) }}
               </td>
               <td class="p-4 text-center">
-                <span class="px-2 py-1 rounded text-xs font-medium" :class="{
-                  'bg-green-100 text-green-700': purchase.status,
-                  'bg-yellow-100 text-yellow-700': !purchase.status
-                }">
+                <span class="px-2 py-1 rounded text-xs font-medium"
+                      :class="purchase.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
                   {{ purchase.status ? 'Completed' : 'Pending' }}
                 </span>
               </td>
@@ -121,40 +152,36 @@
         </table>
       </div>
 
-      <!-- Mobile Cards -->
-      <div v-else-if="purchases.length > 0" class="md:hidden divide-y">
+      <!-- ✅ Mobile Cards -->
+      <div class="md:hidden divide-y" v-if="purchases.length > 0">
         <div v-for="purchase in purchases" :key="purchase._id" class="p-4">
-          <div class="flex justify-between items-start mb-3">
+          <div class="flex justify-between items-start mb-2">
             <span class="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700">
               #{{ purchase._id.slice(-6).toUpperCase() }}
             </span>
-            <span class="px-2 py-1 rounded text-xs font-medium" :class="{
-              'bg-green-100 text-green-700': purchase.status,
-              'bg-yellow-100 text-yellow-700': !purchase.status
-            }">
+            <span class="px-2 py-1 rounded text-xs font-medium"
+                  :class="purchase.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
               {{ purchase.status ? 'Completed' : 'Pending' }}
             </span>
           </div>
-          <div class="space-y-2">
+          <div class="space-y-2 mt-2">
             <div v-for="product in purchase.products" :key="product.id" class="flex items-center gap-2">
               <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                <img v-if="product.imageURL" :src="product.imageURL" :alt="product.name"
-                  class="w-full h-full object-cover rounded">
+                <img v-if="product.imageURL" :src="product.imageURL" class="w-full h-full object-cover rounded" />
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <i class="fas fa-box text-gray-400"></i>
                 </div>
               </div>
               <div class="flex-1">
                 <p class="text-sm font-medium">{{ product.name }}</p>
-                <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{
-                  formatCurrency(product.unitPrice) }}</p>
+                <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{ formatCurrency(product.unitPrice) }}</p>
               </div>
-              <div class="text-right">
-                <p class="text-sm font-medium">{{ formatCurrency(product.totalPrice) }}</p>
-              </div>
+              <p class="text-sm font-medium text-right">
+                {{ formatCurrency(product.totalPrice) }}
+              </p>
             </div>
           </div>
-          <div class="mt-3 flex justify-between items-center text-sm ">
+          <div class="mt-3 text-right text-sm text-gray-500">
             {{ formatDate(purchase.createdAt) }}
           </div>
         </div>
@@ -169,20 +196,33 @@
   </div>
 </template>
 
+
 <script setup>
 import apiURL from '@/api/config'
 import axios from 'axios'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed  } from 'vue'
 import * as XLSX from 'xlsx'
 import formatDate from '@/composables/formatDate';
 import socket from '@/services/socket';
+import dayjs from 'dayjs'
 
-const startDate = ref('')
-const endDate = ref('')
+
+const startDate = ref(null)
+const endDate = ref(null)
+const menuStart = ref(false)
+const menuEnd = ref(false)
 const selectedSupplier = ref('')
 const isLoading = ref(false)
 const purchases = ref([])
 const suppliers = ref([])
+
+const formattedStartDate = computed(() =>
+  startDate.value ? dayjs(startDate.value).format('YYYY-MM-DD') : ''
+)
+
+const formattedEndDate = computed(() =>
+  endDate.value ? dayjs(endDate.value).format('YYYY-MM-DD') : ''
+)
 
 const fetchSuppliers = async () => {
   try {

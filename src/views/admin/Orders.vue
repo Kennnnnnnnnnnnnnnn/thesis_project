@@ -17,46 +17,89 @@
           </div>
         </div>
 
-        <!-- Controls - Stacked on mobile -->
-        <div class="flex flex-col gap-3">
-          <!-- Search + Filters Row -->
-          <div class="flex flex-col sm:flex-row gap-3">
-            <!-- Search Input - Full width on mobile -->
-            <div class="relative flex-1">
-              <input v-model="searchQuery" type="text" :placeholder="$t('order.searchPlaceholder')"
-                class="w-full px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-              <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-            </div>
+        <!-- Controls - Responsive Row -->
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
+          <!-- Search Input -->
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="$t('order.searchPlaceholder')"
+              class="w-60 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
+            />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
 
-            <!-- Items per page - On its own row on mobile -->
-            <div class="relative">
-              <button @click="toggleDropdownRow"
-                class="flex items-center justify-between w-full sm:w-auto min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all">
-                <span>{{ selectedItem }} {{ $t('items') }}</span>
-                <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
-                  :class="{ 'rotate-180': isOpen }"></i>
-              </button>
-              <div v-show="isOpen"
-                class="absolute top-full left-0 mt-2 w-full sm:w-auto bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
-                <div v-for="item in items" :key="item" @click="selectItem(item)"
-                  class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                  {{ item }} {{ $t('items') }}
-                </div>
+          <!-- Items per page -->
+          <div class="relative">
+            <button
+              @click="toggleDropdownRow"
+              class="flex items-center justify-between w-full sm:w-auto min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all"
+            >
+              <span>{{ selectedItem }} {{ $t('items') }}</span>
+              <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
+            </button>
+            <div
+              v-show="isOpen"
+              class="absolute top-full left-0 mt-2 w-full sm:w-auto bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm"
+            >
+              <div
+                v-for="item in items"
+                :key="item"
+                @click="selectItem(item)"
+                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium"
+              >
+                {{ item }} {{ $t('items') }}
               </div>
             </div>
           </div>
 
-          <!-- Date Range Filter - Stacked on mobile -->
-          <div class="flex flex-col xs:flex-row gap-3 items-start xs:items-center">
-            <div class="flex items-center gap-2 w-full xs:w-auto">
-              <input type="date" v-model="startDate"
-                class="w-full xs:w-auto px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-              <span class="text-gray-500 text-sm font-medium whitespace-nowrap">{{ $t('order.dateRangeTo') }}</span>
-              <input type="date" v-model="endDate"
-                class="w-full xs:w-auto px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-            </div>
+          <!-- Date Range Filter -->
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <!-- START DATE -->
+            <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  variant="outlined"
+                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm"
+                >
+                  <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
+                  {{ formattedStartDate || 'Start Date' }}
+                </v-btn>
+              </template>
+
+              <v-date-picker
+                v-model="startDate"
+                @update:model-value="menuStart = false"
+                :max="endDate"
+                show-adjacent-months
+              />
+            </v-menu>
+
+            <!-- END DATE -->
+            <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  variant="outlined"
+                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm"
+                >
+                  <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
+                  {{ formattedEndDate || 'End Date' }}
+                </v-btn>
+              </template>
+
+              <v-date-picker
+                v-model="endDate"
+                @update:model-value="menuEnd = false"
+                :min="startDate"
+                show-adjacent-months
+              />
+            </v-menu>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -385,13 +428,17 @@ import socket from '@/services/socket.js';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import dayjs from 'dayjs'
 
 // Initialize i18n
 const { t } = useI18n();
 
 // State
+const menuStart = ref(false)
+const menuEnd = ref(false)
 const orders = ref([]);
 const filteredOrders = ref([]);
 const selectedOrder = ref(null);
@@ -574,6 +621,15 @@ const getStatusIcon = (status) => {
   }
 };
 
+const formattedStartDate = computed({
+  get: () => startDate.value ? dayjs(startDate.value).format('YYYY-MM-DD') : '',
+  set: val => startDate.value = val
+})
+
+const formattedEndDate = computed({
+  get: () => endDate.value ? dayjs(endDate.value).format('YYYY-MM-DD') : '',
+  set: val => endDate.value = val
+})
 
 
 // View order details
@@ -991,4 +1047,13 @@ onUnmounted(() => {
   position: absolute;
   animation: scroll 20s linear infinite;
 }
+
+::v-deep(.v-overlay__content) {
+  border-radius: 1rem;
+}
+
+::v-deep(.v-field) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 </style>

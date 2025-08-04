@@ -1,60 +1,74 @@
 <template>
   <div class="p-2">
     <!-- Header Section -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center">
-      <h1 class="text-xl font-bold text-gray-900">Order Reports</h1>
-      <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
-        <i class="fas fa-file-excel mr-2"></i>Export Excel
-      </button>
-    </div>
-
-    <!-- Filters Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="flex flex-wrap gap-4 items-end">
-        <div class="flex-1">
-          <label for="icondisplay" class="font-bold block mb-2">Start Date </label>
-          <DatePicker v-model="startDate" showIcon fluid iconDisplay="input" inputId="icondisplay" />
-        </div>
-        <div class="flex-1 ">
-          <label for="icondisplay" class="font-bold block mb-2"> End Date </label>
-          <DatePicker v-model="endDate" showIcon fluid iconDisplay="input" inputId="icondisplay" />
-        </div>
-        <div class="flex gap-2">
-          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
-            Search
-          </button>
-        </div>
+      <!-- Title -->
+      <div class="flex justify-between items-center flex-wrap gap-4 mb-4 md:mb-6">
+        <h1 class="text-xl font-bold text-gray-900">Order Reports</h1>
+      </div>
+
+      <!-- Filter Section -->
+      <div class="flex flex-col md:flex-row md:items-end gap-3 md:gap-4">
+        <!-- START DATE -->
+        <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto"
+            >
+              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
+              {{ formattedStartDate || 'Start Date' }}
+            </v-btn>
+          </template>
+          <v-date-picker
+            v-model="startDate"
+            @update:model-value="menuStart = false"
+            :max="endDate"
+            show-adjacent-months
+          />
+        </v-menu>
+
+        <!-- END DATE -->
+        <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto"
+            >
+              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
+              {{ formattedEndDate || 'End Date' }}
+            </v-btn>
+          </template>
+          <v-date-picker
+            v-model="endDate"
+            @update:model-value="menuEnd = false"
+            :min="startDate"
+            show-adjacent-months
+          />
+        </v-menu>
+
+        <!-- Export Excel Button -->
+        <button
+          @click="exportToExcel"
+          class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 w-full md:w-auto"
+        >
+          <i class="fas fa-file-excel mr-2"></i>Export Excel
+        </button>
       </div>
     </div>
-
 
 
     <!-- Table Section -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden print-this" ref="printSection">
-      <!-- Loading Overlay -->
-      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden relative print-this" ref="printSection">
+      <!-- Loading Spinner -->
+      <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center z-10">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
       </div>
 
-      <div class="text-center mb-8">
-        <!-- <img src="@/assets/logo-ambel.png" alt="Logo" class="w-28 mx-auto mb-4 drop-shadow-md" /> -->
-
-        <h3 class="text-2xl font-semibold tracking-wide text-black-600">Order Report</h3>
-
-        <p class="text-gray-600 text-sm mt-1 mb-3">
-          A summary of your recent orders, order statuses, and fulfillment activities.
-        </p>
-
-        <hr class="m-auto w-1/4 border border-slate rounded-full" />
-      </div>
-     
-
-
       <!-- Desktop Table -->
-      <div v-if="orders.length > 0" class="hidden md:block overflow-x-auto">
+      <div class="hidden md:block overflow-x-auto" v-if="orders.length > 0">
         <table class="w-full">
           <thead class="bg-gray-100 text-sm">
             <tr>
@@ -72,8 +86,7 @@
               <td class="p-4">
                 <div v-for="item in order.items" :key="item._id" class="flex items-center gap-2 mb-1 last:mb-0">
                   <div class="w-8 h-8 bg-gray-100 rounded flex-shrink-0">
-                    <img v-if="item.image" :src="item.image" :alt="item.name"
-                      class="w-full h-full object-cover rounded">
+                    <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover rounded" />
                     <div v-else class="w-full h-full flex items-center justify-center">
                       <i class="fas fa-box text-gray-400"></i>
                     </div>
@@ -88,8 +101,9 @@
               <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
-                  order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' :
-                    'bg-yellow-100 text-yellow-700'
+                  order.paymentStatus === 'paid'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-yellow-100 text-yellow-700'
                 ]">
                   {{ order.paymentStatus }}
                 </span>
@@ -97,9 +111,11 @@
               <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
-                  order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
+                  order.status === 'completed'
+                    ? 'bg-green-100 text-green-700'
+                    : order.status === 'pending'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : 'bg-red-100 text-red-700'
                 ]">
                   {{ order.status }}
                 </span>
@@ -113,39 +129,44 @@
       </div>
 
       <!-- Mobile Cards -->
-      <div v-else-if="orders.length > 0" class="md:hidden divide-y">
-        <div v-for="order in orders" :key="order._id" class="p-4">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-lg font-medium">៛{{ order.totalCost?.toFixed(2) || '0.00' }}</span>
+      <div class="md:hidden" v-if="orders.length > 0">
+        <div v-for="order in orders" :key="order._id" class="p-4 border-b">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-lg font-semibold text-gray-800">៛{{ order.totalCost?.toFixed(2) || '0.00' }}</span>
             <div class="flex flex-col items-end gap-1">
               <span :class="[
                 'px-2 py-1 rounded text-xs font-medium',
-                order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                  order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-red-100 text-red-700'
+                order.status === 'completed'
+                  ? 'bg-green-100 text-green-700'
+                  : order.status === 'pending'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-red-100 text-red-700'
               ]">{{ order.status }}</span>
               <span :class="[
                 'px-2 py-1 rounded text-xs font-medium',
-                order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' :
-                  'bg-yellow-100 text-yellow-700'
+                order.paymentStatus === 'paid'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-yellow-100 text-yellow-700'
               ]">{{ order.paymentStatus }}</span>
             </div>
           </div>
-          <div class="space-y-2">
+
+          <div class="space-y-2 text-sm">
             <div v-for="item in order.items" :key="item._id" class="flex items-center gap-2">
               <div class="w-10 h-10 bg-gray-100 rounded flex-shrink-0">
-                <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover rounded">
+                <img v-if="item.image" :src="item.image" :alt="item.name" class="w-full h-full object-cover rounded" />
                 <div v-else class="w-full h-full flex items-center justify-center">
                   <i class="fas fa-box text-gray-400"></i>
                 </div>
               </div>
               <div>
-                <p class="font-medium">{{ item.name }}</p>
-                <p class="text-sm text-gray-500">៛{{ item.price }} × {{ item.quantity }}</p>
+                <p class="font-medium text-gray-800">{{ item.name }}</p>
+                <p class="text-gray-500">៛{{ item.price }} × {{ item.quantity }}</p>
               </div>
             </div>
           </div>
-          <div class="mt-3 flex justify-between items-center text-sm text-gray-500">
+
+          <div class="mt-2 flex justify-between text-sm text-gray-500">
             <span>{{ formatDate(order.createdAt) }}</span>
             <span>{{ order.paymentMethod }}</span>
           </div>
@@ -153,7 +174,7 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else class="p-8 text-center">
+      <div v-if="orders.length === 0" class="p-8 text-center">
         <i class="fas fa-inbox text-4xl text-gray-400 mb-2"></i>
         <p class="text-gray-600">No orders found</p>
       </div>
@@ -161,21 +182,21 @@
   </div>
 </template>
 
+
 <script setup>
 import apiURL from '@/api/config'
 import axios from 'axios'
-import { ref } from 'vue'
 import * as XLSX from 'xlsx'
 import formatDate from '@/composables/formatDate';
 import socket from '@/services/socket';
-import { onMounted, onUnmounted } from 'vue';
-
-import DatePicker from 'primevue/datepicker';
+import { onMounted, onUnmounted, watch, ref, computed } from 'vue';
+import dayjs from 'dayjs'
 
 const icondisplay = ref();
-
-const startDate = ref('')
-const endDate = ref('')
+const startDate = ref(null)
+const endDate = ref(null)
+const menuStart = ref(false)
+const menuEnd = ref(false)
 const isLoading = ref(false)
 const printSection = ref(null)
 const orders = ref([])
@@ -229,9 +250,20 @@ const fetchOrders = async (start = null, end = null) => {
   }
 }
 
-const handleRefresh = () => {
-  fetchOrders(startDate.value, endDate.value)
-}
+const formattedStartDate = computed(() =>
+  startDate.value ? dayjs(startDate.value).format('YYYY-MM-DD') : ''
+)
+
+const formattedEndDate = computed(() =>
+  endDate.value ? dayjs(endDate.value).format('YYYY-MM-DD') : ''
+)
+
+watch([startDate, endDate], ([newStart, newEnd]) => {
+  if (newStart && newEnd) {
+    fetchOrders(newStart, newEnd);
+  }
+});
+
 
 const handleSearch = () => {
   if (!startDate.value || !endDate.value) {

@@ -17,55 +17,67 @@
           </div>
         </div>
         
-        <!-- Controls - Stacked on mobile -->
-        <div class="flex flex-col gap-3">
-          <!-- Search + Filters Row -->
-          <div class="flex flex-col sm:flex-row gap-3">
-            <!-- Search Input - Full width on mobile -->
-            <div class="relative flex-1">
-              <input v-model="searchQuery" type="text" placeholder="Search suppliers..."
-                class="w-full px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-              <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-            </div>
-            
-            <!-- Items per page - On its own row on mobile -->
-            <div class="relative">
-              <button @click="toggleDropdownRow"
-                class="flex items-center justify-between w-full sm:w-auto min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all">
-                <span>{{ selectedItem }} items</span>
-                <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" :class="{ 'rotate-180': isOpen }"></i>
-              </button>
-              <div v-show="isOpen"
-                class="absolute top-full left-0 mt-2 w-full sm:w-auto bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm">
-                <div v-for="item in items" :key="item" @click="selectItem(item)"
-                  class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium">
-                  {{ item }} items
-                </div>
+        <!-- Controls - 1 Row Responsive -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Search Input -->
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search suppliers..."
+              class="w-60 sm:w-72 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all"
+            />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
+
+          <!-- Items per Page -->
+          <div class="relative">
+            <button
+              @click="toggleDropdownRow"
+              class="flex items-center justify-between min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all"
+            >
+              <span>{{ selectedItem }} items</span>
+              <i
+                class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200"
+                :class="{ 'rotate-180': isOpen }"
+              ></i>
+            </button>
+            <div
+              v-show="isOpen"
+              class="absolute top-full left-0 mt-2 w-full sm:w-auto bg-white border border-gray-200 shadow-xl rounded-xl py-2 z-50 backdrop-blur-sm"
+            >
+              <div
+                v-for="item in items"
+                :key="item"
+                @click="selectItem(item)"
+                class="px-4 py-2.5 text-sm text-gray-700 cursor-pointer hover:bg-amber-50 transition-colors font-medium"
+              >
+                {{ item }} items
               </div>
             </div>
           </div>
 
-          <!-- Status + Add Button Row - Stacked on mobile -->
-          <div class="flex flex-col xs:flex-row gap-3">
-            <div class="flex gap-3">
-              <!-- Status Filter - Full width on mobile -->
-              <select v-model="statusFilter" class="w-full xs:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
-                <option value="all">All Status</option>
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
+          <!-- Status Filter -->
+          <select
+            v-model="statusFilter"
+            class="w-36 px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all"
+          >
+            <option value="all">All Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
 
-              <!-- Add Button - Full width on mobile -->
-              <button
-                class="w-[100px] xs:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 sm:px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
-                @click="openModal">
-                <i class="fas fa-plus text-xs"></i>
-                <span class="hidden xs:inline">Create Supplier</span>
-                <span class="xs:hidden">Add</span>
-              </button>
-            </div>
-          </div>
+          <!-- Add Supplier Button -->
+          <button
+            @click="openModal"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl"
+          >
+            <i class="fas fa-plus text-xs"></i>
+            <span class="hidden sm:inline">Create Supplier</span>
+            <span class="sm:hidden">Add</span>
+          </button>
         </div>
+
       </div>
     </div>
 

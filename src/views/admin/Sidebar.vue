@@ -122,15 +122,6 @@
             <PackageIcon class="h-4 w-4" />
             <span class="sidebar-label">InStock</span>
           </router-link>
-
-
-           <router-link to="/admin/promotion" :class="[
-            'nav-link',
-            route.path === '/admin/promotion' ? 'bg-yellow-500 text-white' : ''
-          ]">
-            <TagsIcon class="h-4 w-4" />
-            <span class="sidebar-label">Promotion</span>
-          </router-link>
         </nav>
       </div>
 
