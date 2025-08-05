@@ -128,7 +128,7 @@
         </button>
       </div>
 
-      <router-link to="/login" class="block text-blue-400 mt-4 text-center text-sm text-gray-600 hover:underline">
+      <router-link to="/user-login" class="block text-blue-400 mt-4 text-center text-sm text-gray-600 hover:underline">
         {{ t('Already Have Account? Login Now!') }}
       </router-link>
     </div>

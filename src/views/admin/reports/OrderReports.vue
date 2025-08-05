@@ -48,10 +48,10 @@
         </button>
 
         <!-- Print Button -->
-        <button @click="printReport"
+        <!-- <button @click="printReport"
           class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 w-full md:w-auto">
           <i class="fas fa-print mr-2"></i>Print
-        </button>
+        </button> -->
       </div>
     </div>
 
@@ -72,7 +72,7 @@
               <th class="text-left p-4">Costumer</th>
               <th class="text-left p-4">Items</th>
               <th class="text-center p-4">Total</th>
-              <th class="text-center p-4">Payment</th>
+              <!-- <th class="text-center p-4">Payment</th> -->
               <th class="text-center p-4">Status</th>
               <th class="text-center p-4">Date</th>
             </tr>
@@ -101,7 +101,7 @@
                 </div>
               </td>
               <td class="p-4 text-center font-medium">៛{{ order.totalCost?.toFixed(2) || '0.00' }}</td>
-              <td class="p-4 text-center">
+              <!-- <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
                   order.paymentStatus === 'paid'
@@ -110,7 +110,7 @@
                 ]">
                   {{ order.paymentStatus }}
                 </span>
-              </td>
+              </td> -->
               <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',

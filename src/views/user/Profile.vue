@@ -207,62 +207,41 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Country</label>
-                <div class="relative">
-                  <input v-model="form.country" type="text" placeholder="Enter country" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="space-y-1">
                 <label class="text-sm font-medium text-gray-700">Province</label>
                 <div class="relative">
-                  <select v-model="selectedProvince" @change="onProvinceChange" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition appearance-none pr-10 pl-12">
-                    <option value="">Select Province</option>
-                    <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
-                  </select>
+                  <input v-model="form.province" type="text" placeholder="Enter province"
+                    class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
+                  <!-- Icon -->
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                    <!-- (Keep your province icon here if desired) -->
                   </div>
                 </div>
               </div>
-              
+
               <div class="space-y-1">
                 <label class="text-sm font-medium text-gray-700">District</label>
                 <div class="relative">
-                  <select v-model="selectedDistrict" @change="onDistrictChange" :disabled="!selectedProvince" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition appearance-none pr-10 pl-12 disabled:bg-gray-100 disabled:text-gray-400">
-                    <option value="">Select District</option>
-                    <option v-for="district in filteredDistricts" :key="district" :value="district">{{ district }}</option>
-                  </select>
+                  <input v-model="form.district" type="text" placeholder="Enter district"
+                    class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
+                  <!-- Icon -->
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
+                    <!-- (Keep your district icon here if desired) -->
                   </div>
                 </div>
               </div>
-              
+
               <div class="space-y-1">
                 <label class="text-sm font-medium text-gray-700">Commune</label>
                 <div class="relative">
-                  <select v-model="form.commune" :disabled="!selectedDistrict" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition appearance-none pr-10 pl-12 disabled:bg-gray-100 disabled:text-gray-400">
-                    <option value="">Select Commune</option>
-                    <option v-for="commune in filteredCommunes" :key="commune" :value="commune">{{ commune }}</option>
-                  </select>
+                  <input v-model="form.commune" type="text" placeholder="Enter commune"
+                    class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
+                  <!-- Icon -->
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    <!-- (Keep your commune icon here if desired) -->
                   </div>
                 </div>
               </div>
+
               
               <div class="space-y-1">
                 <label class="text-sm font-medium text-gray-700">Village</label>
@@ -276,7 +255,7 @@
                 </div>
               </div>
               
-              <div class="space-y-1">
+              <!-- <div class="space-y-1">
                 <label class="text-sm font-medium text-gray-700">Role</label>
                 <div class="relative">
                   <input v-model="form.role" type="text" class="w-full px-4 py-3 text-gray-500 bg-gray-100 rounded-lg border border-gray-200 cursor-not-allowed pl-12" disabled />
@@ -286,7 +265,7 @@
                     </svg>
                   </div>
                 </div>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -300,7 +279,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
             </svg>
-            Save Changes
+            Save
           </button>
         </div>
       </form>

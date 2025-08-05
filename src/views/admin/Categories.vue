@@ -89,7 +89,7 @@
                       </div>
                     </div>
                     <div>
-                      <div class="text-sm font-bold text-gray-900 font-khmer">{{ item.name }}</div>
+                      <div class="text-sm font-bold text-gray-900">{{ item.name }}</div>
                     </div>
                   </div>
                 </td>

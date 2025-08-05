@@ -739,21 +739,6 @@ const updateOrderStatus = async (newStatus) => {
         return;
       }
 
-      // For other statuses (pending, rejected), show success message then close
-      Swal.fire({
-        icon: 'success',
-        title: 'Order Updated',
-        text: `Order status set to "${newStatus}"`,
-        timer: 800,
-        showConfirmButton: false
-      });
-
-      // Close dialog and refresh for other statuses after a brief delay
-      setTimeout(() => {
-        isEditing.value = false;
-        editOrderData.value = null;
-        fetchOrders();
-      }, 900);
     }
   } catch (error) {
     console.error('Error updating order:', error);
@@ -766,8 +751,6 @@ const updateOrderStatus = async (newStatus) => {
     isLoading.value = false;
   }
 };
-
-
 
 
 // Update order status to delivering

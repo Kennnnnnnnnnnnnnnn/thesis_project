@@ -21,10 +21,75 @@
       <AllProductStat />
       <InStockProductStat />
       <OutOfStockProductStat />
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
       <InCome />
       <OutCome />
-      <!-- <Profit /> -->
+    </div>
+    <!-- Order Stats -->
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold text-gray-900">Order Stats</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 
+      <!-- Pending Card -->
+      <div
+        class="flex items-center bg-white p-5 rounded-xl border border-yellow-200 shadow-sm hover:shadow-md transition group">
+        <div class="flex-shrink-0 bg-yellow-400  rounded-full w-12 h-12 flex items-center justify-center mr-4">
+          <i class="fa-solid fa-hourglass-half text-white text-2xl"></i>
+        </div>
+        <div>
+          <div class="text-yellow-700 text-base font-semibold mb-1 flex items-center gap-2">
+            Pending
+            <span class="inline-block w-2 h-2 bg-yellow-400 rounded-full"></span>
+          </div>
+          <div class="text-3xl font-extrabold text-yellow-800">{{ billingStats.pending }}</div>
+        </div>
+      </div>
+      <!-- Confirmed Card -->
+      <div
+        class="flex items-center bg-white p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition group">
+        <div class="flex-shrink-0 bg-orange-500  rounded-full w-12 h-12 flex items-center justify-center mr-4">
+          <i class="fa-solid fa-circle-check text-white text-2xl"></i>
+        </div>
+        <div>
+          <div class="text-orange-700 text-base font-semibold mb-1 flex items-center gap-2">
+            Confirmed
+            <span class="inline-block w-2 h-2 bg-orange-500 rounded-full"></span>
+          </div>
+          <div class="text-3xl font-extrabold text-orange-800">{{ billingStats.delivering }}</div>
+        </div>
+      </div>
+      <!-- Rejected Card -->
+      <div
+        class="flex items-center bg-white p-5 rounded-xl border border-red-200 shadow-sm hover:shadow-md transition group">
+        <div class="flex-shrink-0 bg-red-500 rounded-full w-12 h-12 flex items-center justify-center mr-4">
+          <i class="fa-solid fa-circle-xmark text-white text-2xl"></i>
+        </div>
+        <div>
+          <div class="text-red-700 text-base font-semibold mb-1 flex items-center gap-2">
+            Rejected
+            <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+          </div>
+          <div class="text-3xl font-extrabold text-red-800">{{ billingStats.rejected }}</div>
+        </div>
+      </div>
+
+      <!-- Receiving Card -->
+      <div
+        class="flex items-center bg-white p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition group">
+        <div class="flex-shrink-0 bg-green-500  rounded-full w-12 h-12 flex items-center justify-center mr-4">
+          <i class="fa-solid fa-circle-check text-white text-2xl"></i>
+        </div>
+        <div>
+          <div class="text-green-700 text-base font-semibold mb-1 flex items-center gap-2">
+            Received
+            <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+          </div>
+          <div class="text-3xl font-extrabold text-green-800">{{ billingStats.got_product }}</div>
+        </div>
+      </div>
     </div>
 
     <!-- Charts Section -->
@@ -98,73 +163,6 @@
         </div>
       </div>
     </div>
-
-
-    <!-- Order Stats -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold text-gray-900">Order Stats</h3>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-
-      <!-- Pending Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-yellow-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-yellow-400  rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-hourglass-half text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-yellow-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Pending
-            <span class="inline-block w-2 h-2 bg-yellow-400 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-yellow-800">{{ billingStats.pending }}</div>
-        </div>
-      </div>
-      <!-- Confirmed Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-orange-500  rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-circle-check text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-orange-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Confirmed
-            <span class="inline-block w-2 h-2 bg-orange-500 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-orange-800">{{ billingStats.delivering }}</div>
-        </div>
-      </div>
-      <!-- Rejected Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-red-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-red-500 rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-circle-xmark text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-red-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Rejected
-            <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-red-800">{{ billingStats.rejected }}</div>
-        </div>
-      </div>
-
-      <!-- Receiving Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-green-500  rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-circle-check text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-green-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Received
-            <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-green-800">{{ billingStats.got_product }}</div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 <script setup>
