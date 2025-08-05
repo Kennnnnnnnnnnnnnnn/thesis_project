@@ -1,9 +1,9 @@
 <template>
-  <div class="p-2 max-w-screen-xl mx-auto bg-gray-100 min-h-screen overflow-y-auto font-sans">
+  <div class="p-2 max-w-screen-xl mx-auto min-h-screen overflow-y-auto font-sans">
     <!-- Header -->
     <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Business Dashboard</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Business Dashboard</h1>
       </div>
       <!-- <div class="flex items-center gap-4 mt-4 md:mt-0">
         <select v-model="filterPeriod" @change="handlePeriodChange"
@@ -16,6 +16,14 @@
     </div>
 
     <!-- Stat Cards -->
+
+    <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <InCome />
+      <OutCome />
+      <Profit />
+    </div>
+
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <OrderStats :startDate="startDate" :endDate="endDate" />
       <AllProductStat />
@@ -23,103 +31,35 @@
       <OutOfStockProductStat />
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-      <InCome />
-      <OutCome />
-    </div>
-    <!-- Order Stats -->
-    <div class="mb-6">
-      <h3 class="text-lg font-semibold text-gray-900">Order Stats</h3>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 
-      <!-- Pending Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-yellow-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-yellow-400  rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-hourglass-half text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-yellow-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Pending
-            <span class="inline-block w-2 h-2 bg-yellow-400 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-yellow-800">{{ billingStats.pending }}</div>
-        </div>
-      </div>
-      <!-- Confirmed Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-orange-500  rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-circle-check text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-orange-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Confirmed
-            <span class="inline-block w-2 h-2 bg-orange-500 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-orange-800">{{ billingStats.delivering }}</div>
-        </div>
-      </div>
-      <!-- Rejected Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-red-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-red-500 rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-circle-xmark text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-red-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Rejected
-            <span class="inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-red-800">{{ billingStats.rejected }}</div>
-        </div>
-      </div>
 
-      <!-- Receiving Card -->
-      <div
-        class="flex items-center bg-white p-5 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition group">
-        <div class="flex-shrink-0 bg-green-500  rounded-full w-12 h-12 flex items-center justify-center mr-4">
-          <i class="fa-solid fa-circle-check text-white text-2xl"></i>
-        </div>
-        <div>
-          <div class="text-green-700 text-base font-semibold mb-1 flex items-center gap-2">
-            Received
-            <span class="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
-          </div>
-          <div class="text-3xl font-extrabold text-green-800">{{ billingStats.got_product }}</div>
-        </div>
-      </div>
-    </div>
 
     <!-- Charts Section -->
-    <div class="mb-6">
+    <div class="mb-6 flex items-center gap-2">
+      <i class="fa-solid fa-chart-line text-gray-900"></i>
       <h3 class="text-lg font-semibold text-gray-900">Sale</h3>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border border-gray-200">
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                  <div class="bg-blue-600 p-2 rounded-lg">
-                    <i class="fa-solid fa-chart-line text-white text-lg"></i>
-                  </div>
-                  <h3 class="text-xl font-semibold text-gray-900">Sales Analytics</h3>
-                </div>
-                <div class="flex items-center gap-2">
-                  <select 
-                    v-model="chartPeriod" 
-                    @change="handleChartPeriodChange"
-                    class="bg-white border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                  </select>
-                </div>
-              </div>
-              <div style="width:100%;height:300px;">
-                <canvas id="lineChart" style="width:100%;height:100%;"></canvas>
-              </div>
+      <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg">
+              <i class="fa-solid fa-chart-line text-white text-lg"></i>
             </div>
+            <h3 class="text-xl font-semibold text-gray-900">Sales Analytics</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <select v-model="chartPeriod" @change="handleChartPeriodChange"
+              class="bg-white border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+        </div>
+        <div style="width:100%;height:300px;">
+          <canvas id="lineChart" style="width:100%;height:100%;"></canvas>
+        </div>
+      </div>
       <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
         <!-- <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-3">
@@ -132,37 +72,91 @@
 
         <div style="width:100%;height:300px;">
 
-          <!-- Customers Chart -->
-          <div class="flex items-center gap-3 mb-4">
-            <div class="bg-teal-600 p-2 rounded-lg">
-              <i class="fa-solid fa-users text-white text-lg"></i>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900">Customer ({{ customerData.length || 0 }})</h3>
+          <!-- Order Stats -->
+
+          <div class="mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-gray-900 "></i>
+            <h3 class="text-lg font-bold text-gray-900">Order Stats</h3>
           </div>
 
-          <!-- Deliveries Chart -->
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="bg-orange-600 p-2 rounded-lg">
-                <i class="fa-solid fa-truck text-white text-lg"></i>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-900">Delivery ({{ delivery.length || 0 }})</h3>
+          <canvas id="orderPieChart" width="320" height="320"></canvas>
+          <div class="flex justify-center gap-6 mt-6">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-4 h-4 rounded-full bg-yellow-400"></span>
+              <span class="text-sm text-yellow-700 font-semibold">Pending</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-4 h-4 rounded-full bg-orange-400"></span>
+              <span class="text-sm text-orange-700 font-semibold">Confirmed</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-4 h-4 rounded-full bg-red-400"></span>
+              <span class="text-sm text-red-700 font-semibold">Rejected</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-4 h-4 rounded-full bg-green-400"></span>
+              <span class="text-sm text-green-700 font-semibold">Received</span>
             </div>
           </div>
 
-          <!-- Suppliers Chart -->
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="bg-indigo-600 p-2 rounded-lg">
-                <i class="fa-solid fa-people-carry-box text-white text-lg"></i>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-900">Supplier ({{ suppliers.length || 0 }})</h3>
-            </div>
-          </div>
 
         </div>
       </div>
     </div>
+
+
+    <div class="mb-6 flex items-center gap-2">
+      <i class="fa-solid fa-truck text-gray-900 mr-2"></i>
+      <h3 class="text-lg font-semibold text-gray-900">Suppliers & Delivery</h3>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Customer Card -->
+
+      <router-link to="/admin/users"
+        class="flex items-center bg-white p-5 rounded-lg border border-teal-200 shadow-sm hover:shadow-md transition group">
+        <div class="flex-shrink-0 bg-teal-600 rounded-full w-12 h-12 flex items-center justify-center mr-4">
+          <i class="fa-solid fa-users text-white text-2xl"></i>
+        </div>
+        <div>
+          <div class="text-teal-700 text-base font-semibold mb-1">Customers</div>
+          <div class="text-3xl font-extrabold text-teal-800">{{ customerData.length || 0 }}</div>
+        </div>
+      </router-link>
+
+
+      <!-- Delivery Card -->
+      <router-link to="/admin/users">
+        <div
+          class="flex items-center bg-white p-5 rounded-lg border border-orange-200 shadow-sm hover:shadow-md transition group">
+          <div class="flex-shrink-0 bg-orange-600 rounded-full w-12 h-12 flex items-center justify-center mr-4">
+            <i class="fa-solid fa-truck text-white text-2xl"></i>
+          </div>
+          <div>
+            <div class="text-orange-700 text-base font-semibold mb-1">Deliveries</div>
+            <div class="text-3xl font-extrabold text-orange-800">{{ delivery.length || 0 }}</div>
+          </div>
+        </div>
+      </router-link>
+
+
+      <!-- Supplier Card -->
+      <router-link to="/admin/supplier">
+        <div
+          class="flex items-center bg-white p-5 rounded-lg border border-indigo-200 shadow-sm hover:shadow-md transition group">
+          <div class="flex-shrink-0 bg-indigo-600 rounded-full w-12 h-12 flex items-center justify-center mr-4">
+            <i class="fa-solid fa-people-carry-box text-white text-2xl"></i>
+          </div>
+          <div>
+            <div class="text-indigo-700 text-base font-semibold mb-1">Suppliers</div>
+            <div class="text-3xl font-extrabold text-indigo-800">{{ suppliers.length || 0 }}</div>
+          </div>
+        </div>
+      </router-link>
+
+    </div>
+
+
+
   </div>
 </template>
 <script setup>
@@ -170,7 +164,8 @@ import apiURL from '@/api/config';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 import dayjs from 'dayjs';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+
 
 // Components
 import AllProductStat from '@/components/dashboard/AllProductStat.vue';
@@ -179,7 +174,7 @@ import InStockProductStat from '@/components/dashboard/InStockProductStat.vue';
 import OrderStats from '@/components/dashboard/OrderStat.vue';
 import OutCome from '@/components/dashboard/Outcome.vue';
 import OutOfStockProductStat from '@/components/dashboard/OutOfStockProductStat.vue';
-// import Profit from '@/components/dashboard/Profit.vue'
+import Profit from '@/components/dashboard/Profit.vue';
 
 // State
 const filterPeriod = ref('monthly')
@@ -256,7 +251,7 @@ const fetchDelivery = async () => {
     const token = localStorage.getItem('token')
     const params = {
       dynamicConditions: JSON.stringify([
-        { field: 'role', operator: '==', value: 'delivery'}
+        { field: 'role', operator: '==', value: 'delivery' }
       ])
     }
     const response = await axios.get(`${apiURL}/api/getAllDocs/User`, {
@@ -333,24 +328,24 @@ const fetchMonthlySales = async () => {
     const start = new Date(year, month, 1);
     const end = new Date(year, month + 1, 0, 23, 59, 59, 999);
     const token = localStorage.getItem('token');
-    
+
     // Fetch all orders and filter on frontend
     const response = await axios.get(`${apiURL}/api/getAllDocs/Order`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
-    
+
     if (response.data.success) {
       const allOrders = response.data.data;
-      
+
       // Filter orders for current month
       const orders = allOrders.filter(order => {
         const orderDate = new Date(order.createdAt);
         return orderDate >= start && orderDate <= end;
       });
-      
+
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const dailyTotals = Array(daysInMonth).fill(0);
-      
+
       orders.forEach(order => {
         const d = new Date(order.createdAt);
         const day = d.getDate() - 1;
@@ -358,7 +353,7 @@ const fetchMonthlySales = async () => {
           dailyTotals[day] += order.totalCost || 0;
         }
       });
-      
+
       chartLabels.value = Array.from({ length: daysInMonth }, (_, i) => `Day ${i + 1}`);
       chartData.value = dailyTotals;
       renderChart();
@@ -375,23 +370,23 @@ const fetchYearlySales = async () => {
     const start = new Date(year, 0, 1);
     const end = new Date(year, 11, 31, 23, 59, 59, 999);
     const token = localStorage.getItem('token');
-    
+
     // Fetch all orders and filter on frontend
     const response = await axios.get(`${apiURL}/api/getAllDocs/Order`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
-    
+
     if (response.data.success) {
       const allOrders = response.data.data;
-      
+
       // Filter orders for current year
       const orders = allOrders.filter(order => {
         const orderDate = new Date(order.createdAt);
         return orderDate >= start && orderDate <= end;
       });
-      
+
       const monthlyTotals = Array(12).fill(0);
-      
+
       orders.forEach(order => {
         const d = new Date(order.createdAt);
         const month = d.getMonth();
@@ -399,7 +394,7 @@ const fetchYearlySales = async () => {
           monthlyTotals[month] += order.totalCost || 0;
         }
       });
-      
+
       chartLabels.value = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       chartData.value = monthlyTotals;
       renderChart();
@@ -412,14 +407,14 @@ const fetchYearlySales = async () => {
 const renderChart = () => {
   const canvas = document.getElementById('lineChart');
   if (!canvas) return;
-  
+
   const ctx = canvas.getContext('2d');
-  
+
   // Destroy existing chart
   if (salesChart) {
     salesChart.destroy();
   }
-  
+
   salesChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -446,7 +441,7 @@ const renderChart = () => {
           mode: 'index',
           intersect: false,
           callbacks: {
-            label: function(context) {
+            label: function (context) {
               return `Sales: ${context.parsed.y.toLocaleString()} ៛`;
             }
           }
@@ -467,7 +462,7 @@ const renderChart = () => {
             text: 'Sales Amount (៛)'
           },
           ticks: {
-            callback: function(value) {
+            callback: function (value) {
               return value.toLocaleString() + ' ៛';
             }
           }
@@ -484,11 +479,66 @@ const renderChart = () => {
 
 
 
+
+const renderOrderPieChart = () => {
+  const canvas = document.getElementById('orderPieChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (window.orderPieChartInstance) {
+    window.orderPieChartInstance.destroy();
+  }
+  window.orderPieChartInstance = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Pending', 'Confirmed', 'Rejected', 'Received'],
+      datasets: [{
+        data: [
+          billingStats.value.pending,
+          billingStats.value.delivering,
+          billingStats.value.rejected,
+          billingStats.value.got_product
+        ],
+        backgroundColor: [
+          '#facc15', // yellow-400
+          '#f97316', // orange-500
+          '#ef4444', // red-500
+          '#22c55e'  // green-500
+        ],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const label = context.label || '';
+              const value = context.parsed || 0;
+              return `${label}: ${value.toLocaleString()}`;
+            }
+          }
+        }
+      }
+    }
+  });
+};
+
 onMounted(() => {
   fetchSuppliers();
   fetchDelivery();
   fetchCustomerData();
-  fetchBillingStats();
+  fetchBillingStats().then(() => {
+    renderOrderPieChart();
+  });
   fetchMonthlySales(); // Initialize chart with monthly data
 });
+
+// Re-render pie chart when billingStats changes
+watch(billingStats, () => {
+  renderOrderPieChart();
+}, { deep: true });
 </script>

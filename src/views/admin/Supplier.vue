@@ -2,7 +2,7 @@
   <div class="p-2 sm:p-4 md:p-6 bg-gray-50 min-h-screen">
     <!-- Header Section - Stacked on mobile -->
     <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-4 sm:mb-6">
-      <div class="flex flex-col gap-4 sm:gap-6">
+      <div class="flex flex-col gap-6 items-end lg:flex-row lg:items-center lg:justify-between">
         <!-- Title - Always full width -->
         <div class="flex items-center gap-3 sm:gap-4">
           <div class="p-2 sm:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">

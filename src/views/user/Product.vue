@@ -6,9 +6,12 @@
     <div class="max-w-xl mx-auto mb-5">
       <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
         class="w-full py-3 px-5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300" />
+      
+      <!-- Search Results Info -->
+      <!-- <div v-if="searchQuery.trim()" class="text-center mt-2 text-sm text-gray-600">
+        {{ filteredProducts.length }}
+      </div> -->
     </div>
-
-
 
     <!-- 🛍️ Product Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -43,6 +46,18 @@
       </div>
     </div>
 
+    <!-- Empty State -->
+    <div v-if="filteredProducts.length === 0 && products.length > 0" class="text-center py-12">
+      <div class="text-gray-400 text-6xl mb-4">🔍</div>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">No Products Found</h3>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="products.length === 0" class="text-center py-12">
+      <div class="text-gray-400 text-6xl mb-4">⏳</div>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">{{ $t('products.loading') }}</h3>
+    </div>
+
     <!-- 🧺 Cart Drawer -->
     <CartDrawer
       :visible="showCartDrawer"
@@ -61,7 +76,7 @@ import socket from '@/services/socket';
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 
@@ -150,7 +165,10 @@ const removeItem = (item) => {
 
 const fetchProducts = async () => {
   try {
+    console.log('🔍 Fetching products from:', `${API}/public/products`);
     const res = await axios.get(`${API}/public/products`);
+    console.log('📦 Raw response:', res.data);
+    
     const now = new Date();
 
     products.value = res.data.data.map(p => {
@@ -169,9 +187,11 @@ const fetchProducts = async () => {
         isBestSeller,
       };
     });
-    console.log('Products loaded:', products.value.length);
+    console.log('✅ Products loaded:', products.value.length);
+    console.log('📋 Sample product names:', products.value.slice(0, 3).map(p => p.name));
   } catch (err) {
     console.error('❌ Failed to load products:', err);
+    console.error('❌ Error details:', err.response?.data);
   }
 };
 
@@ -287,19 +307,35 @@ const discountedPrice = (product) => {
 };
 
 const filteredProducts = computed(() => {
-  let list = products.value.filter(p =>
-    p.name?.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  let list = products.value;
+  
+  // Apply search filter if there's a search query
+  if (searchQuery.value && searchQuery.value.trim() !== '') {
+    const query = searchQuery.value.toLowerCase().trim();
+    list = list.filter(p => {
+      const name = p.name?.toLowerCase() || '';
+      const description = p.description?.toLowerCase() || '';
+      const categoryName = p.categoryName?.toLowerCase() || '';
+      
+      return name.includes(query) || 
+             description.includes(query) || 
+             categoryName.includes(query);
+    });
+  }
+  
+  // Apply category filter
   if (activeCategory.value === 'best') {
     list = list.filter(p => p.isBestSeller);
   } else if (activeCategory.value === 'new') {
     list = list.filter(p => p.isNew);
   }
+  
   return list;
 });
 
+
+
 onMounted(async () => {
-  console.log('Product component mounted');
   try {
     // Always fetch products
     await fetchProducts();

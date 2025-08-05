@@ -2,7 +2,7 @@
   <div class="p-4 md:p-6 bg-gray-50 min-h-screen ">
     <!-- Header Section -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-6 mb-6">
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex flex-col gap-6 items-end lg:flex-row lg:items-center lg:justify-between">
         <!-- Title -->
         <div class="flex items-center gap-4 w-[450px]">
           <div class="p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
@@ -17,7 +17,7 @@
         </div>
 
         <!-- Controls -->
-        <div class="flex flex-col sm:flex-row flex-wrap gap-3 items-start sm:items-center w-full">
+        <div class="flex flex-col items-end justify-end sm:flex-row flex-wrap gap-3  sm:items-center w-full">
           <!-- Items per page -->
           <div class="relative w-full sm:w-auto">
             <button @click="toggleDropdownRow"

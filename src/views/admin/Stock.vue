@@ -38,12 +38,21 @@
             </div>
           </div>
 
+
+          <!-- Search Input - Moved to top for mobile -->
+          <div class="relative w-full sm:w-auto sm:order-2">
+            <input v-model="searchQuery" type="text" :placeholder="$t('products.searchPlaceholder')"
+              class="w-full sm:w-48 md:w-64 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+          </div>
+
+
           <!-- Filters -->
           <!-- <select v-model="categoryFilter"
             class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Categories</option>
           </select> -->
-<!-- 
+          <!-- 
           <select v-model="stockStatusFilter"
             class="w-full sm:w-auto px-4 py-2.5 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 bg-white transition-all">
             <option value="all">All Status</option>
@@ -147,7 +156,8 @@
               <tr>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">#</th>
                 <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Product</th>
-                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Created At</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Created At
+                </th>
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Category</th>
                 <!-- <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Stock Level</th> -->
                 <th class="px-6 py-4 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">Description
@@ -173,7 +183,7 @@
                       </div>
                     </div>
                     <div>
-                      <div class="text-sm font-medium text-gray-900">{{ stock.productName }}</div>
+                      <div class="text-sm font-medium text-gray-900">{{ stock.name }}</div>
 
                     </div>
                   </div>

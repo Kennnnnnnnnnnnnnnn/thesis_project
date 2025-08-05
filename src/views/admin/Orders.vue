@@ -36,28 +36,29 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Search Input -->
-          <div class="relative">
+          <!-- <div class="relative">
             <input v-model="searchQuery" type="text" :placeholder="$t('order.searchPlaceholder')"
               class="w-60 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
             <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-          </div>
+          </div> -->
 
-          
+
 
           <!-- Date Range Filter -->
           <div class="flex items-center gap-2 w-full sm:w-auto">
             <!-- START DATE -->
             <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
               <template #activator="{ props }">
-                <v-btn v-bind="props" variant="outlined"
-                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm">
-                  <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
-                  {{ formattedStartDate || 'Start Date' }}
-                </v-btn>
+                <div v-bind="props" class="relative w-full min-w-[130px] rounded-xl overflow-hidden">
+                  <input type="text" :value="formattedStartDate" readonly placeholder="Start Date"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-sm pr-10" />
+                  <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
+                    <i class="fas fa-calendar-alt"></i>
+                  </span>
+                </div>
               </template>
-
               <v-date-picker v-model="startDate" @update:model-value="menuStart = false" :max="endDate"
                 show-adjacent-months />
             </v-menu>
@@ -65,17 +66,40 @@
             <!-- END DATE -->
             <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
               <template #activator="{ props }">
-                <v-btn v-bind="props" variant="outlined"
-                  class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm">
-                  <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
-                  {{ formattedEndDate || 'End Date' }}
-                </v-btn>
+                <div v-bind="props" class="relative w-full min-w-[130px] rounded-xl overflow-hidden">
+                  <input type="text" :value="formattedEndDate" readonly placeholder="End Date"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-sm pr-10" />
+                  <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
+                    <i class="fas fa-calendar-alt"></i>
+                  </span>
+                </div>
               </template>
-
               <v-date-picker v-model="endDate" @update:model-value="menuEnd = false" :min="startDate"
                 show-adjacent-months />
             </v-menu>
           </div>
+
+
+
+
+          <div class="flex gap-2 items-end mt-2">
+
+            <button @click="clearFilters"
+              class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
+              <i class="fas fa-sync-alt"></i>
+              <span class="hidden sm:inline">Refresh</span>
+            </button>
+
+            <button @click="handleSearch"
+              class="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600  shadow-sm transition-all duration-150">
+              <i class="fas fa-search"></i>
+              <span class="hidden sm:inline">Search</span>
+            </button>
+
+          </div>
+
+
+
         </div>
 
       </div>
@@ -440,7 +464,7 @@ const defaultProductImage = ref(require('@/assets/image.png'))
 
 
 
-const closeModel = () =>{
+const closeModel = () => {
   selectedOrder.value = null;
   isEditing.value = false;
   editOrderData.value = null;
@@ -452,6 +476,12 @@ const clearFilters = () => {
   fetchOrders()
 
 };
+
+const handleSearch = () => {
+  fetchOrders(startDate.value, endDate.value);
+};
+
+
 
 
 
@@ -500,30 +530,58 @@ const getUserData = async () => {
 
 
 // Fetch orders from the backend
-const fetchOrders = async () => {
+const fetchOrders = async (start = null, end = null) => {
   try {
-    isLoading.value = true;
-    const params = {
-      populate: JSON.stringify(['createdBy', 'userId']),
-      sortOrder: 'desc',
+    isLoading.value = true
+
+    let dynamicConditions = []
+    // Only add date conditions if values are present and valid
+    if (start) {
+      const startISO = dayjs(start).startOf('day').toISOString();
+      dynamicConditions.push({
+        field: 'createdAt',
+        operator: '&gte',
+        value: startISO,
+        type: 'Date'
+      });
     }
+    if (end) {
+      const endISO = dayjs(end).endOf('day').toISOString();
+      dynamicConditions.push({
+        field: 'createdAt',
+        operator: '&lte',
+        value: endISO,
+        type: 'Date'
+      });
+    }
+
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Authentication token not found')
+    }
+
     const response = await axios.get(`${apiURL}/api/order/list`, {
-      params,
+      params: {
+        dynamicConditions: JSON.stringify(dynamicConditions),
+        sortField: 'createdAt',
+        sortOrder: 'desc'
+      },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${token}`
       }
-    });
+    })
 
-    orderData.value = response.data.data;
-
+    if (response.data.success) {
+      orderData.value = response.data.data
+    } else {
+      console.error('Failed to fetch orders:', response.data.message)
+    }
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    orders.value = [];
+    console.error('Error fetching orders:', error)
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
-};
-
+}
 
 // Dropdown handlers
 const toggleDropdownRow = () => {
@@ -559,21 +617,12 @@ const getStatusClass = (status) => {
 
   const statusLower = status.toLowerCase();
   switch (statusLower) {
-    case 'processing':
+    case 'delivering':
       return 'bg-blue-100 text-blue-800';
-    case 'shipped':
-      return 'bg-purple-100 text-purple-800';
-    case 'in transit':
-      return 'bg-indigo-100 text-indigo-800';
-    case 'out for delivery':
-      return 'bg-amber-100 text-amber-800';
-    case 'delivered':
+    case 'got_product':
       return 'bg-green-100 text-green-800';
-    case 'cancelled':
-    case 'canceled':
+    case 'rejected':
       return 'bg-red-100 text-red-800';
-    case 'paid':
-      return 'bg-green-100 text-green-800';
     case 'pending':
       return 'bg-yellow-100 text-yellow-800';
     default:
@@ -955,7 +1004,7 @@ onMounted(() => {
   });
 
   socket.on('orderUpdated', (order) => {
-   
+
     fetchOrders();
     // Swal.fire({
     //   icon: 'info',
@@ -967,7 +1016,7 @@ onMounted(() => {
   });
 
   socket.on('orderDeleted', (orderId) => {
-    
+
     fetchOrders();
     Swal.fire({
       icon: 'warning',

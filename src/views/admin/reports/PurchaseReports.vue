@@ -1,91 +1,102 @@
 <template>
   <div class="p-4 md:p-6">
     <!-- Header -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row justify-between gap-4 items-start sm:items-center">
-      <h1 class="text-xl font-bold text-gray-900">Purchase Reports</h1>
-      <button @click="exportToExcel" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600">
-        <i class="fas fa-file-excel mr-2"></i>Export Excel
-      </button>
-    </div>
-
-    <!-- Filters -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-        <!-- Start Date Picker -->
-        <v-menu
-          v-model="menuStart"
-          :close-on-content-click="false"
-          offset-y
-          transition="scale-transition"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              variant="outlined"
-              class="w-full px-3 py-2 rounded-lg text-sm font-medium justify-start"
-            >
-              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
-              {{ formattedStartDate || 'Start Date' }}
-            </v-btn>
-          </template>
-          <v-date-picker
-            v-model="startDate"
-            @update:model-value="menuStart = false"
-            :max="endDate"
-            show-adjacent-months
-          />
-        </v-menu>
 
-        <!-- End Date Picker -->
-        <v-menu
-          v-model="menuEnd"
-          :close-on-content-click="false"
-          offset-y
-          transition="scale-transition"
-        >
-          <template #activator="{ props }">
-            <v-btn
-              v-bind="props"
-              variant="outlined"
-              class="w-full px-3 py-2 rounded-lg text-sm font-medium justify-start"
-            >
-              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
-              {{ formattedEndDate || 'End Date' }}
-            </v-btn>
-          </template>
-          <v-date-picker
-            v-model="endDate"
-            @update:model-value="menuEnd = false"
-            :min="startDate"
-            show-adjacent-months
-          />
-        </v-menu>
+      <h1 class="text-xl font-bold text-gray-900">Purchase Reports</h1>
 
 
-        <!-- Supplier -->
-        <div>
+
+      <!-- Filters -->
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+          <!-- Start Date Picker -->
+          <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
+            <template #activator="{ props }">
+              <div v-bind="props" class="relative w-full rounded-xl overflow-hidden">
+                <input type="text" :value="formattedStartDate" readonly placeholder="Start Date"
+                  class="w-full px-2 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-400" />
+                <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
+                  <i class="fas fa-calendar-alt"></i>
+                </span>
+              </div>
+            </template>
+            <v-date-picker v-model="startDate" @update:model-value="menuStart = false" :max="endDate"
+              show-adjacent-months />
+          </v-menu>
+
+          <!-- End Date Picker -->
+          <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
+            <template #activator="{ props }">
+              <div v-bind="props" class="relative w-full rounded-xl overflow-hidden">
+                <input type="text" :value="formattedEndDate" readonly placeholder="End Date"
+                  class="w-full px-2 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-400" />
+                <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
+                  <i class="fas fa-calendar-alt"></i>
+                </span>
+              </div>
+            </template>
+            <v-date-picker v-model="endDate" @update:model-value="menuEnd = false" :min="startDate"
+              show-adjacent-months />
+          </v-menu>
+
+
+          <!-- Supplier -->
+          <!-- <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
           <select v-model="selectedSupplier" class="w-full px-3 py-2 border rounded-lg">
-            <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id" >
+            <option v-for="supplier in suppliers" :key="supplier._id" :value="supplier._id">
               {{ supplier.name }}
             </option>
           </select>
-        </div>
+        </div> -->
 
-        <!-- Action Buttons -->
-        <div class="flex gap-2">
-          <button @click="handleRefresh" class="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 w-full">
-            <i class="fas fa-sync-alt"></i>
-          </button>
-          <button @click="handleSearch" class="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 w-full">
-            Search
-          </button>
+          <!-- Action Buttons -->
+
+          <div class="flex gap-2 items-end mt-2">
+
+            <button @click="handleRefresh"
+              class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
+              <i class="fas fa-sync-alt"></i>
+              <span class="hidden sm:inline">Refresh</span>
+            </button>
+
+            <button @click="handleSearch"
+              class="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600  shadow-sm transition-all duration-150">
+              <i class="fas fa-search"></i>
+              <span class="hidden sm:inline">Search</span>
+            </button>
+
+            <button @click="exportToExcel"
+              class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm font-medium transition-all duration-150">
+              <i class="fas fa-file-excel"></i>
+              <span>Excel</span>
+            </button>
+
+            <button @click="printReport"
+              class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 shadow-sm font-medium transition-all duration-150">
+              <i class="fas fa-print"></i>
+              <span>Print</span>
+            </button>
+          </div>
+
         </div>
       </div>
+
     </div>
 
+
+
     <!-- Content Section -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden print-section">
+
+      <!-- Print Title/Header -->
+      <div class="flex flex-col items-center py-6 gap-2 print-title">
+        <!-- <img src="@/assets/rice.png" alt="Logo" class="h-16 w-16 object-contain mb-2" style="margin: 0 auto;" /> -->
+        <h1 class="text-2xl font-bold text-black-800 text-center">Taing EangHuot</h1>
+        <h2 class="text-base font-semibold text-gray-700 text-center">បញ្ជីរបាយការណ៍ការទិញទំនិញរបស់ក្រុមហ៊ុន</h2>
+        <div class="w-32 border-t-2 border-dashed border-gray-400 mx-auto my-2"></div>
+      </div>
       <!-- Loading -->
       <div v-if="isLoading" class="p-8 text-center">
         <div class="animate-spin h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto"></div>
@@ -126,20 +137,21 @@
                     </div>
                     <div>
                       <p class="text-sm font-medium">{{ product.name }}</p>
-                      <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{ formatCurrency(product.unitPrice) }}</p>
+                      <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{
+                        formatCurrency(product.unitPrice) }}</p>
                     </div>
                   </div>
                 </div>
               </td>
               <td class="p-4 text-center">
-                {{ purchase.products.reduce((sum, p) => sum + p.quantity, 0) }}
+                {{purchase.products.reduce((sum, p) => sum + p.quantity, 0)}}
               </td>
               <td class="p-4 text-center font-medium">
-                {{ formatCurrency(purchase.products.reduce((sum, p) => sum + p.totalPrice, 0)) }}
+                {{formatCurrency(purchase.products.reduce((sum, p) => sum + p.totalPrice, 0))}}
               </td>
               <td class="p-4 text-center">
                 <span class="px-2 py-1 rounded text-xs font-medium"
-                      :class="purchase.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+                  :class="purchase.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
                   {{ purchase.status ? 'Completed' : 'Pending' }}
                 </span>
               </td>
@@ -159,7 +171,7 @@
               #{{ purchase._id.slice(-6).toUpperCase() }}
             </span>
             <span class="px-2 py-1 rounded text-xs font-medium"
-                  :class="purchase.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+              :class="purchase.status ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
               {{ purchase.status ? 'Completed' : 'Pending' }}
             </span>
           </div>
@@ -173,7 +185,8 @@
               </div>
               <div class="flex-1">
                 <p class="text-sm font-medium">{{ product.name }}</p>
-                <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{ formatCurrency(product.unitPrice) }}</p>
+                <p class="text-xs text-gray-500">{{ product.quantity }} {{ product.unit }} × {{
+                  formatCurrency(product.unitPrice) }}</p>
               </div>
               <p class="text-sm font-medium text-right">
                 {{ formatCurrency(product.totalPrice) }}
@@ -197,13 +210,13 @@
 
 
 <script setup>
-import apiURL from '@/api/config'
-import axios from 'axios'
-import { ref, onMounted, onUnmounted, computed  } from 'vue'
-import * as XLSX from 'xlsx'
+import apiURL from '@/api/config';
 import formatDate from '@/composables/formatDate';
 import socket from '@/services/socket';
-import dayjs from 'dayjs'
+import axios from 'axios';
+import dayjs from 'dayjs';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import * as XLSX from 'xlsx';
 
 
 const startDate = ref(null)
@@ -222,6 +235,12 @@ const formattedStartDate = computed(() =>
 const formattedEndDate = computed(() =>
   endDate.value ? dayjs(endDate.value).format('YYYY-MM-DD') : ''
 )
+
+const printReport = () => {
+  window.print();
+};
+
+
 
 const fetchSuppliers = async () => {
   try {
@@ -288,7 +307,12 @@ const fetchPurchases = async () => {
   }
 }
 
-const handleRefresh = () => fetchPurchases()
+const handleRefresh = () => {
+  startDate.value = null
+  endDate.value = null
+  selectedSupplier.value = ''
+  fetchPurchases()
+}
 const handleSearch = () => fetchPurchases()
 
 const formatCurrency = (amount) => {
@@ -373,5 +397,40 @@ onUnmounted(() => {
 
 .overflow-x-auto {
   scroll-behavior: smooth;
+}
+@media print {
+  body, html {
+    background: white !important;
+  }
+  body > *:not(.print-section) {
+    display: none !important;
+  }
+  .print-section {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: white !important;
+    z-index: 9999 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  .print-section > *:not(.print-title):not(.md\:block):not(.overflow-x-auto) {
+    display: none !important;
+  }
+  .print-title {
+    display: block !important;
+    visibility: visible !important;
+  }
+  .md\:block, .overflow-x-auto {
+    display: block !important;
+    visibility: visible !important;
+  }
+  .print-section * {
+    visibility: visible !important;
+  }
 }
 </style>

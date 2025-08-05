@@ -117,11 +117,7 @@
           <input type="text" v-model="searchQuery" :placeholder="$t('home.searchPlaceholder')"
             class="w-full pr-12 pl-5 py-3 border border-yellow-400 rounded-3xl text-base outline-none transition-all duration-300 bg-white focus:border-orange-400" />
           <!-- Search Icon on right -->
-          <svg class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-yellow-500 pointer-events-none"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-4.35-4.35m0 0A7 7 0 1010 17a7 7 0 006.65-4.35z" />
-          </svg>
+          <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
         </div>
       </div>
     </section>
@@ -426,7 +422,7 @@ import socket from '@/services/socket'; // Import the socket service
 import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref , watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 // Reactive data
@@ -446,6 +442,8 @@ const selectedProduct = ref(null);
 const rating = ref(0);
 const review = ref('');
 const { t } = useI18n();
+
+
 
 // Slides data
 const slides = ref([
@@ -581,6 +579,7 @@ async function fetchProducts() {
       params: {
         sortField: 'createdAt',
         sortOrder: 'desc',
+        searchField: searchQuery.value,
       }
     })
 
@@ -651,6 +650,8 @@ async function fetchCartItems() {
     console.error('Error fetching cart items:', err)
   }
 }
+
+
 
 // Get favorites from localStorage and mark products
 async function applyFavorites() {
@@ -1218,7 +1219,6 @@ async function submitRating() {
     });
   }
 }
-
 
 
 

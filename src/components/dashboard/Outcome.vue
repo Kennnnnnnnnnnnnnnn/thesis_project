@@ -1,16 +1,16 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-all duration-300 border border-gray-200">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="bg-red-600 p-2 rounded-lg">
-          <i class="fa-solid fa-money-bill-wave text-white text-lg"></i>
-        </div>
-        <div>
-          <div class="text-sm text-gray-600">OutCome</div>
-          <div class="text-2xl font-bold text-gray-900">{{ formatTotalOutcome }}៛</div>
+  <div class="bg-white rounded-2xl shadow p-8 flex items-center justify-between border border-gray-100 min-h-[120px]">
+    <div class="flex items-center gap-5">
+      <div class="bg-red-100 p-4 rounded-xl flex items-center justify-center">
+        <i class="fa-solid fa-money-bill-wave text-red-500 text-4xl"></i>
+      </div>
+      <div>
+        <div class="text-sm font-medium text-gray-500 mb-1">Expense</div>
+        <div class="text-4xl font-bold text-gray-900 flex items-end gap-1">
+          {{ formatTotalOutcome }}៛
+          <!-- <span class="text-xl font-bold text-red-600 mb-0.5">៛</span> -->
         </div>
       </div>
-      <div class="text-sm text-green-600">Total</div>
     </div>
   </div>
 </template>

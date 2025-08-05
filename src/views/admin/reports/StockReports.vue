@@ -24,7 +24,7 @@
 
 
         <!-- product -->
-          <div>
+        <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
           <select v-model="selectedProduct" class="w-full px-3 py-2 border rounded-lg">
             <option value="">All Products</option>
@@ -47,19 +47,23 @@
 
         <!-- Action & Export/Print Buttons Redesigned -->
         <div class="flex gap-2 items-end mt-2">
-          <button @click="handleRefresh" class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
+          <button @click="handleRefresh"
+            class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
             <i class="fas fa-sync-alt"></i>
             <span class="hidden sm:inline">Refresh</span>
           </button>
-          <button @click="handleSearch" class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-all duration-150">
+          <button @click="handleSearch"
+            class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm font-medium transition-all duration-150">
             <i class="fas fa-search"></i>
             <span>Search</span>
           </button>
-          <button @click="exportToExcel" class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm font-medium transition-all duration-150">
+          <button @click="exportToExcel"
+            class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-sm font-medium transition-all duration-150">
             <i class="fas fa-file-excel"></i>
             <span>Excel</span>
           </button>
-          <button @click="printReport" class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 shadow-sm font-medium transition-all duration-150">
+          <button @click="printReport"
+            class="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 shadow-sm font-medium transition-all duration-150">
             <i class="fas fa-print"></i>
             <span>Print</span>
           </button>
@@ -69,6 +73,13 @@
 
     <!-- Table Section -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden print-section">
+
+      <div class="flex flex-col items-center py-6 gap-2 print-title">
+        <!-- <img src="@/assets/rice.png" alt="Logo" class="h-16 w-16 object-contain mb-2" style="margin: 0 auto;" /> -->
+        <h1 class="text-2xl font-bold text-black-800 text-center ">Taing EangHuot</h1>
+        <h2 class="text-base font-semibold text-gray-700 text-center">បញ្ជីរបាយការណ៍ស្តុកទំនិញ</h2>
+        <div class="w-32 border-t-2 border-dashed border-gray-400 mx-auto my-2"></div>
+      </div>
       <div class="print-table">
         <div v-if="isLoading" class="p-8 text-center">
           <div class="animate-spin h-8 w-8 border-2 border-amber-500 border-t-transparent rounded-full mx-auto"></div>
@@ -112,7 +123,8 @@
                       {{
                         (stock.categoryId && typeof stock.categoryId === 'object' && stock.categoryId.name)
                           ? stock.categoryId.name
-                          : (stock.productId && stock.productId.categoryId && typeof stock.productId.categoryId === 'object' && stock.productId.categoryId.name)
+                          : (stock.productId && stock.productId.categoryId && typeof stock.productId.categoryId === 'object'
+                            && stock.productId.categoryId.name)
                             ? stock.productId.categoryId.name
                             : 'No Category'
                       }}
@@ -164,9 +176,7 @@
 <script setup>
 
 // Print function: use window.print to print only the table
-const printReport = () => {
-  window.print();
-};
+
 import apiURL from '@/api/config';
 import formatDate from '@/composables/formatDate';
 import socket from '@/services/socket';
@@ -182,6 +192,11 @@ const stocks = ref([])
 const categories = ref([])
 const products = ref([])
 const selectedProduct = ref('')
+
+
+const printReport = () => {
+  window.print();
+};
 
 const fetchCategories = async () => {
   try {
@@ -219,7 +234,7 @@ const fetchProduct = async () => {
     })
 
     if (response.data.success) {
-        products.value = response.data.data
+      products.value = response.data.data
     }
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -401,14 +416,18 @@ onUnmounted(() => {
     overflow: visible !important;
   }
 
-  .print-section>*:not(.print-table) {
+  /* Show both print-title and print-table in print */
+  .print-section>*:not(.print-title):not(.print-table) {
     display: none !important;
   }
 
+  .print-title {
+    display: block !important;
+    visibility: visible !important;
+  }
   .print-table {
     display: block !important;
   }
-
   .print-table * {
     visibility: visible !important;
   }

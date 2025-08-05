@@ -1,5 +1,6 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition-all duration-300 border border-gray-200">
+  <router-link to="/admin/stock">
+  <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 border border-gray-200">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="bg-green-600 p-2 rounded-lg">
@@ -13,6 +14,7 @@
       <div class="text-sm text-green-600">Total</div>
     </div>
   </div>
+  </router-link>
 </template>
 
 <script setup>

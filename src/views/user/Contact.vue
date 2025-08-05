@@ -10,14 +10,14 @@
             <i class="fas fa-map-marker-alt text-gray-500 mr-3 mt-1"></i>
             <div>
               <p class="font-medium text-gray-700">Our Location</p>
-              <p class="text-gray-600">99 S.T. Jomblo Park, Pekanbaru, 28292, Indonesia</p>
+              <p class="text-gray-600">Phnom Penh, Cambodia</p>
             </div>
           </div>
           <div class="flex items-start">
             <i class="fas fa-phone text-gray-500 mr-3 mt-1"></i>
             <div>
               <p class="font-medium text-gray-700">Phone Number</p>
-              <p class="text-gray-600">+62 (81) 414 257 9980</p>
+              <p class="text-gray-600">+855 (81) 414 257 9980</p>
             </div>
           </div>
           <div class="flex items-start">

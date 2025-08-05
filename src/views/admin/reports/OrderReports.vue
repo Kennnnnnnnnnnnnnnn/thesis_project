@@ -12,11 +12,13 @@
         <!-- START DATE -->
         <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
           <template #activator="{ props }">
-            <v-btn v-bind="props" variant="outlined"
-              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto">
-              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
-              {{ formattedStartDate || 'Start Date' }}
-            </v-btn>
+            <div v-bind="props" class="relative w-full md:w-auto min-w-[130px]">
+              <input type="text" :value="formattedStartDate" readonly placeholder="Start Date"
+                class="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm pr-10" />
+              <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
+                <i class="fas fa-calendar-alt"></i>
+              </span>
+            </div>
           </template>
           <v-date-picker v-model="startDate" @update:model-value="menuStart = false" :max="endDate"
             show-adjacent-months />
@@ -25,20 +27,28 @@
         <!-- END DATE -->
         <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
           <template #activator="{ props }">
-            <v-btn v-bind="props" variant="outlined"
-              class="rounded-xl text-sm font-medium px-4 py-2 min-w-[130px] shadow-sm w-full md:w-auto">
-              <v-icon icon="mdi-calendar" start size="small" class="mr-1" />
-              {{ formattedEndDate || 'End Date' }}
-            </v-btn>
+            <div v-bind="props" class="relative w-full md:w-auto min-w-[130px]">
+              <input type="text" :value="formattedEndDate" readonly placeholder="End Date"
+                class="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm pr-10" />
+              <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
+                <i class="fas fa-calendar-alt"></i>
+              </span>
+            </div>
           </template>
           <v-date-picker v-model="endDate" @update:model-value="menuEnd = false" :min="startDate"
             show-adjacent-months />
         </v-menu>
 
         <!-- Search Button -->
-        <button @click="clearFilters"
+        <!-- <button @click="clearFilters"
           class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 w-full md:w-auto">
           Clear
+        </button> -->
+
+        <button @click="clearFilters"
+          class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
+          <i class="fas fa-sync-alt"></i>
+          <span class="hidden sm:inline">Refresh</span>
         </button>
 
         <!-- Export Excel Button -->
@@ -48,16 +58,25 @@
         </button>
 
         <!-- Print Button -->
-        <!-- <button @click="printReport"
+        <button @click="printReport"
           class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm hover:bg-amber-600 w-full md:w-auto">
           <i class="fas fa-print mr-2"></i>Print
-        </button> -->
+        </button>
       </div>
     </div>
 
 
     <!-- Table Section -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden relative print-section" ref="printSection">
+      <!-- Logo and Print Title/Header -->
+      <div class="flex flex-col items-center py-6 gap-2 print-title">
+        <!-- <img src="@/assets/rice.png" alt="Logo" class="w-16 h-16 object-contain" style="margin: 0 auto;" /> -->
+        <h1 class="text-2xl font-bold text-black-800 text-center">Taing EangHuot</h1>
+        <h2 class="text-base font-semibold text-gray-700 text-center">បញ្ជីរបាយការណ៍ការកម្មង់របស់អតិថិជន</h2>
+        <div class="w-32 border-t-2 border-dashed border-gray-400 mx-auto my-2"></div>
+      </div>
+
+
       <!-- Loading Spinner -->
       <div v-if="isLoading" class="absolute inset-0 bg-opacity-70 flex items-center justify-center z-10">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-900"></div>
@@ -114,11 +133,13 @@
               <td class="p-4 text-center">
                 <span :class="[
                   'px-2 py-1 rounded text-xs font-medium',
-                  order.status === 'completed'
+                  order.status === 'got_product'
                     ? 'bg-green-100 text-green-700'
-                    : order.status === 'pending'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-red-100 text-red-700'
+                    : order.status === 'delivering'
+                      ? 'bg-blue-100 text-blue-700'
+                      : order.status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
                 ]">
                   {{ order.status }}
                 </span>
@@ -221,7 +242,7 @@ const getUserName = (userId) => {
 const getUserData = async () => {
   try {
     isLoading.value = true;
-    
+
     const response = await axios.get(`${apiURL}/api/getAllDocs/User`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -434,6 +455,12 @@ fetchOrders()
   /* Hide header/filter section and any other non-table UI */
   .print-section~* {
     display: none !important;
+  }
+
+  /* Page break after every 20th row in the table */
+  .print-section table tbody tr:nth-child(20n) {
+    page-break-after: always;
+    break-after: page;
   }
 }
 

@@ -168,7 +168,7 @@
               'nav-link',
               route.path === '/admin/reports/purchase' ? 'bg-yellow-500 text-white' : ''
             ]">
-              <Book class="h-4 w-4" />
+              <Book class="h-4 w-6" />
               <span class="sidebar-label">Purchase </span>
             </router-link>
         </nav>
