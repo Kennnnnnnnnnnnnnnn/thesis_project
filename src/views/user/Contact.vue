@@ -1,43 +1,45 @@
 <template>
   <div class="mt-10 bg-gray-50 flex items-center justify-center p-4">
     <div class="max-w-4xl w-full bg-white rounded-lg shadow-md flex flex-col md:flex-row">
-   
+      
+      <!-- Contact Info -->
       <div class="p-6 md:w-1/2 bg-gray-100">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Get in Touch</h2>
-        <p class="text-gray-600 mb-6">We're here to help with any questions or support you need. Reach out to us!</p>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">{{ t('contact.title') }}</h2>
+        <p class="text-gray-600 mb-6">{{ t('contact.subtitle') }}</p>
         <div class="space-y-4">
           <div class="flex items-start">
             <i class="fas fa-map-marker-alt text-gray-500 mr-3 mt-1"></i>
             <div>
-              <p class="font-medium text-gray-700">Our Location</p>
+              <p class="font-medium text-gray-700">{{ t('contact.ourInfo') }}</p>
               <p class="text-gray-600">Phnom Penh, Cambodia</p>
             </div>
           </div>
           <div class="flex items-start">
             <i class="fas fa-phone text-gray-500 mr-3 mt-1"></i>
             <div>
-              <p class="font-medium text-gray-700">Phone Number</p>
+              <p class="font-medium text-gray-700">{{ t('contact.phone') }}</p>
               <p class="text-gray-600">+855 (81) 414 257 9980</p>
             </div>
           </div>
           <div class="flex items-start">
             <i class="fas fa-envelope text-gray-500 mr-3 mt-1"></i>
             <div>
-              <p class="font-medium text-gray-700">Email Address</p>
+              <p class="font-medium text-gray-700">{{ t('contact.emailLabel') }}</p>
               <p class="text-gray-600">info@yourdomain.com</p>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Contact Form -->
       <div class="p-6 md:w-1/2 bg-white">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Send Us a Feedback</h2>
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">{{ t('contact.sendMessage') }}</h2>
         <form @submit.prevent="submitForm" class="space-y-4">
           <div>
             <input
               v-model="form.name"
               type="text"
-              placeholder="Your Name"
+              :placeholder="t('contact.name')"
               required
               class="w-full p-3 border border-gray-300 rounded-md text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
@@ -46,7 +48,7 @@
             <input
               v-model="form.email"
               type="email"
-              placeholder="Your Email"
+              :placeholder="t('contact.emailLabel')"
               class="w-full p-3 border border-gray-300 rounded-md text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -54,7 +56,7 @@
             <input
               v-model="form.phone"
               type="tel"
-              placeholder="Your Phone"
+              :placeholder="t('contact.phone')"
               required
               class="w-full p-3 border border-gray-300 rounded-md text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
@@ -62,17 +64,17 @@
           <div>
             <textarea
               v-model="form.message"
-              placeholder="Your Message"
+              :placeholder="t('contact.message')"
               required
               class="w-full p-3 border border-gray-300 rounded-md text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 h-28 resize-none"
             ></textarea>
           </div>
           <button
             type="submit"
-            class="w-full bg-yellow-600 text-white font-medium py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            class="w-full bg-yellow-500 text-white font-medium py-2 rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             :disabled="isSubmitting"
           >
-            {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+            {{ isSubmitting ? t('contact.sending') : t('contact.send') }}
           </button>
         </form>
       </div>
@@ -80,10 +82,13 @@
   </div>
 </template>
 
+
 <script setup>
 import apiURL from '@/api/config';
 import axios from 'axios';
 import { reactive, ref } from 'vue';
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const form = reactive({
   name: '',

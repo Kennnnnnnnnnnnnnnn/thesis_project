@@ -101,14 +101,14 @@
   </div>
 </template> -->
 <template>
-  <div class="font-inter mt-4 bg-gray-50 py-8">
+  <div class=" mt-4 bg-gray-50 py-8">
     <div class="max-w-4xl mx-auto bg-white rounded-2xl overflow-hidden shadow-lg">
       <!-- Header with gradient background -->
       <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 px-10 py-8 text-white">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold mb-1">Profile Settings</h1>
-            <p class="text-yellow-100 font-medium">Manage your personal information</p>
+            <h1 class="text-3xl font-bold mb-1">{{ t('profile.settings') }}</h1>
+            <p class="text-yellow-100 font-medium">{{ t('profile.description') }}</p>
           </div>
           <!-- <div class="w-16 h-16 rounded-full border-4 border-white/30 overflow-hidden shadow-lg">
             <img :src="form.profilePicture || defaultImage" alt="Profile" class="w-full h-full object-cover" />
@@ -140,12 +140,12 @@
           <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <div class="flex items-center mb-6">
               <div class="w-1.5 h-8 bg-yellow-400 rounded-full mr-3"></div>
-              <h3 class="text-xl font-semibold text-gray-800">Personal Information</h3>
+              <h3 class="text-xl font-semibold text-gray-800">{{ t('profile.personalInfo') }}</h3>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Full Name</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.fullName') }}</label>
                 <div class="relative">
                   <input v-model="form.name" type="text" required class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" placeholder="John Doe" />
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -157,7 +157,7 @@
               </div>
               
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Email</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.email') }}</label>
                 <div class="relative">
                   <input v-model="form.email" type="email" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" placeholder="example@email.com" />
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -169,7 +169,7 @@
               </div>
               
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Phone Number</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.phoneNumber') }}</label>
                 <div class="relative">
                   <input v-model="form.phoneNumber" type="text" required class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" placeholder="+1234567890" />
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -181,12 +181,12 @@
               </div>
               
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Gender</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.gender') }}</label>
                 <div class="relative">
                   <select v-model="form.gender" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition appearance-none pr-10 pl-12">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="male">{{ t('profile.genderOptions.male') }}</option>
+                    <option value="female">{{ t('profile.genderOptions.female') }}</option>
+                    <option value="other">{{ t('profile.genderOptions.other') }}</option>
                   </select>
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -202,12 +202,12 @@
           <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <div class="flex items-center mb-6">
               <div class="w-1.5 h-8 bg-yellow-400 rounded-full mr-3"></div>
-              <h3 class="text-xl font-semibold text-gray-800">Address Information</h3>
+              <h3 class="text-xl font-semibold text-gray-800">{{ t('profile.addressInfo') }}</h3>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Province</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.province') }}</label>
                 <div class="relative">
                   <input v-model="form.province" type="text" placeholder="Enter province"
                     class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
@@ -219,7 +219,7 @@
               </div>
 
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">District</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.district') }}</label>
                 <div class="relative">
                   <input v-model="form.district" type="text" placeholder="Enter district"
                     class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
@@ -231,7 +231,7 @@
               </div>
 
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Commune</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.commune') }}</label>
                 <div class="relative">
                   <input v-model="form.commune" type="text" placeholder="Enter commune"
                     class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
@@ -244,7 +244,7 @@
 
               
               <div class="space-y-1">
-                <label class="text-sm font-medium text-gray-700">Village</label>
+                <label class="text-sm font-medium text-gray-700">{{ t('profile.village') }}</label>
                 <div class="relative">
                   <input v-model="form.village" type="text" placeholder="Enter village" class="w-full px-4 py-3 text-gray-700 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-yellow-300 focus:border-yellow-400 outline-none transition placeholder-gray-400 pl-12" />
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -273,13 +273,13 @@
         <!-- Action Buttons -->
         <div class="flex justify-end gap-4 mt-10 pt-6 border-t border-gray-100">
           <button type="button" class="px-6 py-3 text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2">
-            Cancel
+            {{ t('profile.cancel') }}
           </button>
           <button type="submit" class="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-medium rounded-lg shadow-sm hover:from-yellow-500 hover:to-yellow-600 transition-all focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
             </svg>
-            Save
+            {{ t('profile.save') }}
           </button>
         </div>
       </form>
@@ -291,6 +291,8 @@ import apiURL from '@/api/config';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const defaultImage = require('@/assets/default-profile.png');
 

@@ -174,22 +174,6 @@
     "bankBakong": "BAKONG 银行",
     "webBrowser": "网页浏览器"
   },
-
-
-  "profile": {
-    "noEmail": "未提供邮箱",
-    "personalInfo": "个人信息",
-    "firstName": "名",
-    "lastName": "姓",
-    "email": "电子邮件",
-    "phone": "电话号码",
-    "address": "地址",
-    "city": "城市",
-    "postalCode": "邮政编码",
-    "saveChanges": "保存更改"
-  },
-
-
   "history": {
     "yourOrderHistory": "您的订单历史",
     "reviewPastPurchases": "查看您过去的购买记录和订单详情",
@@ -354,7 +338,42 @@
     "admin": "管理员",
     "delivery": "配送员",
     "customer": "客户"
+  },
+  "profile": {
+    "settings": "个人资料设置",
+    "description": "管理您的个人信息",
+    "personalInfo": "个人信息",
+    "addressInfo": "地址信息",
+    "fullName": "全名",
+    "email": "电子邮箱",
+    "phoneNumber": "电话号码",
+    "gender": "性别",
+    "genderOptions": {
+      "male": "男",
+      "female": "女",
+      "other": "其他"
+    },
+    "province": "省份",
+    "district": "区/县",
+    "commune": "乡/镇",
+    "village": "村庄",
+    "role": "角色",
+    "changePhoto": "更换照片",
+    "cancel": "取消",
+    "save": "保存",
+    "authRequired": "需要身份验证",
+    "fetchFailed": "获取个人资料失败",
+    "updated": "个人资料更新成功",
+    "updateFailed": "个人资料更新失败",
+    "pictureUpdated": "头像已更新",
+    "pictureUpdateFailed": "头像更新失败",
+    "imageUploadError": "上传图片时出错",
+    "guestPromptTitle": "您正在以访客身份浏览",
+    "guestPromptText": "要管理您的个人资料，请注册或登录。",
+    "registerNow": "立即注册",
+    "maybeLater": "稍后再说"
   }
+
 
 
 
