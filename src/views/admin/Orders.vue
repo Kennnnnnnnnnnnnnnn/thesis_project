@@ -3,7 +3,7 @@
     <!-- Header Section - Stacked on mobile -->
     <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100/50 p-4 sm:p-6 mb-4 sm:mb-6">
       <div class="flex flex-col gap-4 sm:gap-6">
-        <!-- Title - Always full width -->
+        <!-- Title -->
         <div class="flex items-center gap-3 sm:gap-4">
           <div
             class="p-2 sm:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
@@ -13,14 +13,16 @@
             </svg>
           </div>
           <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">{{ $t('order.title') }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+              {{ $t('order.title') }}
+            </h1>
           </div>
         </div>
 
-        <!-- Controls - Responsive Row -->
+        <!-- Controls -->
         <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-4">
 
-          <!-- Items per page -->
+          <!-- Items per page dropdown -->
           <div class="relative">
             <button @click="toggleDropdownRow"
               class="flex items-center justify-between w-full sm:w-auto min-w-[110px] px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-amber-50 hover:border-amber-300 transition-all">
@@ -37,22 +39,13 @@
             </div>
           </div>
 
-          <!-- Search Input -->
-          <!-- <div class="relative">
-            <input v-model="searchQuery" type="text" :placeholder="$t('order.searchPlaceholder')"
-              class="w-60 px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all" />
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-          </div> -->
-
-
-
           <!-- Date Range Filter -->
           <div class="flex items-center gap-2 w-full sm:w-auto">
             <!-- START DATE -->
             <v-menu v-model="menuStart" :close-on-content-click="false" offset-y transition="scale-transition">
               <template #activator="{ props }">
                 <div v-bind="props" class="relative w-full min-w-[130px] rounded-xl overflow-hidden">
-                  <input type="text" :value="formattedStartDate" readonly placeholder="Start Date"
+                  <input type="text" :value="formattedStartDate" readonly :placeholder="$t('order.startDate')"
                     class="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-sm pr-10" />
                   <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
                     <i class="fas fa-calendar-alt"></i>
@@ -67,7 +60,7 @@
             <v-menu v-model="menuEnd" :close-on-content-click="false" offset-y transition="scale-transition">
               <template #activator="{ props }">
                 <div v-bind="props" class="relative w-full min-w-[130px] rounded-xl overflow-hidden">
-                  <input type="text" :value="formattedEndDate" readonly placeholder="End Date"
+                  <input type="text" :value="formattedEndDate" readonly :placeholder="$t('order.endDate')"
                     class="w-full px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-sm pr-10" />
                   <span class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 pointer-events-none">
                     <i class="fas fa-calendar-alt"></i>
@@ -79,31 +72,24 @@
             </v-menu>
           </div>
 
-
-
-
+          <!-- Buttons -->
           <div class="flex gap-2 items-end mt-2">
-
             <button @click="clearFilters"
               class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 shadow-sm transition-all duration-150">
               <i class="fas fa-sync-alt"></i>
-              <span class="hidden sm:inline">Refresh</span>
+              <span class="hidden sm:inline">{{ $t('common.refresh') }}</span>
             </button>
 
             <button @click="handleSearch"
-              class="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600  shadow-sm transition-all duration-150">
+              class="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm transition-all duration-150">
               <i class="fas fa-search"></i>
-              <span class="hidden sm:inline">Search</span>
+              <span class="hidden sm:inline">{{ $t('common.search') }}</span>
             </button>
-
           </div>
-
-
-
         </div>
-
       </div>
     </div>
+
 
     <!-- Main Table Card -->
     <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden">
@@ -130,9 +116,9 @@
                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
                   $t('order.total') }}</th>
 
-                <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
-                  Location </th>
-
+                  <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">
+                    {{ $t('order.location') }}
+                  </th>
 
                 <th class="px-4 sm:px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">{{
                   $t('order.status') }}</th>

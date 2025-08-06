@@ -1,10 +1,6 @@
 {
   "companyName": "唐英活稻米厂",
 
-
-
-
-
   "nav": {
     "home": "主页",
     "products": "产品",
@@ -46,12 +42,8 @@
     "itemsTotal": "共 {count} 个产品"
   },
 
-
-
-
-
   "home": {
- "searchPlaceholder": "搜索产品...",
+  "searchPlaceholder": "搜索产品...",
   "newProductsTitle": "新品推荐",
   "allProductsTitle": "所有产品",
   "rateProduct": "评价此产品",
@@ -63,6 +55,8 @@
   "common": {
     "viewAll": "查看全部",
     "addToCart": "加入购物车",
+    "search": "搜索",
+    "refresh": "刷新",
     "submit": "提交",
     "cancel": "取消",
     "save": "省",
@@ -126,10 +120,6 @@
     "emailUs": "给我们发邮件"
   },
 
-
-
-
-
   "favorites": {
     "title": "您的收藏",
     "loading": "正在加载您的收藏...",
@@ -140,12 +130,6 @@
     "premiumQuality": "优质商品",
     "addToCart": "加入购物车"
   },
-
-
-
-
-
-
 
   "cart": {
     "title": "您的购物车",
@@ -198,9 +182,6 @@
     "cancelled": "已取消",
     "addedToCart": "{{item}} 已添加到您的购物车！"
   },
-
-
-
   "contact": {
     "title": "联系我们",
     "subtitle": "与我们的支持团队取得联系",
@@ -248,6 +229,8 @@
     "searchPlaceholder": "搜索订单...",
     "allOrders": "所有订单",
     "processing": "处理中",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
     "shipped": "已发货",
     "inTransit": "运输中",
     "outForDelivery": "配送中",
@@ -268,6 +251,7 @@
     "payment": "付款",
     "shipping": "配送",
     "subtotal": "小计",
+    "location": "位置",
     "confirmed": "已确认",
     "rejected": "已拒绝",
     "confirmedAt": "确认日期",
