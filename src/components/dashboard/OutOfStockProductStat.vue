@@ -1,5 +1,5 @@
 <template>
-  <router-link to="/admin/stock">
+  <router-link to="/admin/create">
     <div class="bg-white rounded-lg shadow-md p-5 hover:shadow-lg transition-all duration-300 border border-gray-200">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -27,8 +27,14 @@ const outOfStockCount = ref(0)
 const fetchOutOfStock = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`${apiURL}/api/public/products`, {
+    const params = {
+      dynamicConditions: JSON.stringify([
+        { field: "totalStock", operator: "=", value: 0 }
+      ])
+    }
+  const response = await axios.get(`${apiURL}/api/getAllDocs/Product`, {
       headers: { Authorization: `Bearer ${token}` },
+      params: params
     })
 
     if (response.data.success) {

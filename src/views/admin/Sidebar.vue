@@ -111,7 +111,7 @@
             route.path === '/admin/restock' ? 'bg-yellow-500 text-white' : ''
           ]">
             <Layers class="h-4 w-4" />
-            <span class="sidebar-label">Purchase</span>
+            <span class="sidebar-label">Restock</span>
           </router-link>
 
 
@@ -169,7 +169,7 @@
               route.path === '/admin/reports/purchase' ? 'bg-yellow-500 text-white' : ''
             ]">
               <Book class="h-4 w-6" />
-              <span class="sidebar-label">Purchase </span>
+              <span class="sidebar-label">Restock Reports </span>
             </router-link>
         </nav>
       </div>

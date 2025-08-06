@@ -70,32 +70,37 @@
           </div>
         </div> -->
 
-        <div style="width:100%;height:300px;">
+        <div class="w-full h-full flex flex-col">
 
           <!-- Order Stats -->
 
-          <div class="mb-6 flex items-center gap-2">
+          <div class="mb-4 flex items-center gap-2">
             <i class="fa-solid fa-chart-pie text-gray-900 "></i>
             <h3 class="text-lg font-bold text-gray-900">Order Stats</h3>
           </div>
 
-          <canvas id="orderPieChart" width="320" height="320"></canvas>
-          <div class="flex justify-center gap-6 mt-6">
-            <div class="flex items-center gap-2">
-              <span class="inline-block w-4 h-4 rounded-full bg-yellow-400"></span>
-              <span class="text-sm text-yellow-700 font-semibold">Pending</span>
+          <div class="flex-1 flex items-center justify-center mb-4">
+            <div class="relative w-full max-w-[200px] aspect-square">
+              <canvas id="orderPieChart"></canvas>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-block w-4 h-4 rounded-full bg-orange-400"></span>
-              <span class="text-sm text-orange-700 font-semibold">Confirmed</span>
+          </div>
+          
+          <div class="flex justify-center items-center gap-2 text-xs flex-nowrap">
+            <div class="flex items-center gap-1 whitespace-nowrap">
+              <span class="inline-block w-3 h-3 rounded-full bg-yellow-400 flex-shrink-0"></span>
+              <span class="text-yellow-700 font-semibold">Pending</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-block w-4 h-4 rounded-full bg-red-400"></span>
-              <span class="text-sm text-red-700 font-semibold">Rejected</span>
+            <div class="flex items-center gap-1 whitespace-nowrap">
+              <span class="inline-block w-3 h-3 rounded-full bg-orange-400 flex-shrink-0"></span>
+              <span class="text-orange-700 font-semibold">Confirmed</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-block w-4 h-4 rounded-full bg-green-400"></span>
-              <span class="text-sm text-green-700 font-semibold">Received</span>
+            <div class="flex items-center gap-1 whitespace-nowrap">
+              <span class="inline-block w-3 h-3 rounded-full bg-red-400 flex-shrink-0"></span>
+              <span class="text-red-700 font-semibold">Rejected</span>
+            </div>
+            <div class="flex items-center gap-1 whitespace-nowrap">
+              <span class="inline-block w-3 h-3 rounded-full bg-green-400 flex-shrink-0"></span>
+              <span class="text-green-700 font-semibold">Received</span>
             </div>
           </div>
 
@@ -506,11 +511,15 @@ const renderOrderPieChart = () => {
         ],
         borderWidth: 2,
         borderColor: '#fff',
-        hoverOffset: 8
+        hoverOffset: 0, // Set to 0 to maintain round shape on hover
+        hoverBorderWidth: 2, // Slightly increase border width on hover instead
+        hoverBorderColor: '#DEDEDE' // Add a hover border color for better visual feedback
       }]
     },
     options: {
-      responsive: false,
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 1, // This ensures the chart stays round (1:1 ratio)
       plugins: {
         legend: { display: false },
         tooltip: {

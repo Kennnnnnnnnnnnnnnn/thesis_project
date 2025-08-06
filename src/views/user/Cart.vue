@@ -73,19 +73,21 @@
 
                 <div
                   class="flex flex-row sm:flex-col items-center gap-3 md:gap-4 w-full sm:w-auto justify-between sm:justify-start">
-                  <div class="flex items-center bg-white rounded-lg shadow-xs md:shadow-sm border border-gray-200">
-                    <button type="button" @click="updateQuantity(item, item.quantity - 1)"
-                      :disabled="item.quantity <= 1"
-                      class="px-2 md:px-3 py-1 md:py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 rounded-l-lg">
-                      <i class="fa-solid fa-minus text-xs md:text-sm"></i>
-                    </button>
-                    <span
-                      class="px-2 md:px-3 py-1 md:py-2 font-bold text-gray-800 min-w-[2rem] md:min-w-[3rem] text-center text-sm md:text-base">{{
-                      item.quantity }}</span>
-                    <button type="button" @click="updateQuantity(item, item.quantity + 1)"
-                      class="px-2 md:px-3 py-1 md:py-2 text-gray-600 hover:bg-gray-100 transition-colors duration-200 rounded-r-lg">
-                      <i class="fa-solid fa-plus text-xs md:text-sm"></i>
-                    </button>
+                  <div class="flex flex-col items-center">
+                    <div class="text-xs text-gray-500 mb-1">Available stock: <span class="font-bold">{{ getProductStock(item) ?? 'N/A' }}</span></div>
+                    <div class="flex items-center bg-white rounded-lg shadow-xs md:shadow-sm border border-gray-200">
+                      <button type="button" @click="handleQtyChange(item, item.quantity - 1)"
+                        :disabled="item.quantity <= 1"
+                        class="px-2 md:px-3 py-1 md:py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 rounded-l-lg">
+                        <i class="fa-solid fa-minus text-xs md:text-sm"></i>
+                      </button>
+                      <input type="number" min="1" :max="getProductStock(item)" v-model.number="item.quantity" @input="handleQtyInput(item)" @change="handleQtyInput(item)"
+                        class="w-14 text-center border rounded px-1 py-0.5" />
+                      <button type="button" @click="handleQtyChange(item, item.quantity + 1)"
+                        class="px-2 md:px-3 py-1 md:py-2 text-gray-600 hover:bg-gray-100 transition-colors duration-200 rounded-r-lg">
+                        <i class="fa-solid fa-plus text-xs md:text-sm"></i>
+                      </button>
+                    </div>
                   </div>
 
                   <button type="button" @click="removeItem(item._id)"
@@ -406,10 +408,32 @@ const getTotalItems = () => {
   return cartItems.value.reduce((total, item) => total + item.quantity, 0);
 };
 
-// Update quantity
-const updateQuantity = async (item, newQuantity) => {
-  if (newQuantity < 1) return;
+// Get product stock
+const getProductStock = (item) => {
+  if (!token) {
+    return item.productData?.totalStock ?? null;
+  }
+  const product = products.value[item.productId];
+  return product?.totalStock ?? null;
+};
 
+// Update quantity with stock check
+const updateQuantity = async (item, newQuantity) => {
+  const stock = getProductStock(item);
+  
+  if (newQuantity > (stock ?? Infinity)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not enough stock',
+      text: `You cannot purchase more than the available stock (${stock}).`,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    item.quantity = stock;
+    return;
+  }
+  
+  if (newQuantity < 1) newQuantity = 1;
   try {
     if (!token) {
       // Update in localStorage
@@ -439,7 +463,32 @@ const updateQuantity = async (item, newQuantity) => {
     }
   } catch (err) {
     console.error('Error updating quantity:', err);
+  }
+};
 
+// Custom handlers for input/button
+const handleQtyChange = (item, newQty) => {
+  updateQuantity(item, newQty);
+};
+
+const handleQtyInput = (item) => {
+  const stock = getProductStock(item);
+  
+  if (item.quantity > (stock ?? Infinity)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not enough stock',
+      text: `You cannot purchase more than the available stock (${stock}).`,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    item.quantity = stock;
+    updateQuantity(item, stock);
+  } else if (item.quantity < 1) {
+    item.quantity = 1;
+    updateQuantity(item, 1);
+  } else {
+    updateQuantity(item, item.quantity);
   }
 };
 
@@ -597,6 +646,21 @@ const getCurrentLocation = () => {
 };
 
 const openQRModal = async () => {
+  // Check for any cart item exceeding stock before generating QR
+  for (const item of cartItems.value) {
+    const stock = getProductStock(item);
+    
+    if (item.quantity > (stock ?? Infinity)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Not enough stock',
+        text: `You cannot purchase more than the available stock for ${getProductName(item)} (${stock} available).`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+      return;
+    }
+  }
   isProcessing.value = true;
   paymentConfirmed.value = false;
   qrImageUrl.value = '';
@@ -655,7 +719,7 @@ const openQRModal = async () => {
     }
     showQRModal.value = true;
   } catch (err) {
-    // ...existing code...
+    console.error('Error generating QR code:', err);
   } finally {
     isProcessing.value = false;
   }
@@ -968,16 +1032,16 @@ onMounted(() => {
 
   socket.on('dataUpdate', (update) => {
     if (update.collection === 'Product' || update.collection === 'Cart') {
-      console.log('🔄 Real-time cart/product update received:', update);
-      fetchCart();
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: 'Cart updated in real-time',
-        showConfirmButton: false,
-        timer: 1500
-      });
+      // console.log('🔄 Real-time cart/product update received:', update);
+      // fetchCart();
+      // Swal.fire({
+      //   toast: true,
+      //   position: 'top-end',
+      //   icon: 'info',
+      //   title: 'Cart updated in real-time',
+      //   showConfirmButton: false,
+      //   timer: 1500
+      // });
     }
   });
 

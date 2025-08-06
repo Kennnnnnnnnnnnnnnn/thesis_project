@@ -1,5 +1,5 @@
 <template>
-  <router-link to="/admin/stock">
+  <router-link to="/admin/create">
   <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 border border-gray-200">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
