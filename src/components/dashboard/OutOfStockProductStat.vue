@@ -14,6 +14,7 @@
         <div class="text-sm text-red-600">Total</div>
       </div>
     </div>
+    
   </router-link>
 </template>
 

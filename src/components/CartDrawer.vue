@@ -314,6 +314,7 @@ const proceedToCheckout = async () => {
     }
 
     alert('Failed to initiate payment. Please try again.');
+    
   }
 };
 

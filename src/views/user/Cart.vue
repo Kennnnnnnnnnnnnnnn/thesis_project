@@ -959,6 +959,7 @@ const createOrders = async () => {
     // No need to fetch cart again since we've already cleared it
   } catch (err) {
     console.error("error creating order", err)
+    
   }
 };
 
