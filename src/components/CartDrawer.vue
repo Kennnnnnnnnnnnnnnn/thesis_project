@@ -14,11 +14,12 @@
         <img :src="item.imageURL || defaultImg" class="w-[70px] h-[70px] object-cover mr-3 rounded bg-gray-100" />
         <div class="flex-1">
           <h4 class="m-0 text-sm font-semibold">{{ item.name }}</h4>
+          <div class="text-xs text-gray-500 mb-1">Available stock: <span class="font-bold">{{ item.totalStock ?? 'N/A' }}</span></div>
           <div class="flex items-center gap-2.5 my-1">
-            <button @click="changeQty(item, item.quantity - 1)" :disabled="item.quantity <= 1"
+            <button @click="handleQtyChange(item, item.quantity - 1)" :disabled="item.quantity <= 1"
               class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer disabled:opacity-50">−</button>
-            <span>{{ item.quantity }}</span>
-            <button @click="changeQty(item, item.quantity + 1)"
+            <input type="number" min="1" :max="item.totalStock" v-model.number="item.quantity" @change="handleQtyInput(item)" class="w-14 text-center border rounded px-1 py-0.5" />
+            <button @click="handleQtyChange(item, item.quantity + 1)"
               class="w-[22px] h-[22px] border border-gray-200 bg-gray-50 rounded cursor-pointer">+</button>
           </div>
           <p class="text-orange-600 font-bold">៛{{ (discountedPrice(item) * item.quantity).toFixed(2) }}</p>
@@ -99,8 +100,8 @@ import { useStore } from '@/store/useStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
-const { sendToTelegram } = useTelegram();
 import { useRouter } from 'vue-router';
+const { sendToTelegram } = useTelegram();
 
 
 const router = useRouter();
@@ -135,7 +136,41 @@ const subtotal = computed(() =>
 );
 
 const close = () => emit('close');
+// Custom quantity change handler with stock check
 const changeQty = (item, qty) => emit('updateQty', item, qty);
+const handleQtyChange = (item, newQty) => {
+  if (newQty > (item.totalStock ?? Infinity)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not enough stock',
+      text: `You cannot purchase more than the available stock (${item.totalStock}).`,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    return;
+  }
+  if (newQty < 1) newQty = 1;
+  emit('updateQty', item, newQty);
+};
+
+const handleQtyInput = (item) => {
+  if (item.quantity > (item.totalStock ?? Infinity)) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not enough stock',
+      text: `You cannot purchase more than the available stock (${item.totalStock}).`,
+      timer: 1500,
+      showConfirmButton: false
+    });
+    item.quantity = item.totalStock;
+    emit('updateQty', item, item.totalStock);
+  } else if (item.quantity < 1) {
+    item.quantity = 1;
+    emit('updateQty', item, 1);
+  } else {
+    emit('updateQty', item, item.quantity);
+  }
+};
 const removeItem = (item) => emit('removeItem', item);
 
 // Function to get user's current location

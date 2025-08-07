@@ -35,14 +35,14 @@ watchEffect(async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const dynamicConditions = JSON.stringify([
-      { field: 'createdAt', operator: '&gte', value: props.startDate, type: 'Date' },
-      { field: 'createdAt', operator: '&lte', value: props.endDate, type: 'Date' }
-    ])
+    // const dynamicConditions = JSON.stringify([
+    //   { field: 'createdAt', operator: '&gte', value: props.startDate, type: 'Date' },
+    //   { field: 'createdAt', operator: '&lte', value: props.endDate, type: 'Date' }
+    // ])
 
     const res = await axios.get(`${apiURL}/api/order/list`, {
       headers: { Authorization: `Bearer ${token}` },
-      params: { dynamicConditions }
+      // params: { dynamicConditions }
     })
 
     if (res.data.success) {
